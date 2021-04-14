@@ -166,7 +166,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-AMOS PROJECT - [@twitter_handle](https://twitter.com/twitter_handle) - amos-fau-proj3@group.riehle.org
+AMOS PROJECT - amos-fau-proj3@group.riehle.org
 
 Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](https://github.com/amosproj/amos-ss2021-synthetic-file-system)
 

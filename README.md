@@ -191,3 +191,5 @@ Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](ht
 [stars-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/stargazers
 [issues-shield]: https://img.shields.io/github/issues/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
 [issues-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues
+[license-shield]: https://img.shields.io/github/license/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
+[license-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/blob/master/LICENSE.txt

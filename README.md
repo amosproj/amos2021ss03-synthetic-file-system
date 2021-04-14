@@ -40,7 +40,16 @@
   <h3 align="center">Synthetic File System</h3>
 
   <p align="center">
-    project_description
+    The student team is to develop a new file system that provides a unified view ona pre-configured set of existing file systems. The new virtual file system is        to:
+  ●Be implemented as a Linux FUSE (filesystem in user space) module
+  ●Be POSIX compliant; initially, only read-only functions are needed●Integrate NTFS, ext4, and S3 object stores
+  ●Be able to filter which files are shown using meta-data
+  ●Be configured from a configuration file during startup time
+  
+  Test cases are
+  
+  ●Browsing using an existing Linux file system browser (e.g. Nautilus)
+  ●Using cp to copy from the new virtual file system
     <br />
     <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system"><strong>Explore the docs »</strong></a>
     <br />

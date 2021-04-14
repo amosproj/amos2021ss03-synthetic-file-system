@@ -90,7 +90,7 @@
 
 Here's a blank template to get started:
 **To avoid retyping too much info. Do a search and replace with your text editor for the following:**
-`github_username`, `amos-ss2021-synthetic-file-system`, `twitter_handle`, `amos-fau-proj3@group.riehle.org`, `Synthetic File System`, `project_description`
+`amosproj`, `amos-ss2021-synthetic-file-system`, `twitter_handle`, `amos-fau-proj3@group.riehle.org`, `Synthetic File System`, `project_description`
 
 
 ### Built With
@@ -118,7 +118,7 @@ This is an example of how to list things you need to use the software and how to
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/github_username/amos-ss2021-synthetic-file-system.git
+   git clone https://github.com/amosproj/amos-ss2021-synthetic-file-system.git
    ```
 2. Install NPM packages
    ```sh
@@ -139,7 +139,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-See the [open issues](https://github.com/github_username/amos-ss2021-synthetic-file-system/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues) for a list of proposed features (and known issues).
 
 
 
@@ -168,7 +168,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - amos-fau-proj3@group.riehle.org
 
-Project Link: [https://github.com/github_username/amos-ss2021-synthetic-file-system](https://github.com/github_username/amos-ss2021-synthetic-file-system)
+Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](https://github.com/amosproj/amos-ss2021-synthetic-file-system)
 
 
 
@@ -185,15 +185,15 @@ Project Link: [https://github.com/github_username/amos-ss2021-synthetic-file-sys
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/github_username/repo.svg?style=for-the-badge
-[contributors-url]: https://github.com/github_username/repo/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/github_username/repo.svg?style=for-the-badge
-[forks-url]: https://github.com/github_username/repo/network/members
-[stars-shield]: https://img.shields.io/github/stars/github_username/repo.svg?style=for-the-badge
-[stars-url]: https://github.com/github_username/repo/stargazers
-[issues-shield]: https://img.shields.io/github/issues/github_username/repo.svg?style=for-the-badge
-[issues-url]: https://github.com/github_username/repo/issues
-[license-shield]: https://img.shields.io/github/license/github_username/repo.svg?style=for-the-badge
-[license-url]: https://github.com/github_username/repo/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/amosproj/repo.svg?style=for-the-badge
+[contributors-url]: https://github.com/amosproj/repo/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/amosproj/repo.svg?style=for-the-badge
+[forks-url]: https://github.com/amosproj/repo/network/members
+[stars-shield]: https://img.shields.io/github/stars/amosproj/repo.svg?style=for-the-badge
+[stars-url]: https://github.com/amosproj/repo/stargazers
+[issues-shield]: https://img.shields.io/github/issues/amosproj/repo.svg?style=for-the-badge
+[issues-url]: https://github.com/amosproj/repo/issues
+[license-shield]: https://img.shields.io/github/license/amosproj/repo.svg?style=for-the-badge
+[license-url]: https://github.com/amosproj/repo/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/github_username
+[linkedin-url]: https://linkedin.com/in/amosproj

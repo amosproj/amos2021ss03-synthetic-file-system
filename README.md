@@ -1,2 +1,2 @@
-# Fabulous Project (AMOS SS 20xx)
+# Synthetic file system Project (AMOS SS 2021)
 Something something something

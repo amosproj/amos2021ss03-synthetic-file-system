@@ -1,15 +1,4 @@
-# <!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the amos-ss2021-synthetic-file-system and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Thanks again! Now go create something AMAZING! :D
-***
-***
-***
-*** To avoid retyping too much info. Do a search and replace for the following:
-*** amosproj, amos_
-, twitter_handle, amos-fau-proj3@group.riehle.org, Synthetic File System, project_description
--->
+
 
 
 
@@ -26,7 +15,6 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
 
 
 
@@ -203,7 +191,3 @@ Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](ht
 [stars-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/stargazers
 [issues-shield]: https://img.shields.io/github/issues/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
 [issues-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues
-[license-shield]: https://img.shields.io/github/license/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
-[license-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/amosproj

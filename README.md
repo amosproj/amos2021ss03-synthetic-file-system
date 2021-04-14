@@ -86,9 +86,9 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-Here's a blank template to get started:
-**To avoid retyping too much info. Do a search and replace with your text editor for the following:**
-`amosproj`, `amos-ss2021-synthetic-file-system`, `twitter_handle`, `amos-fau-proj3@group.riehle.org`, `Synthetic File System`, `project_description`
+*** Here's a blank template to get started:
+ To avoid retyping too much info. Do a search and replace with your text editor for the following:
+`amosproj`, `amos-ss2021-synthetic-file-system`, `twitter_handle`, `amos-fau-proj3@group.riehle.org`, `Synthetic File System`, `project_description` *** 
 
 
 ### Built With

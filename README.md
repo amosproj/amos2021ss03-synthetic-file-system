@@ -1,6 +1,6 @@
 # <!--
 *** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
+*** that would make this better, please fork the amos-ss2021-synthetic-file-system and create a pull request
 *** or simply open an issue with the tag "enhancement".
 *** Thanks again! Now go create something AMAZING! :D
 ***
@@ -47,7 +47,7 @@
     <br />
     <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system">View Demo</a>
     ·
-    <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues">Report Bug</a>
+    <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues">amos-ss2021-synthetic-file-systemrt Bug</a>
     ·
     <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues">Request Feature</a>
   </p>
@@ -116,7 +116,7 @@ This is an example of how to list things you need to use the software and how to
 
 ### Installation
 
-1. Clone the repo
+1. Clone the amos-ss2021-synthetic-file-system
    ```sh
    git clone https://github.com/amosproj/amos-ss2021-synthetic-file-system.git
    ```
@@ -185,15 +185,15 @@ Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](ht
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/amosproj/amos-ss2021-synthetic-file-systemsvg?style=for-the-badge
-[contributors-url]: https://github.com/amosproj/repo/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/amosproj/amos-ss2021-synthetic-file-systemsvg?style=for-the-badge
-[forks-url]: https://github.com/amosproj/repo/network/members
-[stars-shield]: https://img.shields.io/github/stars/amosproj/amos-ss2021-synthetic-file-systemsvg?style=for-the-badge
-[stars-url]: https://github.com/amosproj/repo/stargazers
-[issues-shield]: https://img.shields.io/github/issues/amosproj/amos-ss2021-synthetic-file-systemsvg?style=for-the-badge
-[issues-url]: https://github.com/amosproj/repo/issues
-[license-shield]: https://img.shields.io/github/license/amosproj/amos-ss2021-synthetic-file-systemsvg?style=for-the-badge
-[license-url]: https://github.com/amosproj/repo/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
+[contributors-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
+[forks-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/network/members
+[stars-shield]: https://img.shields.io/github/stars/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
+[stars-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/stargazers
+[issues-shield]: https://img.shields.io/github/issues/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
+[issues-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues
+[license-shield]: https://img.shields.io/github/license/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
+[license-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/amosproj

@@ -15,7 +15,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
-![Contributions welcome](https://img.shields.io/github/license/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge)
+![Contributions welcome](https://img.shields.io/github/contributions/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge)
 
 
 

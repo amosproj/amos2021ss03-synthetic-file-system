@@ -185,15 +185,15 @@ Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](ht
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/amosproj/repo.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/amosproj/amos-ss2021-synthetic-file-systemsvg?style=for-the-badge
 [contributors-url]: https://github.com/amosproj/repo/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/amosproj/repo.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/amosproj/amos-ss2021-synthetic-file-systemsvg?style=for-the-badge
 [forks-url]: https://github.com/amosproj/repo/network/members
-[stars-shield]: https://img.shields.io/github/stars/amosproj/repo.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/amosproj/amos-ss2021-synthetic-file-systemsvg?style=for-the-badge
 [stars-url]: https://github.com/amosproj/repo/stargazers
-[issues-shield]: https://img.shields.io/github/issues/amosproj/repo.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/amosproj/amos-ss2021-synthetic-file-systemsvg?style=for-the-badge
 [issues-url]: https://github.com/amosproj/repo/issues
-[license-shield]: https://img.shields.io/github/license/amosproj/repo.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/amosproj/amos-ss2021-synthetic-file-systemsvg?style=for-the-badge
 [license-url]: https://github.com/amosproj/repo/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/amosproj

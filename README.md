@@ -10,7 +10,7 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
-[![Last commit][commit-shield]][commit-url]
+<!--[![Last commit][commit-shield]][commit-url]-->
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -185,8 +185,8 @@ Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](ht
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[commit-shield]: "https://img.shields.io/github/last-commit/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
-[commit-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/commit/master
+<!--[commit-shield]: "https://img.shields.io/github/last-commit/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
+[commit-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/commit/master-->
 [contributors-shield]: https://img.shields.io/github/contributors/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
 [contributors-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge

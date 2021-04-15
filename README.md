@@ -15,7 +15,7 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![Issues Closes][issuesclosed-shield]][issuesclosed-url]()]()
+[![Issues][issuesclosed-shield]][issuesclosed-url]()]()
 [![Kanban Board][board-shield]][board-url]
 [![MIT License][license-shield]][license-url]
 

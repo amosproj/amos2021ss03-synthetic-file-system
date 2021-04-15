@@ -200,7 +200,7 @@ Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](ht
 [issues-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues
 [issuesclosed-shield]: https://img.shields.io/github/issues-closed/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
 [issuesclosed-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues?q=is%3Aissue+is%3Aclosed
-[board-shield]: https://img.shields.io/endpoint?style=for-the-badge&url=https%3A%2F%2Fgithub.com%2Famosproj%2Famos-ss2021-synthetic-file-system%2Fprojects%2F1
+[board-shield]: https://img.shields.io/Kanban_Board/v1?message=Show&labelColor=5c5c5c&color=1182c3&logoColor=white&label=%20
 [board-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/projects/1
 [license-shield]: https://img.shields.io/github/license/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
 [license-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/blob/main/LICENSE

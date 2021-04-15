@@ -192,7 +192,7 @@ Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](ht
 [commit-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/commits/master-->
 [contributors-shield]: https://img.shields.io/github/contributors/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
 [contributors-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/amosproj/amos-ss2021-synthetic-file-system.svg
 [forks-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/network/members
 [stars-shield]: https://img.shields.io/github/stars/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
 [stars-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/stargazers

@@ -190,7 +190,7 @@ Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](ht
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 <!--[commit-shield]: "https://img.shields.io/github/last-commit/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
 [commit-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/commits/master-->
-[contributors-shield]: https://img.shields.io/github/Contributors/amosproj/amos-ss2021-synthetic-file-system.svg
+[contributors-shield]: https://img.shields.io/github/contributors/amosproj/amos-ss2021-synthetic-file-system.svg
 [contributors-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/amosproj/amos-ss2021-synthetic-file-system.svg
 [forks-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/network/members

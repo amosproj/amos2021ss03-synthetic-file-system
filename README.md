@@ -190,18 +190,18 @@ Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](ht
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 <!--[commit-shield]: "https://img.shields.io/github/last-commit/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
 [commit-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/commits/master-->
-[contributors-shield]: https://img.shields.io/github/contributors/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/amosproj/amos-ss2021-synthetic-file-system.svg
 [contributors-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/amosproj/amos-ss2021-synthetic-file-system.svg
 [forks-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/network/members
-[stars-shield]: https://img.shields.io/github/stars/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/amosproj/amos-ss2021-synthetic-file-system.svg
 [stars-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/stargazers
-[issues-shield]: https://img.shields.io/github/issues/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/amosproj/amos-ss2021-synthetic-file-system.svg
 [issues-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues
-[issuesclosed-shield]: https://img.shields.io/github/issues-closed/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
+[issuesclosed-shield]: https://img.shields.io/github/issues-closed/amosproj/amos-ss2021-synthetic-file-system.svg
 [issuesclosed-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues?q=is%3Aissue+is%3Aclosed
-[board-shield]: https://img.shields.io/badge/Kanban-Board-orange?logo=data:image/svg%2bxml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEzLjM1MiAxNC41ODVsLTQuNTA5IDQuNjE0LjcyLTQuMDYyTDMuNDI4IDcuNTcgMCA3Ljc1MyA3LjU4IDB2Mi45NTNsNy4yMTQgNi42NDYgNC41MTMtMS4xMDUtNC42ODkgNC45ODJMMjQgMjRsLTEwLjY0OC05LjQxNXoiLz48L3N2Zz4=?style=for-the-badge
+[board-shield]: https://img.shields.io/badge/Kanban-Board-orange?logo=data:image/svg%2bxml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEzLjM1MiAxNC41ODVsLTQuNTA5IDQuNjE0LjcyLTQuMDYyTDMuNDI4IDcuNTcgMCA3Ljc1MyA3LjU4IDB2Mi45NTNsNy4yMTQgNi42NDYgNC41MTMtMS4xMDUtNC42ODkgNC45ODJMMjQgMjRsLTEwLjY0OC05LjQxNXoiLz48L3N2Zz4=
 [board-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/projects/1
-[license-shield]: https://img.shields.io/github/license/amosproj/amos-ss2021-synthetic-file-system.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/amosproj/amos-ss2021-synthetic-file-system.svg
 [license-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/blob/main/LICENSE
 

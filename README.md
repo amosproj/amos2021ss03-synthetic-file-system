@@ -18,8 +18,7 @@
 [![Issues][issuesclosed-shield]][issuesclosed-url]
 [![Kanban Board][board-shield]][board-url]
 [![MIT License][license-shield]][license-url]
-[![Open Source Love](https://badges.frapsoft.com/os/v1/open-source-150x25.png?v=103)](https://github.com/ellerbrock/open-source-badges/)
-
+[![Open Source Love](https://badges.frapsoft.com/os/v1/open-source-175x29.png?v=103)](https://github.com/ellerbrock/open-source-badges/)
 <!-- ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg?style=for-the-badge)
 
 

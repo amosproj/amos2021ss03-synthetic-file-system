@@ -200,7 +200,7 @@ Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](ht
 [issues-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues
 [issuesclosed-shield]: https://img.shields.io/github/issues-closed/amosproj/amos-ss2021-synthetic-file-system.svg
 [issuesclosed-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues?q=is%3Aissue+is%3Aclosed
-[board-shield]: https://img.shields.io/badge/Kanban-Board-orange?logo=data:image/svg%2bxml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEzLjM1MiAxNC41ODVsLTQuNTA5IDQuNjE0LjcyLTQuMDYyTDMuNDI4IDcuNTcgMCA3Ljc1MyA3LjU4IDB2Mi45NTNsNy4yMTQgNi42NDYgNC41MTMtMS4xMDUtNC42ODkgNC45ODJMMjQgMjRsLTEwLjY0OC05LjQxNXoiLz48L3N2Zz4=
+[board-shield]: https://img.shields.io/badge/Kanban-Board-grey?logo=data:image/svg%2bxml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEzLjM1MiAxNC41ODVsLTQuNTA5IDQuNjE0LjcyLTQuMDYyTDMuNDI4IDcuNTcgMCA3Ljc1MyA3LjU4IDB2Mi45NTNsNy4yMTQgNi42NDYgNC41MTMtMS4xMDUtNC42ODkgNC45ODJMMjQgMjRsLTEwLjY0OC05LjQxNXoiLz48L3N2Zz4=
 [board-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/projects/1
 [license-shield]: https://img.shields.io/github/license/amosproj/amos-ss2021-synthetic-file-system.svg
 [license-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/blob/main/LICENSE

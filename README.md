@@ -27,7 +27,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="Deliverables/final_logo.svg" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">Synthetic File System</h3>

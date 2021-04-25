@@ -9,5 +9,9 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /src
 
 COPY requirements.txt requirements.txt
+COPY main.py main.py
 
 RUN pip3 install -r requirements.txt
+
+ENTRYPOINT ["python3"]
+CMD ["main.py"]

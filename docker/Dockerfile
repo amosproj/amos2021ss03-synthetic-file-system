@@ -9,10 +9,18 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /src
 
 COPY requirements.txt requirements.txt
-COPY main.py main.py
+COPY ./main.py ./main.py
 
 RUN pip3 install -r requirements.txt
 RUN mkdir -p /fuse_mount
+RUN mkdir -p /test_root
 
-ENTRYPOINT ["python3"]
-CMD ["main.py", "/fuse_mount"]
+RUN mkdir /test_root/test_sub_folder
+RUN touch /test_root/test.txt /test_root/test2.text /test_root/test_sub_folder/test2.txt
+
+RUN echo "test text" >> /test_root/test.txt
+RUN echo "test2 text" >> /test_root/test_sub_folder/test2.txt
+
+ENTRYPOINT ["bash"]
+#["python3"]
+#CMD ["main.py", "/test_root", "/fuse_mount"]

@@ -1,4 +1,9 @@
 #!/usr/bin/python3
+# ----
+# The starting point is the FUSE implementation from
+# https://github.com/skorokithakis/python-fuse-sample/blob/master/passthrough.py
+# ---
+
 from __future__ import with_statement
 
 import os
@@ -138,4 +143,3 @@ if __name__ == '__main__':
     # Hello from Vaidehi
     # Hello from Matti <3
     main(sys.argv[2], sys.argv[1])
-

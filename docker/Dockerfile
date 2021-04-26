@@ -12,6 +12,7 @@ COPY requirements.txt requirements.txt
 COPY main.py main.py
 
 RUN pip3 install -r requirements.txt
+RUN mkdir -p /fuse_mount
 
 ENTRYPOINT ["python3"]
-CMD ["main.py"]
+CMD ["main.py", "/fuse_mount"]

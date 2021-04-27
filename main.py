@@ -145,5 +145,3 @@ if __name__ == '__main__':
     # Hello from Charinee <3
     # Hello from Sandra
     main(sys.argv[2], sys.argv[1])
-
-

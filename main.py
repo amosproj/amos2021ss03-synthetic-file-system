@@ -143,7 +143,7 @@ if __name__ == '__main__':
     # Hello from Vaidehi
     # Hello from Matti <3
     # Hello from Charinee <3
-    # Hello from Sandra 
+    # Hello from Sandra
     main(sys.argv[2], sys.argv[1])
 
 

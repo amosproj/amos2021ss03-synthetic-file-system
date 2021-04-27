@@ -1,4 +1,4 @@
-name: Python pytest
+name: Unittest and coverage
 
 on: [push]
 

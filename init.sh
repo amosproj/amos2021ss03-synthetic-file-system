@@ -6,3 +6,6 @@ fi
 cd metadata-hub
 docker pull amosproject2/metadatahub:latest
 docker volume create --name metadatahub-database -d local
+
+cd ..
+docker build . -f docker/Dockerfile -t fuse_skeleton

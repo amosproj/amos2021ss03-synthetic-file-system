@@ -9,11 +9,19 @@ from __future__ import with_statement
 import os
 import sys
 import errno
+import stat
 
 from fuse import FUSE, FuseOSError, Operations
 from send_mdh_request import *
 
-
+class FuseStat:
+    st_atime: int = 0
+    st_ctime: int = 0
+    st_gid: int = 0
+    st_mode: int = stat.S_IFDIR | 0o777
+    st_mtime: int = 0
+    st_nlink: int = 0
+    st_size: int = 4096
 
 class Passthrough(Operations):
 
@@ -48,41 +56,68 @@ class Passthrough(Operations):
     # ==================
 
     def access(self, path, mode):
-        full_path = self._full_path(path)
-        if not os.access(full_path, mode):
-            raise FuseOSError(errno.EACCES)
+        print("access called")
+        # full_path = self._full_path(path)
+        # if not os.access(full_path, mode):
+        #    raise FuseOSError(errno.EACCES)
 
     def chmod(self, path, mode):
+        print("chmod called")
         full_path = self._full_path(path)
         return os.chmod(full_path, mode)
 
     def chown(self, path, uid, gid):
+        print("chown called")
         full_path = self._full_path(path)
         return os.chown(full_path, uid, gid)
 
     def getattr(self, path, fh=None):
-        full_path = self._full_path(path)
-        st = os.lstat(full_path)
-        return dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime',
-                                                        'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size',
-                                                        'st_uid'))
+
+        path_stat = FuseStat()
+        print(f"getattr called with: {path}")
+
+        for file in self.metadatahub_files:
+            file_path: str = file.dir_path
+            if file_path.startswith(path):
+                full_file_path: str = file_path + file.name
+                full_file_path = full_file_path[len(path):]
+                next_folder_name = full_file_path.split("/")[0]
+                if next_folder_name == "":
+                    path_stat.st_mode = stat.S_IFDIR | 0o755
+                    return path_stat.__dict__
+                else:
+                    path_stat.st_mode = stat.S_IFDIR | 0o755
+                    return path_stat.__dict__
+
+        return path_stat.__dict__
+
 
     def readdir(self, path, fh):
         full_path = self._full_path(path)
 
-        # dirents = ['.', '..']
-        # if os.path.isdir(full_path):
-        #     dirents.extend(os.listdir(full_path))
-        # for r in dirents:
-        #    yield r
+        print(f"readdir called with {path}")
+        folder_set = set()
+        folder_set.add(".")
+        folder_set.add("..")
+
         for file in self.metadatahub_files:
-            file_path = file.dir_path  # type: str
+            print("test")
+            file_path: str = file.dir_path
             if file_path.startswith(path):
-                print(f"filepath: {file_path} starts with {path}")
-                yield file.name
+                print("test2")
+                full_file_path: str = file_path + file.name
+                full_file_path = full_file_path[len(path):]
+                if full_file_path.startswith("/"):
+                    full_file_path = full_file_path[1:]
+                next_folder_name = full_file_path.split("/")[0]
+                print(f"filepath: {next_folder_name}")
+                folder_set.add(next_folder_name)
+
+        return list(folder_set)
 
 
     def readlink(self, path):
+        print("readlink called")
         pathname = os.readlink(self._full_path(path))
         if pathname.startswith("/"):
             # Path name is absolute, sanitize it.
@@ -91,16 +126,20 @@ class Passthrough(Operations):
             return pathname
 
     def mknod(self, path, mode, dev):
+        print("mknod called")
         return os.mknod(self._full_path(path), mode, dev)
 
     def rmdir(self, path):
+        print("rmdir called")
         full_path = self._full_path(path)
         return os.rmdir(full_path)
 
     def mkdir(self, path, mode):
+        print("mkdir called")
         return os.mkdir(self._full_path(path), mode)
 
     def statfs(self, path):
+        print("statfs called")
         full_path = self._full_path(path)
         stv = os.statvfs(full_path)
         return dict((key, getattr(stv, key)) for key in ('f_bavail', 'f_bfree',
@@ -109,56 +148,70 @@ class Passthrough(Operations):
                                                          'f_frsize', 'f_namemax'))
 
     def unlink(self, path):
+        print("unlink called")
         return os.unlink(self._full_path(path))
 
     def symlink(self, name, target):
+        print("symlink called")
         return os.symlink(target, self._full_path(name))
 
     def rename(self, old, new):
+        print("rename called")
         return os.rename(self._full_path(old), self._full_path(new))
 
     def link(self, target, name):
+        print("link called")
         return os.link(self._full_path(name), self._full_path(target))
 
     def utimens(self, path, times=None):
+        print("utimens called")
         return os.utime(self._full_path(path), times)
 
     # File methods
     # ============
 
     def open(self, path, flags):
+        print("open called")
         full_path = self._full_path(path)
         return os.open(full_path, flags)
 
     def create(self, path, mode, fi=None):
+        print("create called")
         full_path = self._full_path(path)
         return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
 
     def read(self, path, length, offset, fh):
+        print("read called")
         os.lseek(fh, offset, os.SEEK_SET)
         return os.read(fh, length)
 
     def write(self, path, buf, offset, fh):
+        print("write called")
         os.lseek(fh, offset, os.SEEK_SET)
         return os.write(fh, buf)
 
     def truncate(self, path, length, fh=None):
+        print("truncate called")
         full_path = self._full_path(path)
         with open(full_path, 'r+') as f:
             f.truncate(length)
 
     def flush(self, path, fh):
+        print("flush called")
+
         return os.fsync(fh)
 
     def release(self, path, fh):
+        print("release called")
         return os.close(fh)
 
     def fsync(self, path, fdatasync, fh):
+        print("fsync called")
         return self.flush(path, fh)
 
 
 def main(mountpoint, root):
-    FUSE(Passthrough(root), mountpoint, nothreads=True, foreground=False)
+    FUSE(Passthrough(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True})
 
 
 if __name__ == '__main__':

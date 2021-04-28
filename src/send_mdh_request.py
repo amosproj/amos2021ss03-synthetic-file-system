@@ -1,4 +1,5 @@
 import requests
+import json
 
 
 class Metadatum:
@@ -67,6 +68,45 @@ class MetadataQuery:
     def __init__(self, meta_data_result):
         self.meta_data_result = meta_data_result
 
+    def translate_result(self, query_result: str) -> MetadataResult:
+        print(query_result)
+        query_md_result = MetadataResult()
+        json_result = json.loads(query_result)
+        json_content_data = json_result["data"]["searchForFileMetadata"] # type: dict
+        query_md_result.number_of_total_files = int(json_content_data["numberOfTotalFiles"]) if "numberOfTotalFiles" in json_content_data else -1
+        query_md_result.numberOfReturnedFiles = int(json_content_data["numberOfReturnedFiles"]) if "numberOfReturnedFiles" in json_content_data else -1
+        query_md_result.from_index = int(json_content_data["from_index"]) if "from_index" in json_content_data else -1
+        query_md_result.to_index = int(json_content_data["to_index"]) if "to_index" in json_content_data else -1
+        query_md_result.error = Error()
+        if "error" in json_content_data:
+            error_data = json_content_data["error"] # type: dict
+            query_md_result.error.message = error_data["message"] if "message" in error_data else ""
+            query_md_result.error.stack_trace = error_data["stack_trace"] if "stack_trace" in error_data else ""
+
+        query_md_result.files = []
+        for json_file_data in json_content_data["files"]:
+            file = File()
+            file.id = json_file_data["id"] if "id" in json_file_data else ""
+            file.crawl_id = json_file_data["crawl_id"] if "crawl_id" in json_file_data else ""
+            file.name = json_file_data["name"] if "name" in json_file_data else ""
+            file.type = json_file_data["type"] if "type" in json_file_data else ""
+            file.dir_path = json_file_data["dir_path"] if "dir_path" in json_file_data else ""
+            file.deleted = json_file_data["deleted"] if "deleted" in json_file_data else ""
+            file.access_time = json_file_data["access_time"] if "access_time" in json_file_data else ""
+            file.creation_time = json_file_data["creation_time"] if "creation_time" in json_file_data else ""
+            file.modification_time = json_file_data["modification_time"] if "modification_time" in json_file_data else ""
+            file.dir_path = json_file_data["dir_path"] if "dir_path" in json_file_data else ""
+            file.size = json_file_data["size"] if "size" in json_file_data else ""
+            if "metadata" in json_file_data:
+                json_metadata_data = json_file_data["metadata"] # type: dict
+                file.metadata = Metadatum()
+                file.metadata.name = json_metadata_data["name"]
+                file.metadata.value = json_metadata_data["value"]
+
+            query_md_result.files.append(file)
+
+        return query_md_result
+
     def build_query(self) -> str:
 
         # Build the query header
@@ -74,10 +114,10 @@ class MetadataQuery:
         search_for_file_metadata_query = "("
         metadata_query_exists = False
         # Build the searchForFileMetadata filter function
-        attributes = [attr for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("__") and not attr == "meta_data_result"]
+        attributes = [attr for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith(
+            "__") and not attr == "meta_data_result"]
         for i, attribute in enumerate(attributes):
             value = getattr(self, attribute)
-            print(f"{attribute}:{value}")
             if value:
                 search_for_file_metadata_query += f"{attribute}: {value}"
                 metadata_query_exists = True
@@ -145,15 +185,13 @@ class MetadataQuery:
         query += "}}"
         return query
 
-
-def send_request(query: str, url="http://localhost:8080/graphql") -> str:
-    result = requests.post(url, json={"query": query})
-    return result.text
+    def send_request(self, query, url="http://localhost:8080/graphql") -> MetadataResult:
+        result = requests.post(url, json={"query": query})
+        return self.translate_result(result.text)
 
 
 # for testing purposes
 if __name__ == '__main__':
-
     res = MetadataResult()
     f = File()
     f.name = True
@@ -167,6 +205,5 @@ if __name__ == '__main__':
     m = MetadataQuery(res)
     q = m.build_query()
     print(q)
-    print(send_request(q))
-
-
+    res = m.send_request(q)
+    print(res)

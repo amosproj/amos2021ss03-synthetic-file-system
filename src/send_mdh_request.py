@@ -36,15 +36,17 @@ class MetadataResult:
     error: Error or bool = False
 
 
+
 class MetadataQuery:
     file_ids: bool or [int] = False
     crawl_ids: bool or [int] = False
     dir_path: bool or str = False
-    dir_path_option = False  # TODO
+    dir_path_option: bool or [str] = False
     file_name: bool or str = False
-    file_name_option = False  # TODO
+    file_name_option: bool or [str] = False
     file_type: bool or [str] = False
     size: bool or int = False
+    size_option: bool or str = False
     start_creation_time: bool or str = False
     end_creation_time: bool or str = False
     start_access_time: bool or str = False
@@ -54,11 +56,11 @@ class MetadataQuery:
     file_hashes: bool or [str] = False
     metadata_attributes: bool or [str] = False
     metadata_values: bool or [str] = False
-    metadata_filter_logic_options: bool = False  # TODO
+    metadata_filter_logic_options: bool or str = False
     metadata_filter_logic: bool or str = False
     selected_attributes: bool or [str] = False
     sortBy: bool or [str] = False
-    sortBy_options: bool = False  # TODO
+    sortBy_options: bool or [str] = False
     limitFetchingSize: bool or int = False
     offset: bool or int = False
     showDeleted: bool = False
@@ -68,18 +70,23 @@ class MetadataQuery:
     def __init__(self, meta_data_result):
         self.meta_data_result = meta_data_result
 
-    def translate_result(self, query_result: str) -> MetadataResult:
+    @staticmethod
+    def translate_result(query_result: str) -> MetadataResult:
         print(query_result)
         query_md_result = MetadataResult()
         json_result = json.loads(query_result)
-        json_content_data = json_result["data"]["searchForFileMetadata"] # type: dict
-        query_md_result.number_of_total_files = int(json_content_data["numberOfTotalFiles"]) if "numberOfTotalFiles" in json_content_data else -1
-        query_md_result.numberOfReturnedFiles = int(json_content_data["numberOfReturnedFiles"]) if "numberOfReturnedFiles" in json_content_data else -1
+        json_content_data: dict = json_result["data"]["searchForFileMetadata"]
+        query_md_result.number_of_total_files = \
+            int(json_content_data["numberOfTotalFiles"]) if "numberOfTotalFiles" in json_content_data else -1
+
+        query_md_result.numberOfReturnedFiles = \
+            int(json_content_data["numberOfReturnedFiles"]) if "numberOfReturnedFiles" in json_content_data else -1
+
         query_md_result.from_index = int(json_content_data["from_index"]) if "from_index" in json_content_data else -1
         query_md_result.to_index = int(json_content_data["to_index"]) if "to_index" in json_content_data else -1
         query_md_result.error = Error()
         if "error" in json_content_data:
-            error_data = json_content_data["error"] # type: dict
+            error_data: dict = json_content_data["error"]
             query_md_result.error.message = error_data["message"] if "message" in error_data else ""
             query_md_result.error.stack_trace = error_data["stack_trace"] if "stack_trace" in error_data else ""
 
@@ -94,11 +101,12 @@ class MetadataQuery:
             file.deleted = json_file_data["deleted"] if "deleted" in json_file_data else ""
             file.access_time = json_file_data["access_time"] if "access_time" in json_file_data else ""
             file.creation_time = json_file_data["creation_time"] if "creation_time" in json_file_data else ""
-            file.modification_time = json_file_data["modification_time"] if "modification_time" in json_file_data else ""
+            file.modification_time = \
+                json_file_data["modification_time"] if "modification_time" in json_file_data else ""
             file.dir_path = json_file_data["dir_path"] if "dir_path" in json_file_data else ""
             file.size = json_file_data["size"] if "size" in json_file_data else ""
             if "metadata" in json_file_data:
-                json_metadata_data = json_file_data["metadata"] # type: dict
+                json_metadata_data: dict = json_file_data["metadata"]
                 file.metadata = Metadatum()
                 file.metadata.name = json_metadata_data["name"]
                 file.metadata.value = json_metadata_data["value"]
@@ -143,49 +151,59 @@ class MetadataQuery:
         if type(self.meta_data_result.files) is File:
             print("adding file entry!")
             query += "files {"
-            if self.meta_data_result.files.id:
+
+            # noinspection PyTypeChecker
+            meta_data_result_file = self.meta_data_result.files  # type: File
+            if meta_data_result_file.id:
                 query += " \n id \n"
-            if self.meta_data_result.files.crawl_id:
+            if meta_data_result_file.crawl_id:
                 query += " \n crawl_id \n"
-            if self.meta_data_result.files.dir_path:
+            if meta_data_result_file.dir_path:
                 query += " \n dir_path \n"
-            if self.meta_data_result.files.name:
+            if meta_data_result_file.name:
                 query += " \n name \n"
-            if self.meta_data_result.files.type:
+            if meta_data_result_file.type:
                 query += " \n name \n"
-            if self.meta_data_result.files.size:
+            if meta_data_result_file.size:
                 query += " \n size \n"
-            if self.meta_data_result.files.creation_time:
+            if meta_data_result_file.creation_time:
                 query += " \n creation_time \n"
-            if self.meta_data_result.files.modification_time:
+            if meta_data_result_file.modification_time:
                 query += " \n modification_time \n"
-            if self.meta_data_result.files.access_time:
+            if meta_data_result_file.access_time:
                 query += " \n access_time \n"
-            if self.meta_data_result.files.file_hash:
+            if meta_data_result_file.file_hash:
                 query += " \n file_hash \n"
-            if self.meta_data_result.files.deleted:
+            if meta_data_result_file.deleted:
                 query += " \n deleted \n"
-            if type(self.meta_data_result.files.metadata) is Metadatum:
+            if type(meta_data_result_file.metadata) is Metadatum:
+
+                # noinspection PyTypeChecker
+                meta_data_result_file_metadata = meta_data_result_file.metadata  # type: Metadatum
                 query += " metadata {"
-                if self.meta_data_result.files.name:
+                if meta_data_result_file_metadata.name:
                     query += " \n name \n"
-                if self.meta_data_result.files.value:
+                if meta_data_result_file_metadata.value:
                     query += " \n value \n"
                 query += "}"
             query += "}"
 
         if type(self.meta_data_result.error) is Error:
+
+            # noinspection PyTypeChecker
+            meta_data_result_error = self.meta_data_result.error  # type: Error
             query += "error {"
-            if self.meta_data_result.error.message:
+            if meta_data_result_error.message:
                 query += " \n message \n"
-            if self.meta_data_result.error.stack_trace:
+            if meta_data_result_error.stack_trace:
                 query += " \n stack_trace \n"
             query += "}"
 
         query += "}}"
         return query
 
-    def send_request(self, query, url="http://localhost:8080/graphql") -> MetadataResult:
+    def build_and_send_request(self, url="http://localhost:8080/graphql") -> MetadataResult:
+        query = self.build_query()
         result = requests.post(url, json={"query": query})
         return self.translate_result(result.text)
 
@@ -203,7 +221,5 @@ if __name__ == '__main__':
     e.stack_trace = True
 
     m = MetadataQuery(res)
-    q = m.build_query()
-    print(q)
-    res = m.send_request(q)
+    res = m.build_and_send_request()
     print(res)

@@ -11,11 +11,29 @@ import sys
 import errno
 
 from fuse import FUSE, FuseOSError, Operations
+from send_mdh_request import *
+
 
 
 class Passthrough(Operations):
+
+    metadatahub_files = None  # type: [File]
+
     def __init__(self, root):
         self.root = root
+
+        # Set up our files
+        md_res = MetadataResult()
+        md_res.files = File()
+        md_res.files.dir_path = True
+        md_res.files.name = True
+        md_query = MetadataQuery(md_res)
+
+        result = md_query.build_and_send_request()  # type: MetadataResult
+        self.metadatahub_files = result.files
+        for file in self.metadatahub_files:
+            print(f"{file.dir_path}/{file.name}")
+
 
     # Helpers
     # =======
@@ -52,11 +70,17 @@ class Passthrough(Operations):
     def readdir(self, path, fh):
         full_path = self._full_path(path)
 
-        dirents = ['.', '..']
-        if os.path.isdir(full_path):
-            dirents.extend(os.listdir(full_path))
-        for r in dirents:
-            yield r
+        # dirents = ['.', '..']
+        # if os.path.isdir(full_path):
+        #     dirents.extend(os.listdir(full_path))
+        # for r in dirents:
+        #    yield r
+        for file in self.metadatahub_files:
+            file_path = file.dir_path  # type: str
+            if file_path.startswith(path):
+                print(f"filepath: {file_path} starts with {path}")
+                yield file.name
+
 
     def readlink(self, path):
         pathname = os.readlink(self._full_path(path))

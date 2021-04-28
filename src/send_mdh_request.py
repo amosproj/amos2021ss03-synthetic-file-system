@@ -72,7 +72,6 @@ class MetadataQuery:
 
     @staticmethod
     def translate_result(query_result: str) -> MetadataResult:
-        print(query_result)
         query_md_result = MetadataResult()
         json_result = json.loads(query_result)
         json_content_data: dict = json_result["data"]["searchForFileMetadata"]
@@ -149,7 +148,6 @@ class MetadataQuery:
         if self.meta_data_result.number_of_total_files:
             query += "\n toIndex \n"
         if type(self.meta_data_result.files) is File:
-            print("adding file entry!")
             query += "files {"
 
             # noinspection PyTypeChecker

@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
-COPY ./main.py ./main.py
+COPY ./src/ ./src/
 
 RUN pip3 install -r requirements.txt
 RUN mkdir -p /fuse_mount

@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
-COPY tmp.sh tmp.sh
+COPY mount.sh mount.sh
 COPY ./src/ ./src/
 
 RUN pip3 install -r requirements.txt

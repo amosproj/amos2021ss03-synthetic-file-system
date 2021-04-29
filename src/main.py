@@ -10,15 +10,18 @@ import os
 import sys
 import errno
 import stat
+import anytree
 
 from fuse import FUSE, FuseOSError, Operations
 from send_mdh_request import *
+from anytree import *
+import fuse_utils
 
 class FuseStat:
     st_atime: int = 0
     st_ctime: int = 0
     st_gid: int = 0
-    st_mode: int = stat.S_IFDIR | 0o777
+    st_mode: int = stat.S_IFDIR | 0o755
     st_mtime: int = 0
     st_nlink: int = 0
     st_size: int = 4096
@@ -26,6 +29,8 @@ class FuseStat:
 class Passthrough(Operations):
 
     metadatahub_files = None  # type: [File]
+
+    directory_tree = Node
 
     def __init__(self, root):
         self.root = root
@@ -39,8 +44,10 @@ class Passthrough(Operations):
 
         result = md_query.build_and_send_request()  # type: MetadataResult
         self.metadatahub_files = result.files
-        for file in self.metadatahub_files:
-            print(f"{file.dir_path}/{file.name}")
+
+        self.directory_tree = fuse_utils.build_tree_from_files(self.metadatahub_files)
+        print(RenderTree(self.directory_tree))
+        print("fuse running")
 
 
     # Helpers
@@ -76,19 +83,17 @@ class Passthrough(Operations):
         path_stat = FuseStat()
         print(f"getattr called with: {path}")
 
-        for file in self.metadatahub_files:
-            file_path: str = file.dir_path
-            if file_path.startswith(path):
-                full_file_path: str = file_path + file.name
-                full_file_path = full_file_path[len(path):]
-                next_folder_name = full_file_path.split("/")[0]
-                if next_folder_name == "":
-                    path_stat.st_mode = stat.S_IFDIR | 0o755
-                    return path_stat.__dict__
-                else:
-                    path_stat.st_mode = stat.S_IFDIR | 0o755
-                    return path_stat.__dict__
+        if path in [".", "..", "/"]:
+            path_stat.st_mode = stat.S_IFDIR | 0o755
+            return path_stat.__dict__
 
+        file_finder = Resolver("name")
+        path = path[1:]  #  strip leading "/"
+        path_node: Node = file_finder.get(self.directory_tree, path)
+        if len(path_node.children) == 0:
+            path_stat.st_mode = stat.S_IFREG | 0o755
+        else:
+            path_stat.st_mode = stat.S_IFDIR | 0o755
         return path_stat.__dict__
 
 
@@ -100,18 +105,14 @@ class Passthrough(Operations):
         folder_set.add(".")
         folder_set.add("..")
 
-        for file in self.metadatahub_files:
-            print("test")
-            file_path: str = file.dir_path
-            if file_path.startswith(path):
-                print("test2")
-                full_file_path: str = file_path + file.name
-                full_file_path = full_file_path[len(path):]
-                if full_file_path.startswith("/"):
-                    full_file_path = full_file_path[1:]
-                next_folder_name = full_file_path.split("/")[0]
-                print(f"filepath: {next_folder_name}")
-                folder_set.add(next_folder_name)
+
+        file_finder = Resolver("name")
+        path = path[1:]  #  strip leading "/"
+        path_node: Node = file_finder.get(self.directory_tree, path)
+
+        child: Node
+        for child in path_node.children:
+            folder_set.add(child.name)
 
         return list(folder_set)
 

@@ -26,6 +26,6 @@ RUN touch /test_root/test.txt /test_root/test2.text /test_root/test_sub_folder/t
 RUN echo "test text" >> /test_root/test.txt
 RUN echo "test2 text" >> /test_root/test_sub_folder/test2.txt
 
-ENTRYPOINT ["zsh"]
+ENTRYPOINT ["tmux"]
 #["python3"]
 #CMD ["main.py", "/test_root", "/fuse_mount"]

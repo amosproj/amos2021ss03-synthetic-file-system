@@ -1,6 +1,27 @@
 import requests
 import json
 
+"""
+This file is responsible for communicating with the metadata-hub. 
+All the classes in here are counterparts of elements in the Metadatahub database
+Every varible in the classes has two types because they work in two ways. When serializing a request they signal 
+whether the variable is requests. When deserializing the retrieved value is put into the member.
+An example for how to create a call would be:
+
+res = MetadataResult()
+f = File()
+f.name = True
+f.dir_path = True
+res.files = f
+res.number_of_total_files = True
+e = Error()
+e.message = True
+e.stack_trace = True
+
+m = MetadataQuery(res)
+res = m.build_and_send_request()
+"""
+
 
 class Metadatum:
     name: str or bool = False
@@ -34,7 +55,6 @@ class MetadataResult:
     number_of_returned_files: int or bool = False
     files: [File] or File or bool = False
     error: Error or bool = False
-
 
 
 class MetadataQuery:
@@ -71,7 +91,13 @@ class MetadataQuery:
         self.meta_data_result = meta_data_result
 
     @staticmethod
-    def translate_result(query_result: str) -> MetadataResult:
+    def deserialize(query_result: str) -> MetadataResult:
+        """
+        Deserializes a webql answer
+        :param query_result: The result recieved from the metadatahub
+        :return: The deserialized result
+        """
+
         query_md_result = MetadataResult()
         json_result = json.loads(query_result)
         json_content_data: dict = json_result["data"]["searchForFileMetadata"]
@@ -114,7 +140,11 @@ class MetadataQuery:
 
         return query_md_result
 
-    def build_query(self) -> str:
+    def serialize(self) -> str:
+        """
+        Serializes the contents of this class into a webql query
+        :return: The query as a simple string
+        """
 
         # Build the query header
         query = "query { searchForFileMetadata"
@@ -201,9 +231,14 @@ class MetadataQuery:
         return query
 
     def build_and_send_request(self, url="http://localhost:8080/graphql") -> MetadataResult:
-        query = self.build_query()
+        """
+        Serializes this classes content into a webql request and sends it to the metadatahub web service
+        :param url: The url the metadatahub is running
+        :return: The deserialized json result of the query
+        """
+        query = self.serialize()
         result = requests.post(url, json={"query": query})
-        return self.translate_result(result.text)
+        return self.deserialize(result.text)
 
 
 # for testing purposes

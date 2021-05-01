@@ -11,6 +11,9 @@ services:
             - /home/data:/filesystem
 
     synthetic-file-system:
+        build:
+            context: .
+            dockerfile: docker/Dockerfile
         container_name: synthetic-file-system
         image: fuse_skeleton
         stdin_open: true

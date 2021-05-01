@@ -1,6 +1,9 @@
 # syntax=docker/dockerfile:1
 FROM ubuntu:20.04
 
+RUN groupadd --gid 1000 sfs \
+  && useradd --uid 1000 --gid sfs --shell /bin/bash --create-home sfs
+
 RUN apt-get update && apt-get install -y \
     libfuse-dev \
     python3-pip \
@@ -26,5 +29,6 @@ RUN touch /test_root/test.txt /test_root/test2.text /test_root/test_sub_folder/t
 RUN echo "test text" >> /test_root/test.txt
 RUN echo "test2 text" >> /test_root/test_sub_folder/test2.txt
 
+USER sfs
 #["python3"]
 #CMD ["main.py", "/test_root", "/fuse_mount"]

@@ -2,7 +2,7 @@
 FROM ubuntu:20.04
 
 RUN groupadd --gid 1000 sfs \
-  && useradd --uid 1000 --gid sfs --shell /bin/bash --create-home sfs
+  && useradd --uid 1000 --gid sfs --no-create-home --shell /bin/bash sfs
 
 RUN apt-get update && apt-get install -y \
     libfuse-dev \

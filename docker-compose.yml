@@ -1,0 +1,16 @@
+version: "3.7"
+
+services:
+
+    metadata-hub:
+        image: amosproject2/metadatahub:latest
+        ports:
+            - 8080:8080
+        volumes:
+            - /home/data:/filesystem
+
+    synthetic-file-system:
+        image: fuse_skeleton
+        stdin_open: true
+        tty: true
+        network_mode: "host"

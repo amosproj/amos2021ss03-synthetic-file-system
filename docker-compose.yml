@@ -3,6 +3,7 @@ version: "3.7"
 services:
 
     metadata-hub:
+        container_name: metadata-hub
         image: amosproject2/metadatahub:latest
         ports:
             - 8080:8080
@@ -10,6 +11,7 @@ services:
             - /home/data:/filesystem
 
     synthetic-file-system:
+        container_name: synthetic-file-system
         image: fuse_skeleton
         stdin_open: true
         tty: true

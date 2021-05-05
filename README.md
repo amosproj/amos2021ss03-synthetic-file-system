@@ -5,7 +5,7 @@
 <!-- PROJECT SHIELDS -->
 <!--
 *** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
+*** Reference links are enclosed in bracketChooses [ ] instead of parentheses ( ).
 *** See the bottom of this document for the declaration of the reference variables
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
@@ -107,31 +107,71 @@
 <!-- GETTING STARTED -->
 ## Getting Started
 
-<!--To get a local copy up and running follow these simple steps.
+<!--To get a local copy up and running follow these simple steps. -->
 
 ### Prerequisites
 
-<!--This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+* git
+* docker: [follow instructions for your platform](https://docs.docker.com/get-docker/)
 
-<!--### Installation
+<!--### Installation -->
+### Installation
 
-<!--1. Clone the amos-ss2021-synthetic-file-system
+1. Clone the amos-ss2021-synthetic-file-system
    ```sh
    git clone https://github.com/amosproj/amos-ss2021-synthetic-file-system.git
    ```
-2. Install NPM packages
-   ```sh
-   npm install
-   ```
+2. The cloned repository contains two files needed to set up the docker containers (but this can also be done manually if you can't run them for some reason):
+    Automatic:
+        `.\init.sh   # Builds the docker container and downloads/sets up the metadatahub`
+    Manually:
+      Set up our docker and metadahub-docker:
+      ```sh
+      git clone https://github.com/amos-project2/metadata-hub
+      cd metadata-hub
+      docker pull amosproject2/metadatahub:latest
+      docker volume create --name metadatahub-database -d local
+      ```
 
+      Run the metadatahub container container:
+      ```sh
+      docker run \
+          -p 8080:8080 \
+          -v /home/data:/filesystem  \
+          -v metadatahub-database:/var/lib/postgresql/12/main \
+          amosproject2/metadatahub &>/dev/null & disown;
+      ```
+      
+      Run our container:
+      ```sh
+      docker run -it --net="host" --cap-add=SYS_ADMIN --device=/dev/fuse --security-opt apparmor:unconfined --tty fuse_skeleton
+      ```
+    
 
 
 <!-- USAGE EXAMPLES -->
 ## Usage
+
+1. The FUSE pulls its information from the running metadatahub webservice. This can be found at http://localhost:8080
+   To fill in some dummy data go to "http://localhost:8080/?p=treewalk-controller" and start an action that parses some directory
+    Notes:
+    * You should set a date way in the past because the container may be running with a different date 
+    * for some reason the treewalker sometimes does not parse directories when running a job (or I've been using it wrong).
+          What always works is just giving it the root directory: "/, True"
+    To verify that some files have been parsed go to http://localhost:8080/?p=graphiql-console and run the following query:
+    ```query{searchForFileMetadata {numberOfTotalFiles}} ```
+    If files were parsed correctly you should get a result with "numberOfTotalFiles" > 0.
+   
+2. Run the container via the ./run.sh script or manually. This should spawn a shell in the docker.
+    WARNING: The way the FUSE is configured it runs in the foreground and blocks the current shell so that we can see debug output. 
+    This obviously means that you can't use this shell to navigate the FUSE. This is why the container runs [tmux](https://github.com/tmux/tmux/wiki) (Terminal Multiplexer) which allows you to have multiple terminals at the same time.
+    To spawn a new terminal in tmux run "ctrl+b %". To navigate between the two terminals use "ctrl+b 'arrow_keys'".
+    An other option would be setting the FUSE to run in the background in `src/main.py:215`
+   
+3. To mount the metadatahub as a FUSE run the mount script: `./mount.sh`
+4. Navigate to the directory mounted diractory: `cd /fuse_mount`
+5. Navigate the directory via `ls` and `cd`
+   
 
 <!--Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 

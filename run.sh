@@ -7,9 +7,10 @@ docker run \
     amosproject2/metadatahub &>/dev/null & disown;
 
 docker run -it --tty \
-    --net=host \
+    --network=host \
     --env DISPLAY=$DISPLAY \
-    --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
+    --volume /tmp/.X11-unix:/tmp/.X11-unix \
+    --volume $XAUTHORITY:/root/.Xauthority \
     --cap-add=SYS_ADMIN \
     --device=/dev/fuse \
     --security-opt apparmor:unconfined \

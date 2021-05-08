@@ -29,7 +29,6 @@ class FuseStat:
 
 
 class MDH_FUSE(Operations):
-
     metadatahub_files = None  # type: [MDHFile]
 
     directory_tree = Node

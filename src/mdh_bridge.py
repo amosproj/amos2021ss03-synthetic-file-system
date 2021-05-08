@@ -12,9 +12,7 @@ Objects in query arguments are not supported so fat :(
 MetadataOption = Enum("MetadataOption",
                       "NOT_CONTAINS EQUAL NOT_EQUAL GREATER SMALLER EXISTS NOT_EXISTS EMPTY NOT_EMPTY")
 
-
 SortByOption = Enum("SortByOption", "ASC DESC")
-
 
 session = requests.session()
 session.headers["X-Authorization-Bearer"] = "admin"
@@ -64,7 +62,6 @@ class MDHObject:
 
 
 class MDHQuery(MDHObject):
-
     query_name = ""
     result: MDHObject = None
 
@@ -151,14 +148,6 @@ class MDHFile(MDHObject):
     metadata: bool or MDHMetadata or [MDHMetadatum] = False
 
 
-class MDHFileType(MDHObject):
-    name: bool or str = False
-    fileCount: bool or int = False
-    mimeType: bool or str = False
-    metadataCount: bool or int = False
-    metadataCountAggregatedValues: bool or int = False
-
-
 class MDHResultSet(MDHObject):
     fromIndex: bool or int = False
     toIndex: bool or int = False
@@ -218,7 +207,6 @@ class MDHSortFunction(MDHObject):
 
 
 class MDHQuery_searchMetadata(MDHQuery):
-
     fileIds: bool or [int] = False
     filterFunctions: bool or [MDHFilterFunction] = False
     sortFunctions: bool or [MDHSortFunction] = False
@@ -329,6 +317,7 @@ class MDHQueryRoot:
         query = self.serialize()
         result = session.post(url, json={"query": query})
         self.deserialize(result.text)
+
 
 """
 temporary test case for the bridge and the fuse_utils; IGNORE

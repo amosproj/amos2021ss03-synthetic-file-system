@@ -14,15 +14,11 @@ def build_tree_from_files(files: [MDHFile]):
     # prepare directory names for easier processing
     file_paths = []
     for file in files:
-        dir_path = ""
-        file_name = ""
+        full_file_name = ""
         for metadata in file.metadata:  # type: MDHMetadatum
-            if metadata.name == "Directory":
-                dir_path = metadata.value
-            if metadata.name == "FileName":
-                file_name = metadata.value
+            if metadata.name == "SourceFile":
+                full_file_name = metadata.value
 
-        full_file_name = dir_path + file_name
         file_paths.append(full_file_name.split("/"))
 
     i = 1

@@ -4,7 +4,7 @@ from enum import Enum
 import copy
 
 """
-harvest queries ang query builder queries are not implemented! No idea if/when they will come 
+harvest queries ang query builder queries are not implemented! No idea if/when they will come
 Objects in query arguments are not supported so fat :(
 
 """
@@ -18,6 +18,7 @@ SortByOption = Enum("SortByOption", "ASC DESC")
 
 session = requests.session()
 session.headers["X-Authorization-Bearer"] = "admin"
+
 
 class MDHObject:
 
@@ -60,6 +61,7 @@ class MDHObject:
                     setattr(self, entry, new_attribute)
                 else:
                     setattr(self, entry, json[entry])
+
 
 class MDHQuery(MDHObject):
 
@@ -107,7 +109,6 @@ class MDHQuery(MDHObject):
         query += "{" + self.result.serialize() + "}"
         return query
 
-
     def deserialize(self, json):
         return self.result.deserialize(json)
 
@@ -124,14 +125,17 @@ class MDHFileType(MDHObject):
     metadataCount: bool or int = False
     metadataCountAggregatedValues: bool or int
 
+
 class MDHMimeType(MDHObject):
     name: bool or str = False
     fileCount: bool or int = False
     fileTypes: bool or [MDHFileType] = False
 
+
 class MDHMetadatum(MDHObject):
     name: bool or str = False
     value: bool or str = False
+
 
 class MDHMetadata(MDHObject):
     name: bool or str = False
@@ -141,9 +145,11 @@ class MDHMetadata(MDHObject):
     virtual: bool = False  # TODO
     # randomExample  NOT IMPLEMENTED YET
 
+
 class MDHFile(MDHObject):
     id: bool or str = False
     metadata: bool or MDHMetadata or [MDHMetadatum] = False
+
 
 class MDHFileType(MDHObject):
     name: bool or str = False
@@ -152,6 +158,7 @@ class MDHFileType(MDHObject):
     metadataCount: bool or int = False
     metadataCountAggregatedValues: bool or int = False
 
+
 class MDHResultSet(MDHObject):
     fromIndex: bool or int = False
     toIndex: bool or int = False
@@ -159,16 +166,18 @@ class MDHResultSet(MDHObject):
     returnedFilesCount: bool or int = False
     timeZone: bool or str = False
     instanceName: bool or str = False
-    fixedReturnColumnSize: bool = False  #TODO how do we do this here?
+    fixedReturnColumnSize: bool = False  # TODO how do we do this here?
     graphQLQuery: bool or str = False
     graphQLVariables: bool or str = False
     files: bool or MDHFile or [MDHFile] = False
     graphQLDebug: bool or str = False
     dataTypes: bool or MDHMetadatatagDataType or [MDHMetadatatagDataType] = False
 
+
 class MDHFileTypeStat(MDHObject):
     name: bool or str = False
     count: bool or int = False
+
 
 class MDHSystemInfo(MDHObject):
     instanceName: bool or str = False
@@ -191,19 +200,21 @@ class MDHSystemInfo(MDHObject):
     instanceDescription: bool or str = False
     topFileTypes: bool or [MDHFileTypeStat] = False
 
+
 class MDHServerState(MDHObject):
     state: bool or int = False
     runningSince: bool or int = False
+
 
 class MDHFilterFunction(MDHObject):
     tag: bool or str = False
     value: bool or str = False
     operation: bool or MetadataOption = False
 
+
 class MDHSortFunction(MDHObject):
     sortBy: bool or str = False
     sortByOption: bool or SortByOption = False
-
 
 
 class MDHQuery_searchMetadata(MDHQuery):
@@ -225,6 +236,7 @@ class MDHQuery_searchMetadata(MDHQuery):
 class MDHQuery_systemInfo(MDHQuery):
     query_name = "systemInfo"
     result = MDHSystemInfo()
+
 
 class MDHQuery_getServerState(MDHQuery):
     query_name = "getServerState"
@@ -263,6 +275,7 @@ class MDHQuery_getMimeTypes(MDHQuery):
     query_name = "getMimeTypes"
     result: [MDHMimeType] = []
 
+
 class MDHQuery_getMetadata(MDHQuery):
     fileTypeScope: bool or str = False
     mimeTypeScope: bool or str = False
@@ -271,17 +284,20 @@ class MDHQuery_getMetadata(MDHQuery):
     query_name = "getMetadata"
     result = MDHMetadata()
 
+
 class MDHQuery_getFileType(MDHQuery):
     name: bool or str = False
 
     query_name = "getFileType"
     result = MDHFileType()
 
+
 class MDHQuery_getMimeType:
     name: bool or str = False
 
     query_name = "getMimeType"
     result = MDHMimeType()
+
 
 class MDHQueryRoot:
 
@@ -304,7 +320,6 @@ class MDHQueryRoot:
             query_json = data_json[query.query_name]
             query.deserialize(query_json)
 
-
     def build_and_send_request(self, url="http://localhost:11000/graphql"):
         """
         Serializes this classes content into a webql request and sends it to the metadatahub web service
@@ -316,7 +331,6 @@ class MDHQueryRoot:
         self.deserialize(result.text)
 
 
-
 if __name__ == '__main__':
     query_root = MDHQueryRoot()
     query = MDHQuery_searchMetadata()
@@ -325,13 +339,12 @@ if __name__ == '__main__':
     query.result.files.metadata.value = True
     query.result.files.metadata.name = True
     query_root.queries.append(query)
-    query_root.build_and_send_request()  # type: MetadataResult
+    query_root.build_and_send_request()
     metadatahub_files = query_root.queries[0].result.files
     import fuse_utils
-    from anytree import *
+    from anytree import RenderTree
     directory_tree = fuse_utils.build_tree_from_files(metadatahub_files)
     print(RenderTree(directory_tree))
-
 
     rq = MDHQueryRoot()
     q = MDHQuery_searchMetadata()

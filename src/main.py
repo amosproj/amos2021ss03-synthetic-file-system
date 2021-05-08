@@ -13,7 +13,7 @@ import stat
 # import anytree
 
 from fuse import FUSE, Operations  # FuseOSError
-from mdh_bridge import MDHQueryRoot, MDHQuery_searchMetadata, MDHFile, MDHMetadatum, MetadataResult
+from mdh_bridge import MDHQueryRoot, MDHQuery_searchMetadata, MDHFile, MDHMetadatum, MDHResultSet
 from anytree import Node, RenderTree, Resolver
 import fuse_utils
 
@@ -24,8 +24,8 @@ class FuseStat:
     st_gid: int = 0
     st_mode: int = stat.S_IFDIR | 0o755
     st_mtime: int = 0
-    st_nlink: int = 0
-    st_size: int = 4096
+    st_nlink: int = 1
+    st_size: int = 43000
 
 
 class MDH_FUSE(Operations):
@@ -46,7 +46,7 @@ class MDH_FUSE(Operations):
         query.result.files.metadata.name = True
         query_root.queries.append(query)
 
-        query_root.build_and_send_request()  # type: MetadataResult
+        query_root.build_and_send_request()  # type: MDHResultSet
         self.metadatahub_files = query_root.queries[0].result.files
         self.directory_tree = fuse_utils.build_tree_from_files(self.metadatahub_files)
         print(RenderTree(self.directory_tree))
@@ -170,8 +170,8 @@ class MDH_FUSE(Operations):
     # ============
 
     def open(self, path, flags):
-        print("open called")
-        full_path = self._full_path(path)
+        print("open called with path " + path)
+        full_path = path
         return os.open(full_path, flags)
 
     def create(self, path, mode, fi=None):

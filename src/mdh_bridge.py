@@ -330,6 +330,9 @@ class MDHQueryRoot:
         result = session.post(url, json={"query": query})
         self.deserialize(result.text)
 
+"""
+temporary test case for the bridge and the fuse_utils; IGNORE
+TODO: remove this when a proper test case has been written 
 
 if __name__ == '__main__':
     query_root = MDHQueryRoot()
@@ -374,3 +377,5 @@ if __name__ == '__main__':
     rq.build_and_send_request()
 
     print(rq.serialize())
+
+"""

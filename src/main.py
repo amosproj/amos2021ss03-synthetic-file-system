@@ -8,14 +8,15 @@ from __future__ import with_statement
 
 import os
 import sys
-import errno
+# import errno
 import stat
-import anytree
+# import anytree
 
-from fuse import FUSE, FuseOSError, Operations
-from mdh_bridge import *
-from anytree import *
+from fuse import FUSE, Operations  # FuseOSError
+from mdh_bridge import MDHQueryRoot, MDHQuery_searchMetadata, MDHFile, MDHMetadatum, MetadataResult
+from anytree import Node, RenderTree, Resolver
 import fuse_utils
+
 
 class FuseStat:
     st_atime: int = 0
@@ -26,9 +27,10 @@ class FuseStat:
     st_nlink: int = 0
     st_size: int = 4096
 
+
 class MDH_FUSE(Operations):
 
-    metadatahub_files = None  # type: [File]
+    metadatahub_files = None  # type: [MDHFile]
 
     directory_tree = Node
 
@@ -49,7 +51,6 @@ class MDH_FUSE(Operations):
         self.directory_tree = fuse_utils.build_tree_from_files(self.metadatahub_files)
         print(RenderTree(self.directory_tree))
         print("fuse running")
-
 
     # Helpers
     # =======
@@ -89,7 +90,7 @@ class MDH_FUSE(Operations):
             return path_stat.__dict__
 
         file_finder = Resolver("name")
-        path = path[1:]  #  strip leading "/"
+        path = path[1:]  # strip leading "/"
         path_node: Node = file_finder.get(self.directory_tree, path)
         if len(path_node.children) == 0:
             print("got regular file")
@@ -98,16 +99,14 @@ class MDH_FUSE(Operations):
             path_stat.st_mode = stat.S_IFDIR | 0o755
         return path_stat.__dict__
 
-
     def readdir(self, path, fh):
-        full_path = self._full_path(path)
+        # full_path = self._full_path(path)
 
         print(f"readdir called with {path}")
         children = [".", ".."]
 
-
         file_finder = Resolver("name")
-        path = path[1:]  #  strip leading "/"
+        path = path[1:]  # strip leading "/"
         path_node: Node = file_finder.get(self.directory_tree, path)
 
         child: Node
@@ -115,7 +114,6 @@ class MDH_FUSE(Operations):
             children.append(child.name)
             print(f"added {child.name}")
         return children
-
 
     def readlink(self, path):
         print("readlink called")

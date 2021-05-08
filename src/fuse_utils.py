@@ -1,6 +1,5 @@
-from anytree import *
-from mdh_bridge import *
-
+from anytree import Node, Resolver
+from mdh_bridge import MDHFile, MDHMetadatum
 
 
 def build_tree_from_files(files: [MDHFile]):

@@ -2,9 +2,9 @@ import requests
 import json
 
 """
-This file is responsible for communicating with the metadata-hub. 
+This file is responsible for communicating with the metadata-hub.
 All the classes in here are counterparts of elements in the Metadatahub database
-Every variable in the classes has two types because they work in two ways. When serializing a request they signal 
+Every variable in the classes has two types because they work in two ways. When serializing a request they signal
 whether the variable is requests. When deserializing the retrieved value is put into the member.
 An example for how to create a call would be:
 

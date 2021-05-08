@@ -1,8 +1,8 @@
-from anytree import *
-from send_mdh_request import *
+from anytree import Node, Resolver
+from mdh_bridge import MDHFile, MDHMetadatum
 
 
-def build_tree_from_files(files: [File]):
+def build_tree_from_files(files: [MDHFile]):
     """
     build_tree_from_files Turns a list of FilePaths into a directory tree. The tree is built upon a "Root" node
     :param files: a list of file paths e.g ["/metadatahub/crawler/test", "/metadatahub/docs/test", ...]
@@ -14,7 +14,11 @@ def build_tree_from_files(files: [File]):
     # prepare directory names for easier processing
     file_paths = []
     for file in files:
-        full_file_name = file.dir_path + "/" + file.name
+        full_file_name = ""
+        for metadata in file.metadata:  # type: MDHMetadatum
+            if metadata.name == "SourceFile":
+                full_file_name = metadata.value
+
         file_paths.append(full_file_name.split("/"))
 
     i = 1

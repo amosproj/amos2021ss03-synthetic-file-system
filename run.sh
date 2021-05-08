@@ -6,4 +6,11 @@ docker run \
     -v metadatahub-database:/var/lib/postgresql/12/main \
     amosproject2/metadatahub &>/dev/null & disown;
 
-docker run -it --net="host" --cap-add=SYS_ADMIN  --device=/dev/fuse --security-opt apparmor:unconfined --tty fuse_skeleton
+docker run -it --tty \
+    --net=host \
+    --env DISPLAY=$DISPLAY \
+    --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
+    --cap-add=SYS_ADMIN \
+    --device=/dev/fuse \
+    --security-opt apparmor:unconfined \
+    fuse_skeleton

@@ -1,12 +1,11 @@
+import copy
 import requests
 import json
 from enum import Enum
-import copy
 
 """
 harvest queries ang query builder queries are not implemented! No idea if/when they will come
 Objects in query arguments are not supported so fat :(
-
 """
 
 """
@@ -46,7 +45,7 @@ only want to see the total number of results and all the metadata for all the re
 
 MetadataOption = Enum("MetadataOption",
                       "NOT_CONTAINS EQUAL NOT_EQUAL GREATER SMALLER EXISTS NOT_EXISTS EMPTY NOT_EMPTY")
-
+LogicOption = Enum("LogicOption", "AND OR INDIVIDUAL")
 SortByOption = Enum("SortByOption", "ASC DESC")
 
 session = requests.session()
@@ -57,8 +56,8 @@ class MDHObject:
 
     def serialize(self):
         # Get all members of the object
-        attributes = [attr for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith(
-            "__") and attr not in ["query_name", "result"]]
+        attributes = [attr for attr in dir(self) if not callable(
+            getattr(self, attr)) and not attr.startswith("_") and attr not in ["query_name", "result"]]
 
         query = ""
         # Enumerate over all arguments and add them to the query
@@ -104,8 +103,8 @@ class MDHQuery(MDHObject):
         query = self.query_name
 
         # Get all members of the Query
-        attributes = [attr for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith(
-            "__") and attr not in ["query_name", "result"]]
+        attributes = [attr for attr in dir(self) if not callable(
+            getattr(self, attr)) and not attr.startswith("__") and attr not in ["query_name", "result"]]
 
         has_arguments = False
 
@@ -118,16 +117,7 @@ class MDHQuery(MDHObject):
                 if isinstance(value, MDHObject):
                     value = "{" + value.serialize() + "}"
 
-                # if isinstance(value, list) and len(value) > 0 and isinstance(value[0], MDHObject):
-                #     tmp = "["
-                #     for j, mdh_object in enumerate(value):
-                #         tmp += "{" + mdh_object.serialize() + "}"
-                #         if j != len(value) - 1:
-                #             tmp += ", "
-                #     tmp += "]"
-                #     value = tmp
-
-                argument_string += f"{attribute}: {value}"
+                argument_string += f" {attribute}: {value} "
                 has_arguments = True
                 if not i == len(attributes) - 1:
                     query += ", "
@@ -178,26 +168,6 @@ class MDHMetadata(MDHObject):
     # randomExample  NOT IMPLEMENTED YET
 
 
-class MDHFile(MDHObject):
-    id: bool or str = False
-    metadata: bool or MDHMetadata or [MDHMetadatum] = False
-
-
-class MDHResultSet(MDHObject):
-    fromIndex: bool or int = False
-    toIndex: bool or int = False
-    totalFilesCound: bool or int = False
-    returnedFilesCount: bool or int = False
-    timeZone: bool or str = False
-    instanceName: bool or str = False
-    fixedReturnColumnSize: bool = False  # TODO how do we do this here?
-    graphQLQuery: bool or str = False
-    graphQLVariables: bool or str = False
-    files: bool or MDHFile or [MDHFile] = False
-    graphQLDebug: bool or str = False
-    dataTypes: bool or MDHMetadatatagDataType or [MDHMetadatatagDataType] = False
-
-
 class MDHFileTypeStat(MDHObject):
     name: bool or str = False
     count: bool or int = False
@@ -241,21 +211,6 @@ class MDHSortFunction(MDHObject):
     sortByOption: bool or SortByOption = False
 
 
-class MDHQuery_searchMetadata(MDHQuery):
-    fileIds: bool or [int] = False
-    filterFunctions: bool or [MDHFilterFunction] = False
-    sortFunctions: bool or [MDHSortFunction] = False
-    filterLogicalIndividual: bool or str = False
-    selectedTags: bool or [str] = False
-    limit: bool or int = False
-    offset: bool or int = False
-    fileSizeAsHumanReadable: bool = False  # TODO how do we do this with bool values?
-    convertDateTimeTo: bool or str = False
-
-    result = MDHResultSet()
-    query_name = "searchMetadata"
-
-
 class MDHQuery_systemInfo(MDHQuery):
     query_name = "systemInfo"
     result = MDHSystemInfo()
@@ -279,21 +234,21 @@ class MDHQuery_getMetadataTags(MDHQuery):
 
 
 class MDHQuery_getFileTypes(MDHQuery):
-    excludeFileType: bool or str
-    excludeMimeType: bool or str
-    nameFilter: bool or str
-    limit: bool or int
-    offset: bool or int
+    excludeFileType: bool or str = False
+    excludeMimeType: bool or str = False
+    nameFilter: bool or str = False
+    limit: bool or int = False
+    offset: bool or int = False
 
     query_name = "getFileTypes"
     result: [MDHFileType] = []
 
 
 class MDHQuery_getMimeTypes(MDHQuery):
-    excludeMimeType: bool or str
-    nameFilter: bool or str
-    limit: bool or int
-    offset: bool or int
+    excludeMimeType: bool or str = False
+    nameFilter: bool or str = False
+    limit: bool or int = False
+    offset: bool or int = False
 
     query_name = "getMimeTypes"
     result: [MDHMimeType] = []
@@ -302,7 +257,7 @@ class MDHQuery_getMimeTypes(MDHQuery):
 class MDHQuery_getMetadata(MDHQuery):
     fileTypeScope: bool or str = False
     mimeTypeScope: bool or str = False
-    name: bool or str
+    name: bool or str = False
 
     query_name = "getMetadata"
     result = MDHMetadata()
@@ -320,6 +275,56 @@ class MDHQuery_getMimeType:
 
     query_name = "getMimeType"
     result = MDHMimeType()
+
+
+class MDHFile(MDHObject):
+    id: bool or str = False
+    metadata: bool or MDHMetadata or [MDHMetadatum] = False
+
+
+class MDHResultSet(MDHObject):
+    fromIndex: bool or int = False
+    toIndex: bool or int = False
+    totalFilesCount: bool or int = False
+    returnedFilesCount: bool or int = False
+    timeZone: bool or str = False
+    instanceName: bool or str = False
+    fixedReturnColumnSize: bool = False  # TODO how do we do this here?
+    graphQLQuery: bool or str = False
+    graphQLVariables: bool or str = False
+    files: bool or MDHFile or [MDHFile] = False
+    graphQLDebug: bool or str = False
+    dataTypes: bool or MDHMetadatatagDataType or [MDHMetadatatagDataType] = False
+
+
+class MDHQuery_searchMetadata(MDHQuery):
+    fileIds: bool or [int] = False
+    filterFunctions: bool or [MDHFilterFunction] = False
+    filterLogicOption: bool or LogicOption = False
+    sortFunctions: bool or [MDHSortFunction] = False
+    filterLogicalIndividual: bool or str = False
+    limit: bool or int = False
+    offset: bool or int = False
+    fileSizeAsHumanReadable: bool = False  # TODO how do we do this with bool values?
+    convertDateTimeTo: bool or str = False
+
+    @property
+    def selectedTags(self) -> bool or [str]:
+        if self._selectedTags and isinstance(self._selectedTags, bool):
+            _selectedTags = []
+            for dataType in self.result.dataTypes:
+                _selectedTags.append(dataType.name)
+
+            self._selectedTags = _selectedTags
+
+        return self._selectedTags
+
+    @selectedTags.setter
+    def selectedTags(self, selectedTags) -> None:
+        self._selectedTags = selectedTags
+
+    result = MDHResultSet()
+    query_name = "searchMetadata"
 
 
 class MDHQueryRoot:
@@ -356,7 +361,7 @@ class MDHQueryRoot:
 
 """
 temporary test case for the bridge and the fuse_utils; IGNORE
-TODO: remove this when a proper test case has been written 
+TODO: remove this when a proper test case has been written
 
 if __name__ == '__main__':
     query_root = MDHQueryRoot()

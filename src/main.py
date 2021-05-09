@@ -170,7 +170,12 @@ class MDH_FUSE(Operations):
 
     def open(self, path, flags):
         print("open called with path " + path)
-        full_path = path
+        # /home/lon/mdh/test_flat/buildInfo.txt
+        # /fuse_mount/home/lon/mdh/test_flat
+        _, path = path.split("/home/lon/mdh")
+
+        full_path = os.path.join("/app", path)
+        print(full_path)
         return os.open(full_path, flags)
 
     def create(self, path, mode, fi=None):
@@ -180,8 +185,11 @@ class MDH_FUSE(Operations):
 
     def read(self, path, length, offset, fh):
         print("read called")
-        os.lseek(fh, offset, os.SEEK_SET)
-        return os.read(fh, length)
+        _, path = path.split("/home/lon/mdh")
+
+        full_path = os.path.join("/app", path)
+        os.lseek(full_path, offset, os.SEEK_SET)
+        return os.read(full_path, length)
 
     def write(self, path, buf, offset, fh):
         print("write called")

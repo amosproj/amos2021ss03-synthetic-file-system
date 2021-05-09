@@ -60,6 +60,8 @@ class MDHObject:
                 else:
                     setattr(self, entry, json[entry])
 
+    def __str__(self):
+        return self.serialize()
 
 class MDHQuery(MDHObject):
     query_name = ""
@@ -82,15 +84,6 @@ class MDHQuery(MDHObject):
             if value:
                 if isinstance(value, MDHObject):
                     value = "{" + value.serialize() + "}"
-
-                # if isinstance(value, list) and len(value) > 0 and isinstance(value[0], MDHObject):
-                #     tmp = "["
-                #     for j, mdh_object in enumerate(value):
-                #         tmp += "{" + mdh_object.serialize() + "}"
-                #         if j != len(value) - 1:
-                #             tmp += ", "
-                #     tmp += "]"
-                #     value = tmp
 
                 argument_string += f"{attribute}: {value}"
                 has_arguments = True

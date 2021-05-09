@@ -22,7 +22,7 @@ class MDHObject:
     def serialize(self):
         # Get all members of the object
         attributes = [attr for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith(
-            "__") and not attr.startswith("_")  and attr not in ["query_name", "result"]]
+            "__") and not attr.startswith("_") and attr not in ["query_name", "result"]]
 
         query = ""
         # Enumerate over all arguments and add them to the query

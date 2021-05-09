@@ -3,7 +3,8 @@ import json
 import unittest
 
 # Local imports
-from src.mdh_bridge import MDHQueryRoot, MDHQuery_searchMetadata, MDHQuery_systemInfo, MDHMetadatatagDataType, MDHFile, MDHMetadatum
+from src.mdh_bridge \
+    import MDHQueryRoot, MDHQuery_searchMetadata, MDHQuery_systemInfo, MDHMetadatatagDataType, MDHFile, MDHMetadatum
 
 
 class TestBridge(unittest.TestCase):

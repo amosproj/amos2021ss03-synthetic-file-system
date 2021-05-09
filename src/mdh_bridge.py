@@ -63,6 +63,7 @@ class MDHObject:
     def __str__(self):
         return self.serialize()
 
+
 class MDHQuery(MDHObject):
     query_name = ""
     result: MDHObject = None
@@ -177,7 +178,6 @@ class MDHFilterFunction(MDHObject):
 class MDHSortFunction(MDHObject):
     sortBy: bool or str = False
     sortByOption: bool or SortByOption = False
-
 
 
 class MDHQuery_systemInfo(MDHQuery):
@@ -315,7 +315,7 @@ class MDHQueryRoot:
 
 """
 temporary test case for the bridge and the fuse_utils; IGNORE
-TODO: remove this when a proper test case has been written 
+TODO: remove this when a proper test case has been written
 
 if __name__ == '__main__':
     query_root = MDHQueryRoot()

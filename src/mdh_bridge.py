@@ -280,9 +280,9 @@ class MDHQuery_searchMetadata(MDHQuery):
             for dataType in self.result.dataTypes:
                 _selectedTags.append(dataType.name)
 
-            return _selectedTags
+            self._selectedTags = _selectedTags
 
-        return False
+        return self._selectedTags
 
     @selectedTags.setter
     def selectedTags(self, selectedTags) -> None:

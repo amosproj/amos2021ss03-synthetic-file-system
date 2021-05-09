@@ -3,7 +3,7 @@ import json
 import unittest
 
 # Local import
-from src.mdh_bridge import MDHQueryRoot, MDHQuery_searchMetadata, MDHResultSet, MDHMetadatatagDataType, MDHFile, MDHMetadatum
+from src.mdh_bridge import MDHQueryRoot, MDHQuery_searchMetadata, MDHMetadatatagDataType, MDHFile, MDHMetadatum
 
 
 class TestBridge(unittest.TestCase):
@@ -60,7 +60,7 @@ class TestBridge(unittest.TestCase):
                         },
                         {
                             "name": "FileInodeChangeDate",
-                            "type": "ts" \
+                            "type": "ts"
                         },
                         {
                             "name": "SourceFile",
@@ -99,7 +99,8 @@ class TestBridge(unittest.TestCase):
                         }
                     ]
                 }
-        }})
+            }}
+        )
 
         query_root.deserialize(graphql)
         mdh_query = query_root.queries[0]

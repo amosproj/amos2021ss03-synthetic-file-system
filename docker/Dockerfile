@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     curl \
     tmux \
+    vim \
     nano \
     && rm -rf /var/lib/apt/lists/*
 
@@ -22,6 +23,8 @@ WORKDIR /app
 COPY requirements.txt requirements.txt
 COPY mount.sh mount.sh
 COPY ./src/ ./src/
+
+COPY ./data /app
 
 RUN pip3 install -r requirements.txt
 RUN mkdir -p /fuse_mount

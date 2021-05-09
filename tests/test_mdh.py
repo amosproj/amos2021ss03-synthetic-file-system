@@ -100,5 +100,7 @@ class TestBridge(unittest.TestCase):
         }})
 
         self.query_root.deserialize(graphql)
+
+        
         print(self.query_root.serialize())
         self.assertTrue(False)

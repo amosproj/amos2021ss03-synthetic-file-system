@@ -1,12 +1,11 @@
+import copy
 import requests
 import json
 from enum import Enum
-import copy
 
 """
 harvest queries ang query builder queries are not implemented! No idea if/when they will come
 Objects in query arguments are not supported so fat :(
-
 """
 
 MetadataOption = Enum("MetadataOption",
@@ -60,9 +59,6 @@ class MDHObject:
                 else:
                     setattr(self, entry, json[entry])
 
-    def __str__(self):
-        return self.serialize()
-
 
 class MDHQuery(MDHObject):
     query_name = ""
@@ -91,6 +87,7 @@ class MDHQuery(MDHObject):
                 if not i == len(attributes) - 1:
                     query += ", "
 
+        print(argument_string)
         # if arguments are given add them to the query
         if has_arguments:
             query += "(" + argument_string + ")"
@@ -269,13 +266,28 @@ class MDHResultSet(MDHObject):
 class MDHQuery_searchMetadata(MDHQuery):
     fileIds: bool or [int] = False
     filterFunctions: bool or [MDHFilterFunction] = False
+    filterLogicOption: bool = True
     sortFunctions: bool or [MDHSortFunction] = False
     filterLogicalIndividual: bool or str = False
-    selectedTags: bool or [str] = False
     limit: bool or int = False
     offset: bool or int = False
     fileSizeAsHumanReadable: bool = False  # TODO how do we do this with bool values?
     convertDateTimeTo: bool or str = False
+
+    @property
+    def selectedTags(self) -> bool or [str]:
+        if self._selectedTags:
+            _selectedTags = []
+            for dataType in self.result.dataTypes:
+                _selectedTags.append(dataType.name)
+
+            return _selectedTags
+
+        return False
+
+    @selectedTags.setter
+    def selectedTags(self, selectedTags):
+        self._selectedTags = selectedTags
 
     result = MDHResultSet()
     query_name = "searchMetadata"

@@ -3,7 +3,10 @@ FROM ubuntu:20.04
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN groupadd --gid 1000 sfs \
-  && useradd --uid 1000 --gid sfs --no-create-home --shell /bin/bash sfs
+  && useradd --uid 1000 --gid sfs --shell /bin/bash sfs
+
+RUN mkdir /home/sfs
+RUN chown sfs:sfs /home/sfs
 
 RUN apt-get update && apt-get install -y \
     xauth \
@@ -33,6 +36,7 @@ RUN touch /test_root/test.txt /test_root/test2.text /test_root/test_sub_folder/t
 RUN echo "test text" >> /test_root/test.txt
 RUN echo "test2 text" >> /test_root/test_sub_folder/test2.txt
 
-#USER sfs
+# USER sfs
 #["python3"]
+CMD ["bash"]
 #CMD ["main.py", "/test_root", "/fuse_mount"]

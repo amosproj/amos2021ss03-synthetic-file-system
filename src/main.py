@@ -8,14 +8,15 @@ from __future__ import with_statement
 
 import os
 import sys
-import errno
+# import errno
 import stat
-import anytree
+# import anytree
 
-from fuse import FUSE, FuseOSError, Operations
-from send_mdh_request import *
-from anytree import *
+from fuse import FUSE, Operations  # FuseOSError
+from mdh_bridge import MDHQueryRoot, MDHQuery_searchMetadata, MDHFile, MDHMetadatum, MDHResultSet
+from anytree import Node, RenderTree, Resolver
 import fuse_utils
+
 
 class FuseStat:
     st_atime: int = 0
@@ -23,12 +24,12 @@ class FuseStat:
     st_gid: int = 0
     st_mode: int = stat.S_IFDIR | 0o755
     st_mtime: int = 0
-    st_nlink: int = 0
-    st_size: int = 4096
+    st_nlink: int = 1
+    st_size: int = 43000
 
-class Passthrough(Operations):
 
-    metadatahub_files = None  # type: [File]
+class MDH_FUSE(Operations):
+    metadatahub_files = None  # type: [MDHFile]
 
     directory_tree = Node
 
@@ -36,19 +37,19 @@ class Passthrough(Operations):
         self.root = root
 
         # Set up our files
-        md_res = MetadataResult()
-        md_res.files = File()
-        md_res.files.dir_path = True
-        md_res.files.name = True
-        md_query = MetadataQuery(md_res)
+        query_root = MDHQueryRoot()
+        query = MDHQuery_searchMetadata()
+        query.result.files = MDHFile()
+        query.result.files.metadata = MDHMetadatum()
+        query.result.files.metadata.value = True
+        query.result.files.metadata.name = True
+        query_root.queries.append(query)
 
-        result = md_query.build_and_send_request()  # type: MetadataResult
-        self.metadatahub_files = result.files
-
+        query_root.build_and_send_request()  # type: MDHResultSet
+        self.metadatahub_files = query_root.queries[0].result.files
         self.directory_tree = fuse_utils.build_tree_from_files(self.metadatahub_files)
         print(RenderTree(self.directory_tree))
         print("fuse running")
-
 
     # Helpers
     # =======
@@ -88,34 +89,30 @@ class Passthrough(Operations):
             return path_stat.__dict__
 
         file_finder = Resolver("name")
-        path = path[1:]  #  strip leading "/"
+        path = path[1:]  # strip leading "/"
         path_node: Node = file_finder.get(self.directory_tree, path)
         if len(path_node.children) == 0:
+            print("got regular file")
             path_stat.st_mode = stat.S_IFREG | 0o755
         else:
             path_stat.st_mode = stat.S_IFDIR | 0o755
         return path_stat.__dict__
 
-
     def readdir(self, path, fh):
-        full_path = self._full_path(path)
+        # full_path = self._full_path(path)
 
         print(f"readdir called with {path}")
-        folder_set = set()
-        folder_set.add(".")
-        folder_set.add("..")
-
+        children = [".", ".."]
 
         file_finder = Resolver("name")
-        path = path[1:]  #  strip leading "/"
+        path = path[1:]  # strip leading "/"
         path_node: Node = file_finder.get(self.directory_tree, path)
 
         child: Node
         for child in path_node.children:
-            folder_set.add(child.name)
-
-        return list(folder_set)
-
+            children.append(child.name)
+            print(f"added {child.name}")
+        return children
 
     def readlink(self, path):
         print("readlink called")
@@ -172,8 +169,8 @@ class Passthrough(Operations):
     # ============
 
     def open(self, path, flags):
-        print("open called")
-        full_path = self._full_path(path)
+        print("open called with path " + path)
+        full_path = path
         return os.open(full_path, flags)
 
     def create(self, path, mode, fi=None):
@@ -212,7 +209,7 @@ class Passthrough(Operations):
 
 
 def main(mountpoint, root):
-    FUSE(Passthrough(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True})
+    FUSE(MDH_FUSE(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True})
 
 
 if __name__ == '__main__':

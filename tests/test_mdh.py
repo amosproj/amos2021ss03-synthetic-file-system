@@ -37,7 +37,7 @@ class TestBridge(unittest.TestCase):
 
         query_root.queries.append(search_query)
 
-        # system query 
+        # system query
         system_query = MDHQuery_systemInfo()
 
         system_query.result.instanceName = True

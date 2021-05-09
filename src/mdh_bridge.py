@@ -10,7 +10,7 @@ Objects in query arguments are not supported so fat :(
 
 MetadataOption = Enum("MetadataOption",
                       "NOT_CONTAINS EQUAL NOT_EQUAL GREATER SMALLER EXISTS NOT_EXISTS EMPTY NOT_EMPTY")
-
+LogicOption = Enum("LogicOption", "AND OR INDIVIDUAL")
 SortByOption = Enum("SortByOption", "ASC DESC")
 
 session = requests.session()
@@ -82,7 +82,7 @@ class MDHQuery(MDHObject):
                 if isinstance(value, MDHObject):
                     value = "{" + value.serialize() + "}"
 
-                argument_string += f"{attribute}: {value}"
+                argument_string += f" {attribute}: {value} "
                 has_arguments = True
                 if not i == len(attributes) - 1:
                     query += ", "
@@ -265,7 +265,7 @@ class MDHResultSet(MDHObject):
 class MDHQuery_searchMetadata(MDHQuery):
     fileIds: bool or [int] = False
     filterFunctions: bool or [MDHFilterFunction] = False
-    filterLogicOption: bool = True
+    filterLogicOption: bool or LogicOption = True
     sortFunctions: bool or [MDHSortFunction] = False
     filterLogicalIndividual: bool or str = False
     limit: bool or int = False
@@ -275,7 +275,7 @@ class MDHQuery_searchMetadata(MDHQuery):
 
     @property
     def selectedTags(self) -> bool or [str]:
-        if self._selectedTags:
+        if self._selectedTags and isinstance(self._selectedTags, bool):
             _selectedTags = []
             for dataType in self.result.dataTypes:
                 _selectedTags.append(dataType.name)

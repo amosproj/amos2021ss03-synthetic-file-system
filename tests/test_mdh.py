@@ -2,14 +2,16 @@
 import json
 import unittest
 
-# Local import
-from src.mdh_bridge import MDHQueryRoot, MDHQuery_searchMetadata, MDHMetadatatagDataType, MDHFile, MDHMetadatum
+# Local imports
+from src.mdh_bridge import MDHQueryRoot, MDHQuery_searchMetadata, MDHQuery_systemInfo, MDHMetadatatagDataType, MDHFile, MDHMetadatum
 
 
 class TestBridge(unittest.TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls) -> None:
         query_root = MDHQueryRoot()
+        # search query
         search_query = MDHQuery_searchMetadata()
 
         # setup search options
@@ -35,9 +37,18 @@ class TestBridge(unittest.TestCase):
 
         query_root.queries.append(search_query)
 
-        self.query_root = query_root
+        # system query 
+        system_query = MDHQuery_systemInfo()
 
-    def test_deserialize(self):
+        system_query.result.instanceName = True
+        system_query.result.currentUserRole = True
+        system_query.result.hostSystem = True
+
+        query_root.queries.append(system_query)
+
+        cls.query_root = query_root
+
+    def test_deserialize(self) -> None:
 
         query_root = self.query_root
 
@@ -98,32 +109,52 @@ class TestBridge(unittest.TestCase):
                             ]
                         }
                     ]
+                },
+                "systemInfo": {
+                    "hostSystem": "Linux",
+                    "currentUserRole": "ADMIN",
+                    "instanceName": "core-1"
                 }
             }}
         )
 
         query_root.deserialize(graphql)
-        mdh_query = query_root.queries[0]
+        mdh_search_query = query_root.queries[0]
+        mdh_system_query = query_root.queries[1]
 
-        self.assertEqual("searchMetadata", mdh_query.query_name)
-        self.assertEqual(1446, mdh_query.result.totalFilesCount)
-        self.assertEqual(1446, mdh_query.result.returnedFilesCount)
-        self.assertEqual("core-1", mdh_query.result.instanceName)
-        self.assertEqual("UTC", mdh_query.result.timeZone)
-        self.assertEqual(True, mdh_query.result.fixedReturnColumnSize)
+        # search query tests
+        self.assertEqual("searchMetadata", mdh_search_query.query_name)
+        self.assertEqual(1446, mdh_search_query.result.totalFilesCount)
+        self.assertEqual(1446, mdh_search_query.result.returnedFilesCount)
+        self.assertEqual("core-1", mdh_search_query.result.instanceName)
+        self.assertEqual("UTC", mdh_search_query.result.timeZone)
+        self.assertEqual(True, mdh_search_query.result.fixedReturnColumnSize)
 
-        dataTypes = mdh_query.result.dataTypes
+        dataTypes = mdh_search_query.result.dataTypes
         self.assertEqual("MIMEType", dataTypes[0].name)
         self.assertEqual("str", dataTypes[0].type)
 
-        files = mdh_query.result.files
+        files = mdh_search_query.result.files
         self.assertEqual("666", files[0].id)
         self.assertEqual("FileName", files[0].metadata[0].name)
         self.assertEqual("image-00194.dcm", files[0].metadata[0].value)
 
-    def test_serialize(self):
+        # system query tests
+        self.assertEqual("Linux", mdh_system_query.result.hostSystem)
+        self.assertEqual("ADMIN", mdh_system_query.result.currentUserRole)
+        self.assertEqual("core-1", mdh_system_query.result.instanceName)
+
+    def test_serialize(self) -> None:
         query_root = self.query_root
+        mdh_search_query = query_root.queries[0]
+        mdh_system_query = query_root.queries[1]
 
-        print(json.loads(query_root.serialize()))
+        graphql = query_root.serialize()
 
-        self.assertTrue(False)
+        # search query tests
+        self.assertIn(mdh_search_query.query_name, graphql)
+        self.assertIn(str(mdh_search_query.selectedTags), graphql)
+        # TODO: test filterFunctions and filterLogicOption (probably unnecessary)
+
+        # system query tests
+        self.assertIn(mdh_system_query.query_name, graphql)

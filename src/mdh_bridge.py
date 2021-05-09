@@ -21,8 +21,8 @@ class MDHObject:
 
     def serialize(self):
         # Get all members of the object
-        attributes = [attr for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith(
-            "__") and not attr.startswith("_") and attr not in ["query_name", "result"]]
+        attributes = [attr for attr in dir(self) if not callable(
+            getattr(self, attr)) and not attr.startswith("_") and attr not in ["query_name", "result"]]
 
         query = ""
         # Enumerate over all arguments and add them to the query
@@ -68,8 +68,8 @@ class MDHQuery(MDHObject):
         query = self.query_name
 
         # Get all members of the Query
-        attributes = [attr for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith(
-            "__") and not attr.startswith("_") and attr not in ["query_name", "result"]]
+        attributes = [attr for attr in dir(self) if not callable(
+            getattr(self, attr))and not attr.startswith("__") and attr not in ["query_name", "result"]]
 
         has_arguments = False
 
@@ -265,7 +265,7 @@ class MDHResultSet(MDHObject):
 class MDHQuery_searchMetadata(MDHQuery):
     fileIds: bool or [int] = False
     filterFunctions: bool or [MDHFilterFunction] = False
-    filterLogicOption: bool or LogicOption = True
+    filterLogicOption: bool or LogicOption = False
     sortFunctions: bool or [MDHSortFunction] = False
     filterLogicalIndividual: bool or str = False
     limit: bool or int = False

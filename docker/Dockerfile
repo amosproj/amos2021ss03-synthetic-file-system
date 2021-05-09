@@ -24,8 +24,6 @@ COPY requirements.txt requirements.txt
 COPY mount.sh mount.sh
 COPY ./src/ ./src/
 
-COPY ./data /app
-
 RUN pip3 install -r requirements.txt
 RUN mkdir -p /fuse_mount
 RUN mkdir -p /test_root

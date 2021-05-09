@@ -286,7 +286,7 @@ class MDHQuery_searchMetadata(MDHQuery):
         return False
 
     @selectedTags.setter
-    def selectedTags(self, selectedTags):
+    def selectedTags(self, selectedTags) -> None:
         self._selectedTags = selectedTags
 
     result = MDHResultSet()

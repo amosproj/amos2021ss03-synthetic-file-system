@@ -143,26 +143,6 @@ class MDHMetadata(MDHObject):
     # randomExample  NOT IMPLEMENTED YET
 
 
-class MDHFile(MDHObject):
-    id: bool or str = False
-    metadata: bool or MDHMetadata or [MDHMetadatum] = False
-
-
-class MDHResultSet(MDHObject):
-    fromIndex: bool or int = False
-    toIndex: bool or int = False
-    totalFilesCound: bool or int = False
-    returnedFilesCount: bool or int = False
-    timeZone: bool or str = False
-    instanceName: bool or str = False
-    fixedReturnColumnSize: bool = False  # TODO how do we do this here?
-    graphQLQuery: bool or str = False
-    graphQLVariables: bool or str = False
-    files: bool or MDHFile or [MDHFile] = False
-    graphQLDebug: bool or str = False
-    dataTypes: bool or MDHMetadatatagDataType or [MDHMetadatatagDataType] = False
-
-
 class MDHFileTypeStat(MDHObject):
     name: bool or str = False
     count: bool or int = False
@@ -205,20 +185,6 @@ class MDHSortFunction(MDHObject):
     sortBy: bool or str = False
     sortByOption: bool or SortByOption = False
 
-
-class MDHQuery_searchMetadata(MDHQuery):
-    fileIds: bool or [int] = False
-    filterFunctions: bool or [MDHFilterFunction] = False
-    sortFunctions: bool or [MDHSortFunction] = False
-    filterLogicalIndividual: bool or str = False
-    selectedTags: bool or [str] = False
-    limit: bool or int = False
-    offset: bool or int = False
-    fileSizeAsHumanReadable: bool = False  # TODO how do we do this with bool values?
-    convertDateTimeTo: bool or str = False
-
-    result = MDHResultSet()
-    query_name = "searchMetadata"
 
 
 class MDHQuery_systemInfo(MDHQuery):
@@ -285,6 +251,41 @@ class MDHQuery_getMimeType:
 
     query_name = "getMimeType"
     result = MDHMimeType()
+
+
+class MDHFile(MDHObject):
+    id: bool or str = False
+    metadata: bool or MDHMetadata or [MDHMetadatum] = False
+
+
+class MDHResultSet(MDHObject):
+    fromIndex: bool or int = False
+    toIndex: bool or int = False
+    totalFilesCount: bool or int = False
+    returnedFilesCount: bool or int = False
+    timeZone: bool or str = False
+    instanceName: bool or str = False
+    fixedReturnColumnSize: bool = False  # TODO how do we do this here?
+    graphQLQuery: bool or str = False
+    graphQLVariables: bool or str = False
+    files: bool or MDHFile or [MDHFile] = False
+    graphQLDebug: bool or str = False
+    dataTypes: bool or MDHMetadatatagDataType or [MDHMetadatatagDataType] = False
+
+
+class MDHQuery_searchMetadata(MDHQuery):
+    fileIds: bool or [int] = False
+    filterFunctions: bool or [MDHFilterFunction] = False
+    sortFunctions: bool or [MDHSortFunction] = False
+    filterLogicalIndividual: bool or str = False
+    selectedTags: bool or [str] = False
+    limit: bool or int = False
+    offset: bool or int = False
+    fileSizeAsHumanReadable: bool = False  # TODO how do we do this with bool values?
+    convertDateTimeTo: bool or str = False
+
+    result = MDHResultSet()
+    query_name = "searchMetadata"
 
 
 class MDHQueryRoot:

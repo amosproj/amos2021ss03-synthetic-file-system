@@ -37,7 +37,9 @@ class TestBridge(unittest.TestCase):
 
         self.query_root = query_root
 
-    def test_deserialize_serialize(self):
+    def test_deserialize(self):
+
+        query_root = self.query_root
 
         graphql = json.dumps(
             {"data": {
@@ -99,8 +101,28 @@ class TestBridge(unittest.TestCase):
                 }
         }})
 
-        self.query_root.deserialize(graphql)
+        query_root.deserialize(graphql)
+        mdh_query = query_root.queries[0]
 
-        
-        print(self.query_root.serialize())
+        self.assertEqual("searchMetadata", mdh_query.query_name)
+        self.assertEqual(1446, mdh_query.result.totalFilesCount)
+        self.assertEqual(1446, mdh_query.result.returnedFilesCount)
+        self.assertEqual("core-1", mdh_query.result.instanceName)
+        self.assertEqual("UTC", mdh_query.result.timeZone)
+        self.assertEqual(True, mdh_query.result.fixedReturnColumnSize)
+
+        dataTypes = mdh_query.result.dataTypes
+        self.assertEqual("MIMEType", dataTypes[0].name)
+        self.assertEqual("str", dataTypes[0].type)
+
+        files = mdh_query.result.files
+        self.assertEqual("666", files[0].id)
+        self.assertEqual("FileName", files[0].metadata[0].name)
+        self.assertEqual("image-00194.dcm", files[0].metadata[0].value)
+
+    def test_serialize(self):
+        query_root = self.query_root
+
+        print(json.loads(query_root.serialize()))
+
         self.assertTrue(False)

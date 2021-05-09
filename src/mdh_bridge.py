@@ -203,21 +203,21 @@ class MDHQuery_getMetadataTags(MDHQuery):
 
 
 class MDHQuery_getFileTypes(MDHQuery):
-    excludeFileType: bool or str
-    excludeMimeType: bool or str
-    nameFilter: bool or str
-    limit: bool or int
-    offset: bool or int
+    excludeFileType: bool or str = False
+    excludeMimeType: bool or str = False
+    nameFilter: bool or str = False
+    limit: bool or int = False
+    offset: bool or int = False
 
     query_name = "getFileTypes"
     result: [MDHFileType] = []
 
 
 class MDHQuery_getMimeTypes(MDHQuery):
-    excludeMimeType: bool or str
-    nameFilter: bool or str
-    limit: bool or int
-    offset: bool or int
+    excludeMimeType: bool or str = False
+    nameFilter: bool or str = False
+    limit: bool or int = False
+    offset: bool or int = False
 
     query_name = "getMimeTypes"
     result: [MDHMimeType] = []
@@ -226,7 +226,7 @@ class MDHQuery_getMimeTypes(MDHQuery):
 class MDHQuery_getMetadata(MDHQuery):
     fileTypeScope: bool or str = False
     mimeTypeScope: bool or str = False
-    name: bool or str
+    name: bool or str = False
 
     query_name = "getMetadata"
     result = MDHMetadata()

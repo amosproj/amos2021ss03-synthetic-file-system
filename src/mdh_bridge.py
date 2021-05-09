@@ -69,7 +69,7 @@ class MDHQuery(MDHObject):
 
         # Get all members of the Query
         attributes = [attr for attr in dir(self) if not callable(
-            getattr(self, attr))and not attr.startswith("__") and attr not in ["query_name", "result"]]
+            getattr(self, attr)) and not attr.startswith("__") and attr not in ["query_name", "result"]]
 
         has_arguments = False
 

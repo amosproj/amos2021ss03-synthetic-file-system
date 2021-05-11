@@ -8,6 +8,11 @@ services:
       dockerfile: docker/Dockerfile
     container_name: synthetic-file-system
     image: fuse_skeleton
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix 
+      - $XAUTHORITY:/root/.Xauthority
+    environment:
+      - DISPLAY=$DISPLAY
     stdin_open: true
     tty: true
     cap_add:
@@ -15,3 +20,5 @@ services:
     devices:
       - "/dev/fuse"
     network_mode: "host"
+    security_opt:
+      - apparmor:unconfined

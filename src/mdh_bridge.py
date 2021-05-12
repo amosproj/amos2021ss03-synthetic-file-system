@@ -1,3 +1,4 @@
+
 import copy
 import requests
 import json
@@ -6,6 +7,35 @@ from enum import Enum
 """
 harvest queries ang query builder queries are not implemented! No idea if/when they will come
 Objects in query arguments are not supported so fat :(
+"""
+
+"""
+This class allows for easy communication with the Metadatahub webql. For this it offers classes, mirroring
+every query or object that can be used in the MDH. All of these classes inherit MDHObject, which offers
+functionality to (de-)serialize the contents from the class into a query, or the result of a query into the classes.
+All Queries inherit from MDHQuery, which implements a different serialization algorithm.
+The usage of this functionality can be broken down into a few steps:
+1. Set up a MDHQueryRoot class. This class contains a list of queries that will be executed in the MDH.
+    query_root = MDHQueryRoot()
+2. Set up an MDHQuery. For this you have to create some new Query, like this:
+    query = MDHQuery_searchMetadata()
+Every query has some flags as their members, which are default set to False. When they are set to another value, that
+value is used as an argument for their query. For example, when you only want to search metadata with a certain fileId:
+    query.fileIds = [1, 2, 3, 4, 5]
+3. Set the result field of the Query: For every query, the result field has to be specified. This field is repsonsible,
+for telling the MDH which of the resulting objects attributes you actually want to get returned. For example, if you
+only want to see the total number of results and all the metadata for all the resulting classes, use the following:
+    query.result.totalFilesCount = True
+    query.result.files = MDHFile()
+    query.result.files.metadata = MDHMetadata()
+    query.result.files.metadata.metadatum.name = True
+    query.result.files.metadata.metadatum.value = True
+4. Add the query to the query_root and execute it:
+    query_root.queries.append(query)
+    query_root.build_and_send_request()
+5. Access the queries results:
+    total_file_count = query_root.queries[0].result.totalFilesCount
+    ...
 """
 
 MetadataOption = Enum("MetadataOption",
@@ -69,7 +99,7 @@ class MDHQuery(MDHObject):
 
         # Get all members of the Query
         attributes = [attr for attr in dir(self) if not callable(
-            getattr(self, attr)) and not attr.startswith("__") and attr not in ["query_name", "result"]]
+            getattr(self, attr)) and not attr.startswith("_") and attr not in ["query_name", "result"]]
 
         has_arguments = False
 
@@ -272,6 +302,7 @@ class MDHQuery_searchMetadata(MDHQuery):
     offset: bool or int = False
     fileSizeAsHumanReadable: bool = False  # TODO how do we do this with bool values?
     convertDateTimeTo: bool or str = False
+    _selectedTags: bool or [str] = False
 
     @property
     def selectedTags(self) -> bool or [str]:
@@ -361,3 +392,7 @@ if __name__ == '__main__':
     rq.build_and_send_request()
     print(rq.serialize())
 """
+     
+
+
+     

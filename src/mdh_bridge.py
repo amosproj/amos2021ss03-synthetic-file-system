@@ -1,17 +1,12 @@
-import requests
-import json
-from enum import Enum
 import copy
+from enum import Enum
+import json
+import requests
 
-"""
-harvest queries ang query builder queries are not implemented! No idea if/when they will come
-Objects in query arguments are not supported so fat :(
+""" harvest queries ang query builder queries are not implemented! No idea if/when they will come
+Objects in query arguments are not supported so fat :( """
 
-"""
-
-"""
-This class allows for easy communication with the Metadatahub webql. For this it offers classes, mirroring 
-every query or object that can be used in the MDH. All of these classes inherit MDHObject, which offers 
+""" This class allows for easy communication with the Metadatahub webql. For this it offers classes, mirroring every query or object that can be used in the MDH. All of these classes inherit MDHObject, which offers 
 functionality to (de-)serialize the contents from the class into a query, or the result of a query into the classes.
 All Queries inherit from MDHQuery, which implements a different serialization algorithm.
 
@@ -40,9 +35,7 @@ only want to see the total number of results and all the metadata for all the re
     
 5. Access the queries results:
     total_file_count = query_root.queries[0].result.totalFilesCount
-    ...
-
-"""
+    ... """
 
 MetadataOption = Enum("MetadataOption",
                       "NOT_CONTAINS EQUAL NOT_EQUAL GREATER SMALLER EXISTS NOT_EXISTS EMPTY NOT_EMPTY")
@@ -353,7 +346,6 @@ class MDHQueryRoot:
         result = session.post(url, json={"query": query})
         self.deserialize(result.text)
 
-
 """
 temporary test case for the bridge and the fuse_utils; IGNORE
 TODO: remove this when a proper test case has been written 
@@ -401,5 +393,4 @@ if __name__ == '__main__':
     rq.build_and_send_request()
 
     print(rq.serialize())
-
 """

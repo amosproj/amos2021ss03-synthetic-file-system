@@ -1,3 +1,4 @@
+
 import copy
 import requests
 import json
@@ -13,17 +14,14 @@ This class allows for easy communication with the Metadatahub webql. For this it
 every query or object that can be used in the MDH. All of these classes inherit MDHObject, which offers
 functionality to (de-)serialize the contents from the class into a query, or the result of a query into the classes.
 All Queries inherit from MDHQuery, which implements a different serialization algorithm.
-
 The usage of this functionality can be broken down into a few steps:
 1. Set up a MDHQueryRoot class. This class contains a list of queries that will be executed in the MDH.
     query_root = MDHQueryRoot()
-
 2. Set up an MDHQuery. For this you have to create some new Query, like this:
     query = MDHQuery_searchMetadata()
 Every query has some flags as their members, which are default set to False. When they are set to another value, that
 value is used as an argument for their query. For example, when you only want to search metadata with a certain fileId:
     query.fileIds = [1, 2, 3, 4, 5]
-
 3. Set the result field of the Query: For every query, the result field has to be specified. This field is repsonsible,
 for telling the MDH which of the resulting objects attributes you actually want to get returned. For example, if you
 only want to see the total number of results and all the metadata for all the resulting classes, use the following:
@@ -32,15 +30,12 @@ only want to see the total number of results and all the metadata for all the re
     query.result.files.metadata = MDHMetadata()
     query.result.files.metadata.metadatum.name = True
     query.result.files.metadata.metadatum.value = True
-
 4. Add the query to the query_root and execute it:
     query_root.queries.append(query)
     query_root.build_and_send_request()
-
 5. Access the queries results:
     total_file_count = query_root.queries[0].result.totalFilesCount
     ...
-
 """
 
 MetadataOption = Enum("MetadataOption",
@@ -363,7 +358,6 @@ class MDHQueryRoot:
 """
 temporary test case for the bridge and the fuse_utils; IGNORE
 TODO: remove this when a proper test case has been written
-
 if __name__ == '__main__':
     query_root = MDHQueryRoot()
     query = MDHQuery_searchMetadata()
@@ -378,34 +372,23 @@ if __name__ == '__main__':
     from anytree import RenderTree
     directory_tree = fuse_utils.build_tree_from_files(metadatahub_files)
     print(RenderTree(directory_tree))
-
     rq = MDHQueryRoot()
     q = MDHQuery_searchMetadata()
-
     q.result.toIndex = True
-
     f = MDHFile()
     f.id = True
-
     f.metadata = MDHMetadatum()
     f.metadata.name = True
     f.metadata.value = True
-
     q.result.files = f
     q.fileIds = [13, 69, 420]
-
     rq.queries.append(q)
-
     query2 = MDHQuery_getServerState()
     query2.result.runningSince = True
     rq.queries.append(query2)
-
     query3 = MDHQuery_systemInfo()
     query3.result.harvestedFiles = True
     rq.queries.append(query3)
-
     rq.build_and_send_request()
-
     print(rq.serialize())
-
 """

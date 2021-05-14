@@ -2,3 +2,4 @@ fusepy
 requests
 anytree
 toml
+pyinotify

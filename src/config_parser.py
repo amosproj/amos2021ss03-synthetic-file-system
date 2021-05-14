@@ -1,5 +1,19 @@
+import os.path
+
 from mdh_bridge import *
 import toml
+import pyinotify
+
+
+
+
+def setup(config_path: str, event_handler: pyinotify.ProcessEvent):
+    watch_manager = pyinotify.WatchManager()
+    watch_manager.add_watch(os.path.abspath(config_path), pyinotify.ALL_EVENTS, rec=True)
+
+    # notifier
+    notifier = pyinotify.Notifier(watch_manager, event_handler)
+    notifier.loop()
 
 
 def create_query_from_config(config_path: str) -> MDHQuery_searchMetadata:
@@ -20,8 +34,6 @@ def create_query_from_config(config_path: str) -> MDHQuery_searchMetadata:
         search_Query.filterLogicOption = LogicOption.AND
         return search_Query
 
-
-# create_query_from_config("../config.cfg")
 
 
 """

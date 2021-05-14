@@ -89,6 +89,28 @@ class MDHObject:
                 else:
                     setattr(self, entry, json[entry])
 
+class MDHArgument(MDHObject):
+
+    def serialize(self) -> str:
+        attributes = [attr for attr in dir(self) if not callable(
+            getattr(self, attr)) and not attr.startswith("_") and attr not in ["query_name", "result"]]
+
+        argument = "{"
+        # Enumerate over all arguments and add them to the argument
+        for i, attribute in enumerate(attributes):
+            value = getattr(self, attribute)
+            if isinstance(value, str):
+                value = f"\"{value}\""
+            if isinstance(value, Enum):
+                value = value.name
+            argument += f"{attribute}:{value}"
+            if i != len(attributes) - 1:
+                argument += ", "
+        argument += "}"
+
+        return argument
+
+
 
 class MDHQuery(MDHObject):
     query_name = ""
@@ -109,13 +131,24 @@ class MDHQuery(MDHObject):
             value = getattr(self, attribute)
 
             if value:
-                if isinstance(value, MDHObject):
+                if isinstance(value, MDHArgument):
                     value = "{" + value.serialize() + "}"
+                if isinstance(value, Enum):
+                    value = value.name
+
+                if isinstance(value, list) and len(value) > 0 and isinstance(value[0], MDHArgument):
+                    serialized = "["
+                    for mdh_argument in value:  # type: MDHArgument
+                        serialized += mdh_argument.serialize()
+                        serialized += ", "
+                    serialized += "]"
+                    value = serialized
 
                 argument_string += f" {attribute}: {value} "
                 has_arguments = True
                 if not i == len(attributes) - 1:
-                    query += ", "
+                    argument_string += ", "
+
 
         # if arguments are given add them to the query
         if has_arguments:
@@ -195,13 +228,13 @@ class MDHServerState(MDHObject):
     runningSince: bool or int = False
 
 
-class MDHFilterFunction(MDHObject):
+class MDHFilterFunction(MDHArgument):
     tag: bool or str = False
     value: bool or str = False
     operation: bool or MetadataOption = False
 
 
-class MDHSortFunction(MDHObject):
+class MDHSortFunction(MDHArgument):
     sortBy: bool or str = False
     sortByOption: bool or SortByOption = False
 

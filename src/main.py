@@ -16,6 +16,7 @@ from fuse import FUSE, Operations  # FuseOSError
 from mdh_bridge import MDHQueryRoot, MDHQuery_searchMetadata, MDHFile, MDHMetadatum, MDHResultSet
 from anytree import Node, RenderTree, Resolver
 import fuse_utils
+import config_parser
 
 
 class FuseStat:
@@ -38,7 +39,7 @@ class MDH_FUSE(Operations):
 
         # Set up our files
         query_root = MDHQueryRoot()
-        query = MDHQuery_searchMetadata()
+        query = config_parser.create_query_from_config("../config.cfg")
         query.result.files = MDHFile()
         query.result.files.metadata = MDHMetadatum()
         query.result.files.metadata.value = True
@@ -68,6 +69,7 @@ class MDH_FUSE(Operations):
         # full_path = self._full_path(path)
         # if not os.access(full_path, mode):
         #    raise FuseOSError(errno.EACCES)
+        return 0
 
     def chmod(self, path, mode):
         print("chmod called")

@@ -11,6 +11,7 @@ import sys
 # import errno
 import stat
 # import anytree
+import pyinotify
 
 from fuse import FUSE, Operations  # FuseOSError
 from mdh_bridge import MDHQueryRoot, MDHQuery_searchMetadata, MDHFile, MDHMetadatum, MDHResultSet
@@ -27,6 +28,46 @@ class FuseStat:
     st_mtime: int = 0
     st_nlink: int = 1
     st_size: int = 43000
+
+
+class MyEventHandler(pyinotify.ProcessEvent):
+
+    def __init__(self, fuse, **kargs):
+        super().__init__(**kargs)
+        self.fuse = fuse
+
+    def process_IN_CLOSE_NOWRITE(self, event):
+        print("CLOSE_NOWRITE event:", event.pathname)
+        query_root = MDHQueryRoot()
+        query = config_parser.create_query_from_config("../config.cfg")
+        query.result.files = MDHFile()
+        query.result.files.metadata = MDHMetadatum()
+        query.result.files.metadata.value = True
+        query.result.files.metadata.name = True
+        query_root.queries.append(query)
+
+        query_root.build_and_send_request()  # type: MDHResultSet
+        self.fuse.metadatahub_files = query_root.queries[0].result.files
+        self.fuse.directory_tree = fuse_utils.build_tree_from_files(self.fuse.metadatahub_files)
+        print(RenderTree(self.fuse.directory_tree))
+        print("updated dir tree")
+
+    def process_IN_CLOSE_WRITE(self, event):
+        print("CLOSE_WRITE event:", event.pathname)
+        query_root = MDHQueryRoot()
+        query = config_parser.create_query_from_config("../config.cfg")
+        query.result.files = MDHFile()
+        query.result.files.metadata = MDHMetadatum()
+        query.result.files.metadata.value = True
+        query.result.files.metadata.name = True
+        query_root.queries.append(query)
+
+        query_root.build_and_send_request()  # type: MDHResultSet
+        self.fuse.metadatahub_files = query_root.queries[0].result.files
+        self.fuse.directory_tree = fuse_utils.build_tree_from_files(self.fuse.metadatahub_files)
+        print(RenderTree(self.fuse.directory_tree))
+        print("updated dir tree")
+
 
 
 class MDH_FUSE(Operations):
@@ -51,6 +92,9 @@ class MDH_FUSE(Operations):
         self.directory_tree = fuse_utils.build_tree_from_files(self.metadatahub_files)
         print(RenderTree(self.directory_tree))
         print("fuse running")
+
+        event_handler = MyEventHandler(self)
+        config_parser.setup("../config.cfg", event_handler)
 
     # Helpers
     # =======

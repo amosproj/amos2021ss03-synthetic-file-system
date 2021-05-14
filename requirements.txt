@@ -1,3 +1,4 @@
 fusepy
 requests
 anytree
+toml

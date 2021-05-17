@@ -1,8 +1,8 @@
-
 import copy
-import requests
 import json
 from enum import Enum
+
+import requests
 
 """
 harvest queries ang query builder queries are not implemented! No idea if/when they will come
@@ -89,6 +89,7 @@ class MDHObject:
                 else:
                     setattr(self, entry, json[entry])
 
+
 class MDHArgument(MDHObject):
 
     def serialize(self) -> str:
@@ -109,7 +110,6 @@ class MDHArgument(MDHObject):
         argument += "}"
 
         return argument
-
 
 
 class MDHQuery(MDHObject):
@@ -148,7 +148,6 @@ class MDHQuery(MDHObject):
                 has_arguments = True
                 if not i == len(attributes) - 1:
                     argument_string += ", "
-
 
         # if arguments are given add them to the query
         if has_arguments:

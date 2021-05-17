@@ -7,18 +7,19 @@
 from __future__ import with_statement
 
 import os
-import sys
 # import errno
 import stat
-# import anytree
-import pyinotify
+import sys
 import threading
 
-from fuse import FUSE, Operations  # FuseOSError
-from mdh_bridge import MDHQueryRoot, MDHQuery_searchMetadata, MDHFile, MDHMetadatum, MDHResultSet
+# import anytree
+import pyinotify
 from anytree import Node, RenderTree, Resolver
-import fuse_utils
+from fuse import FUSE, Operations  # FuseOSError
+
 import config_parser
+import fuse_utils
+from mdh_bridge import MDHQueryRoot, MDHFile, MDHMetadatum, MDHResultSet
 
 
 class FuseStat:
@@ -87,7 +88,6 @@ class ConfigfileEventHandler(pyinotify.ProcessEvent):
         self.update_tree()
 
 
-
 class MDH_FUSE(Operations):
     """
     Main class of the FUSE. Responsible for correctly sending the information from the MDH to the filesystem via
@@ -118,7 +118,6 @@ class MDH_FUSE(Operations):
         self.directory_tree = fuse_utils.build_tree_from_files(self.metadatahub_files)
         print(RenderTree(self.directory_tree))
         print("fuse running")
-
 
     # Helpers
     # =======
@@ -279,7 +278,6 @@ class MDH_FUSE(Operations):
 
 
 def main(mountpoint):
-
     mdh_fuse = MDH_FUSE()
 
     # create the event handler and run the watch in a seperate thread so that it doesn't block our main thread
@@ -288,7 +286,6 @@ def main(mountpoint):
     print("initializing fuse")
     # start the fuse with out custom FUSE class and the given mount point
     FUSE(mdh_fuse, mountpoint, nothreads=True, foreground=True)
-
 
 
 if __name__ == '__main__':

@@ -22,6 +22,10 @@ import config_parser
 
 
 class FuseStat:
+    """
+    class that is used to represent the stat struct used by the Linux kernel, where it is used to store/access
+    metadata for files. For more information on the specific variables see stat(2)
+    """
     st_atime: int = 0
     st_ctime: int = 0
     st_gid: int = 0
@@ -31,53 +35,72 @@ class FuseStat:
     st_size: int = 43000
 
 
-class MyEventHandler(pyinotify.ProcessEvent):
+class ConfigfileEventHandler(pyinotify.ProcessEvent):
+    """
+    Event handler that gets triggered when the "config.cfg" file changes. If this happens, this class is
+    responsible for updating the directory tree, according to the new filters
+    """
 
     def __init__(self, fuse, **kargs):
+        """
+        Constructor for the class. For more information see pyinotify.ProcessEvent.__init()__
+        :param fuse: mdh_fuse for which the directory tree will be updated
+        :param kargs: optional arguments for the pyinotify.ProcessEvent constructor
+        """
         super().__init__(**kargs)
         self.fuse = fuse
-        print("inited event handler!")
+
+    def update_tree(self):
+        """
+        Update the directory tree in the fuse, according to the new config
+        :return: Nothing
+        """
+
+        print("Updating the directory tree")
+        query_root = MDHQueryRoot()
+        query = config_parser.create_query_from_config("../config.cfg")
+        query.result.files = MDHFile()
+        query.result.files.metadata = MDHMetadatum()
+        query.result.files.metadata.value = True
+        query.result.files.metadata.name = True
+        query_root.queries.append(query)
+
+        query_root.build_and_send_request()  # type: MDHResultSet
+        self.fuse.metadatahub_files = query_root.queries[0].result.files
+        self.fuse.directory_tree = fuse_utils.build_tree_from_files(self.fuse.metadatahub_files)
 
     def process_IN_CLOSE_NOWRITE(self, event):
-        print("CLOSE_NOWRITE event:", event.pathname)
-        query_root = MDHQueryRoot()
-        query = config_parser.create_query_from_config("../config.cfg")
-        query.result.files = MDHFile()
-        query.result.files.metadata = MDHMetadatum()
-        query.result.files.metadata.value = True
-        query.result.files.metadata.name = True
-        query_root.queries.append(query)
-
-        query_root.build_and_send_request()  # type: MDHResultSet
-        self.fuse.metadatahub_files = query_root.queries[0].result.files
-        self.fuse.directory_tree = fuse_utils.build_tree_from_files(self.fuse.metadatahub_files)
-        print(RenderTree(self.fuse.directory_tree))
-        print("updated dir tree")
+        """
+        gets called when a IN_CLOSE_NOWRITE event is triggered on the config file
+        :param event: see parent class documentation; unused
+        :return: Nothing
+        """
+        self.update_tree()
 
     def process_IN_CLOSE_WRITE(self, event):
-        print("CLOSE_WRITE event:", event.pathname)
-        query_root = MDHQueryRoot()
-        query = config_parser.create_query_from_config("../config.cfg")
-        query.result.files = MDHFile()
-        query.result.files.metadata = MDHMetadatum()
-        query.result.files.metadata.value = True
-        query.result.files.metadata.name = True
-        query_root.queries.append(query)
-
-        query_root.build_and_send_request()  # type: MDHResultSet
-        self.fuse.metadatahub_files = query_root.queries[0].result.files
-        self.fuse.directory_tree = fuse_utils.build_tree_from_files(self.fuse.metadatahub_files)
-        print(RenderTree(self.fuse.directory_tree))
-        print("updated dir tree")
+        """
+        gets called when a IN_CLOSE_WRITE event is triggered on the config file
+        :param event: see parent class documentation; unused
+        :return: Nothing
+        """
+        self.update_tree()
 
 
 
 class MDH_FUSE(Operations):
+    """
+    Main class of the FUSE. Responsible for correctly sending the information from the MDH to the filesystem via
+    the hooked function calls. For more information see https://github.com/fusepy/fusepy
+    """
+
     metadatahub_files = None  # type: [MDHFile]
 
     directory_tree = Node
 
     def __init__(self):
+        """
+        Sets the directory tree up using the filters in config.cfg
+        """
         self.root = ""
 
         # Set up our files
@@ -255,12 +278,14 @@ class MDH_FUSE(Operations):
 
 
 def main(mountpoint):
+
     mdh_fuse = MDH_FUSE()
 
-    event_handler = MyEventHandler(mdh_fuse)
-    # config_parser.setup("../config.cfg", event_handler)
+    # create the event handler and run the watch in a seperate thread so that it doesn't block our main thread
+    event_handler = ConfigfileEventHandler(mdh_fuse)
     threading.Thread(target=config_parser.setup, args=("../config.cfg", event_handler)).start()
-    print("initing fuse")
+    print("initializing fuse")
+    # start the fuse with out custom FUSE class and the given mount point
     FUSE(mdh_fuse, mountpoint, nothreads=True, foreground=True)
 
 

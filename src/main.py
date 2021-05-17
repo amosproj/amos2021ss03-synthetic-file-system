@@ -58,7 +58,7 @@ class ConfigfileEventHandler(pyinotify.ProcessEvent):
 
         print("Updating the directory tree")
         query_root = MDHQueryRoot()
-        query = config_parser.create_query_from_config("../config.cfg")
+        query = config_parser.create_query_from_config("../config/config.cfg")
         query.result.files = MDHFile()
         query.result.files.metadata = MDHMetadatum()
         query.result.files.metadata.value = True
@@ -75,7 +75,8 @@ class ConfigfileEventHandler(pyinotify.ProcessEvent):
         :param event: see parent class documentation; unused
         :return: Nothing
         """
-        self.update_tree()
+        # self.update_tree()
+        pass
 
     def process_IN_CLOSE_WRITE(self, event):
         """
@@ -105,7 +106,7 @@ class MDH_FUSE(Operations):
 
         # Set up our files
         query_root = MDHQueryRoot()
-        query = config_parser.create_query_from_config("../config.cfg")
+        query = config_parser.create_query_from_config("../config/config.cfg")
         query.result.files = MDHFile()
         query.result.files.metadata = MDHMetadatum()
         query.result.files.metadata.value = True
@@ -283,7 +284,7 @@ def main(mountpoint):
 
     # create the event handler and run the watch in a seperate thread so that it doesn't block our main thread
     event_handler = ConfigfileEventHandler(mdh_fuse)
-    threading.Thread(target=config_parser.setup, args=("../config.cfg", event_handler)).start()
+    threading.Thread(target=config_parser.setup, args=("../config/", event_handler)).start()
     print("initializing fuse")
     # start the fuse with out custom FUSE class and the given mount point
     FUSE(mdh_fuse, mountpoint, nothreads=True, foreground=True)

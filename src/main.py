@@ -12,6 +12,7 @@ import sys
 import stat
 # import anytree
 import pyinotify
+import threading
 
 from fuse import FUSE, Operations  # FuseOSError
 from mdh_bridge import MDHQueryRoot, MDHQuery_searchMetadata, MDHFile, MDHMetadatum, MDHResultSet
@@ -35,6 +36,7 @@ class MyEventHandler(pyinotify.ProcessEvent):
     def __init__(self, fuse, **kargs):
         super().__init__(**kargs)
         self.fuse = fuse
+        print("inited event handler!")
 
     def process_IN_CLOSE_NOWRITE(self, event):
         print("CLOSE_NOWRITE event:", event.pathname)
@@ -75,8 +77,8 @@ class MDH_FUSE(Operations):
 
     directory_tree = Node
 
-    def __init__(self, root):
-        self.root = root
+    def __init__(self):
+        self.root = ""
 
         # Set up our files
         query_root = MDHQueryRoot()
@@ -93,8 +95,6 @@ class MDH_FUSE(Operations):
         print(RenderTree(self.directory_tree))
         print("fuse running")
 
-        event_handler = MyEventHandler(self)
-        config_parser.setup("../config.cfg", event_handler)
 
     # Helpers
     # =======
@@ -254,8 +254,15 @@ class MDH_FUSE(Operations):
         return self.flush(path, fh)
 
 
-def main(mountpoint, root):
-    FUSE(MDH_FUSE(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True})
+def main(mountpoint):
+    mdh_fuse = MDH_FUSE()
+
+    event_handler = MyEventHandler(mdh_fuse)
+    # config_parser.setup("../config.cfg", event_handler)
+    threading.Thread(target=config_parser.setup, args=("../config.cfg", event_handler)).start()
+    print("initing fuse")
+    FUSE(mdh_fuse, mountpoint, nothreads=True, foreground=True)
+
 
 
 if __name__ == '__main__':
@@ -265,4 +272,4 @@ if __name__ == '__main__':
     # Hello from Matti <3
     # Hello from Charinee <3
     # Hello from Sandra
-    main(sys.argv[2], sys.argv[1])
+    main(sys.argv[1])

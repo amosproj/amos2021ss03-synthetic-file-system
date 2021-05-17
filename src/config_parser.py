@@ -5,12 +5,10 @@ import toml
 import pyinotify
 
 
-
-
 def setup(config_path: str, event_handler: pyinotify.ProcessEvent):
     watch_manager = pyinotify.WatchManager()
     watch_manager.add_watch(os.path.abspath(config_path), pyinotify.ALL_EVENTS, rec=True)
-
+    print("inited on" + config_path)
     # notifier
     notifier = pyinotify.Notifier(watch_manager, event_handler)
     notifier.loop()
@@ -19,7 +17,6 @@ def setup(config_path: str, event_handler: pyinotify.ProcessEvent):
 def create_query_from_config(config_path: str) -> MDHQuery_searchMetadata:
     with open(config_path, "r") as config_file:
         content = config_file.read()
-        print(content)
         filters = toml.loads(content)
         filter_arguments = []
         for filter in filters["FILTER"]["filters"]:

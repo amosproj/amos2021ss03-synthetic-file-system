@@ -1,4 +1,5 @@
 from anytree import Node, Resolver
+
 from mdh_bridge import MDHFile, MDHMetadatum
 
 

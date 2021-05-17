@@ -1,8 +1,9 @@
 import os.path
 
-from mdh_bridge import *
-import toml
 import pyinotify
+import toml
+
+from mdh_bridge import *
 
 
 def setup(config_path: str, event_handler: pyinotify.ProcessEvent):

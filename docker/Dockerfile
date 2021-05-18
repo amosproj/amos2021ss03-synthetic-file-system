@@ -26,7 +26,7 @@ WORKDIR /app
 COPY requirements.txt requirements.txt
 COPY mount.sh mount.sh
 COPY ./src/ ./src/
-COPY config.cfg config.cfg
+COPY ./config/ ./config/
 
 RUN pip3 install -r requirements.txt
 RUN mkdir -p /fuse_mount

@@ -102,6 +102,14 @@
 * []()
 * []()
 
+### Product Vision
+
+The rapidly growing mass of data requires further refinements and new technologies in order to find the right data in this deluge of information. The creation and management of metadata is decisive for representing the content of stored objects and files. This metadata is held in a database for instant retrieval. Lists can be constructed from these databases to find files and objects in general, but they do not yet afford access to the real data. For this reason, a synthetic file system is considerably useful. A synthetic file system enables to access data, chosen by queries in the database of metadata. Retrieval of project-related data is done through a distributed database and a virtual file system that permits a single namespace for all relevant data designated by their metadata.
+
+
+### Project Mission
+
+Due to the current Corona pandemic, as much data as possible is to be analyzed and evaluated with the help of artificial intelligence (AI). This requires a central intelligence to collect and interpret all accessible data distributed over several facilities. The key issue is that the data is organized and saved in different systems according to different storage types, structures, formats and criteria. The task, or rather mission is now to first make the data obtainable or readable via a uniform mechanism within the project time-frame. This would have the benefit of not having to adapt each application to the different memory types. The synthetic file system is a so-called adapter for each type of memory, so that a unified namespace can be formed from it.
 
 
 <!-- GETTING STARTED -->

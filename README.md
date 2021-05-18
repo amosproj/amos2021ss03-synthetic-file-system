@@ -89,7 +89,9 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+
+This project implements a so called [FUSE](https://en.wikipedia.org/wiki/Filesystem_in_Userspace), a filesystem in userspace, in order to give a unified filesystem view on data in a [Metadatahub](www.metadatahub.de) database.  
+The FUSE also allows for filtering the files it will show according to their metadata
 
 <!-- Here's a blank template to get started:
  To avoid retyping too much info. Do a search and replace with your text editor for the following:
@@ -103,16 +105,18 @@
 * []()
 
 
-
+--- 
 <!-- GETTING STARTED -->
-## Getting Started
+## **Getting Started**
 
 <!--To get a local copy up and running follow these simple steps. -->
 
 ### Prerequisites
 
 * git
-* docker: [follow instructions for your platform](https://docs.docker.com/get-docker/)
+* docker: [follow instructions for your platform](https://docs.docker.com/get-docker/) (Only needed if you want to try the fuse in the docker)
+* docker-compose (Only needed if you want to try the fuse in the docker)
+* [Metadatahub](www.metadatahub.de)
 
 <!--### Installation -->
 ### Installation
@@ -121,63 +125,79 @@
    ```sh
    git clone https://github.com/amosproj/amos-ss2021-synthetic-file-system.git
    ```
-2. The cloned repository contains two files needed to set up the docker containers (but this can also be done manually if you can't run them for some reason):
-    Automatic:
-        `.\init.sh   # Builds the docker container and downloads/sets up the metadatahub`
-    Manually:
-      Set up our docker and metadahub-docker:
-      ```sh
-      git clone https://github.com/amos-project2/metadata-hub
-      cd metadata-hub
-      docker pull amosproject2/metadatahub:latest
-      docker volume create --name metadatahub-database -d local
-      ```
+2. If you want to try the FUSE in a docker environment, build it with
+    ```sh
+    cd amos-ss2021-synthetic-file-system
+    docker-compose up --build 
+    ```
+  
+   For subsequent uses you can just run
+    ```sh
+    docker-compose up
+    ```
+  
 
-      Run the metadatahub container container:
-      ```sh
-      docker run \
-          -p 8080:8080 \
-          -v /home/data:/filesystem  \
-          -v metadatahub-database:/var/lib/postgresql/12/main \
-          amosproject2/metadatahub &>/dev/null & disown;
-      ```
-      
-      Run our container:
-      ```sh
-      docker run -it --net="host" --cap-add=SYS_ADMIN --device=/dev/fuse --security-opt apparmor:unconfined --tty fuse_skeleton
-      ```
+   Then you can connect to the docker from a different shell via
+    ```sh
+    docker exec -it synthetic-file-system tmux
+    ```
+    where ```tmux``` can also be replaced by ```zsh``` or ```bash```, depending on your preferences.
+
+3. This fileystem will be mounted under ```~/fuse_mount```. Create this folder for later use:
+    ```sh
+    mkdir ~/fuse_mount
+    ```
     
 
-
+--- 
 <!-- USAGE EXAMPLES -->
 ## Usage
+### Basics
 
-1. The FUSE pulls its information from the running metadatahub webservice. This can be found at http://localhost:8080
-   To fill in some dummy data go to "http://localhost:8080/?p=treewalk-controller" and start an action that parses some directory
-    Notes:
-    * You should set a date way in the past because the container may be running with a different date 
-    * for some reason the treewalker sometimes does not parse directories when running a job (or I've been using it wrong).
-          What always works is just giving it the root directory: "/, True"
-    To verify that some files have been parsed go to http://localhost:8080/?p=graphiql-console and run the following query:
-    ```query{searchForFileMetadata {numberOfTotalFiles}} ```
-    If files were parsed correctly you should get a result with "numberOfTotalFiles" > 0.
-   
-2. Run the container via the ./run.sh script or manually. This should spawn a shell in the docker.
-    WARNING: The way the FUSE is configured it runs in the foreground and blocks the current shell so that we can see debug output. 
-    This obviously means that you can't use this shell to navigate the FUSE. This is why the container runs [tmux](https://github.com/tmux/tmux/wiki) (Terminal Multiplexer) which allows you to have multiple terminals at the same time.
-    To spawn a new terminal in tmux run "ctrl+b %". To navigate between the two terminals use "ctrl+b 'arrow_keys'".
-    An other option would be setting the FUSE to run in the background in `src/main.py:215`
-   
-3. To mount the metadatahub as a FUSE run the mount script: `./mount.sh`
-4. Navigate to the directory mounted diractory: `cd /fuse_mount`
-5. Navigate the directory via `ls` and `cd`
+1. The FUSE pulls its information from a running [Metadatahub](www.metadatahub.de) service. For more information or documentation refer to the vendor.
+
+2. To run the FUSE, run
+   ```sh
+    ./mount.sh
+   ```
+   This will mount the virtual filesystem under ~/fuse_mount
+
+3. Attention when under using docker:
+  Since the FUSE blocks the current terminal, a new terminal in the docker has to be opened. For this you can just open a new terminal on the host and connect it again to the docker via ```docker exec -it synthetic-file-system tmux ```, or use tmux in the docker to open a new terminal (```ctrl+b -> ctrl+%```). For more information please refer to the [tmux documentation](https://github.com/tmux/tmux/wiki)
+
+4. Traverse the virtual filesystem via a terminal, or via any file browser like ```nautilus```. 
+For docker: The docker container is configured to support X-forwarding, so any UI program opened on the docker will be forwarded to the host. So to traverse the filesystem using a file browser under the docker, just run 
+   ```sh
+    nautilus
+   ```
+   from a terminal that is connected to the docker.
+
+### Configuration
+
+The FUSE allows for filtering of the files that it will list via their metadata. For this, a config file, ```config/config.cfg``` is used. When starting, the FUSE reads all the filters from this file and applies them when retrieving the metadata from the Metadatahub.   
+The filters are specified as a list of triplets, where the first element of each triplet specifies the name of the metadata that the filter shall use, the second one a value, and as the third some relation specifies how values are compared to the one specified in the filter.  
+
+For example, to tell the FUSE to only show all ".jpg" files with an image height greater 500, a config file could look something like this:
+```toml
+[FILTER]
+filters = [
+    ["FileName", "DME-30521-7.jpeg", "EQUAL"] ,
+    ["ImageHeight", "500", "GREATER"],
+]
+```
+This filter is applied when the FUSE is first mounted, however, when changing that file at runtime, the filters will be updated. 
+
+**NOTE**  
+The way the dynamic configuration works, it is needed, that the config file is written to and closed properly, just for example pressing ```ctrl+s``` won't always work. So when ```VIM``` for example, close the file with ```:wq``` or ```:x```.
    
 
 <!--Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
-<!--_For more examples, please refer to the [Documentation](https://example.com)_
+<!--_For more examples, please refer to the [Documentation](https://example.com)_ -->
 
 
+
+----------------------------------------------------------------------- 
 
 <!-- ROADMAP -->
 ## Roadmap
@@ -199,10 +219,14 @@ See the [open issues](https://github.com/amosproj/amos-ss2021-synthetic-file-sys
 
 
 
+
+
 <!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
+
+
 
 
 
@@ -217,12 +241,12 @@ Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](ht
 
 
 
-<!-- ACKNOWLEDGEMENTS -->
+<!-- ACKNOWLEDGEMENTS 
 ## Acknowledgements
 
 * []()
 * []()
-* []()
+* []() -->
 
 
 

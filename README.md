@@ -21,7 +21,7 @@
 [![Open Source Love](https://badges.frapsoft.com/os/v3/open-source.png?v=103)](https://github.com/ellerbrock/open-source-badges/)
 [![Code Coverage][code-shield]][code-url]
 
-[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=amosproj&layout=compact)](https://github.com/amosproj/amos-ss2021-synthetic-file-system/github-readme-stats)
+[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=tuhinmallick&layout=compact)](https://github.com/amosproj/amos-ss2021-synthetic-file-system/github-readme-stats)
 
 
 

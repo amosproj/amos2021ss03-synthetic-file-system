@@ -19,6 +19,10 @@
 [![Kanban Board][board-shield]][board-url]
 [![MIT License][license-shield]][license-url]
 [![Open Source Love](https://badges.frapsoft.com/os/v3/open-source.png?v=103)](https://github.com/ellerbrock/open-source-badges/)
+[![Tests Passing][test-shield]][test-url]
+[![Tests Passing][code-shield]][code-url]
+
+
 <!-- ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg?style=for-the-badge)
 
 
@@ -272,4 +276,8 @@ Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](ht
 [board-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/projects/1
 [license-shield]: https://img.shields.io/github/license/amosproj/amos-ss2021-synthetic-file-system.svg
 [license-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/blob/main/LICENSE
+[test-shield]: https://img.shields.io/github/contributors/amosproj/amos-ss2021-synthetic-file-system.svg
+[test-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/github-readme-stats/actions
+[code-shield]: https://codecov.io/gh/anuraghazra/github-readme-stats/branch/master/graph/badge.svg
+[code-url]: https://github.com/amosproj/amos-ss2021-synthetic-file-system/github-readme-stats
 

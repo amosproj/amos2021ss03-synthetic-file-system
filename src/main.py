@@ -7,48 +7,117 @@
 from __future__ import with_statement
 
 import os
-import sys
-import errno
+# import errno
 import stat
-import anytree
+import sys
+import threading
 
-from fuse import FUSE, FuseOSError, Operations
-from send_mdh_request import *
-from anytree import *
+# import anytree
+import pyinotify
+from anytree import Node, RenderTree, Resolver
+from fuse import FUSE, Operations  # FuseOSError
+
+import config_parser
 import fuse_utils
+from mdh_bridge import MDHQueryRoot, MDHFile, MDHMetadatum, MDHResultSet
+
 
 class FuseStat:
+    """
+    class that is used to represent the stat struct used by the Linux kernel, where it is used to store/access
+    metadata for files. For more information on the specific variables see stat(2)
+    """
     st_atime: int = 0
     st_ctime: int = 0
     st_gid: int = 0
     st_mode: int = stat.S_IFDIR | 0o755
     st_mtime: int = 0
-    st_nlink: int = 0
-    st_size: int = 4096
+    st_nlink: int = 1
+    st_size: int = 43000
 
-class Passthrough(Operations):
 
-    metadatahub_files = None  # type: [File]
+class ConfigfileEventHandler(pyinotify.ProcessEvent):
+    """
+    Event handler that gets triggered when the "config.cfg" file changes. If this happens, this class is
+    responsible for updating the directory tree, according to the new filters
+    """
+
+    def __init__(self, fuse, **kargs):
+        """
+        Constructor for the class. For more information see pyinotify.ProcessEvent.__init()__
+        :param fuse: mdh_fuse for which the directory tree will be updated
+        :param kargs: optional arguments for the pyinotify.ProcessEvent constructor
+        """
+        super().__init__(**kargs)
+        self.fuse = fuse
+
+    def update_tree(self):
+        """
+        Update the directory tree in the fuse, according to the new config
+        :return: Nothing
+        """
+
+        print("Updating the directory tree")
+        query_root = MDHQueryRoot()
+        query = config_parser.create_query_from_config("../config/config.cfg")
+        query.result.files = MDHFile()
+        query.result.files.metadata = MDHMetadatum()
+        query.result.files.metadata.value = True
+        query.result.files.metadata.name = True
+        query_root.queries.append(query)
+
+        query_root.build_and_send_request()  # type: MDHResultSet
+        self.fuse.metadatahub_files = query_root.queries[0].result.files
+        self.fuse.directory_tree = fuse_utils.build_tree_from_files(self.fuse.metadatahub_files)
+
+    def process_IN_CLOSE_NOWRITE(self, event):
+        """
+        gets called when a IN_CLOSE_NOWRITE event is triggered on the config file
+        :param event: see parent class documentation; unused
+        :return: Nothing
+        """
+        # self.update_tree()
+        pass
+
+    def process_IN_CLOSE_WRITE(self, event):
+        """
+        gets called when a IN_CLOSE_WRITE event is triggered on the config file
+        :param event: see parent class documentation; unused
+        :return: Nothing
+        """
+        self.update_tree()
+
+
+class MDH_FUSE(Operations):
+    """
+    Main class of the FUSE. Responsible for correctly sending the information from the MDH to the filesystem via
+    the hooked function calls. For more information see https://github.com/fusepy/fusepy
+    """
+
+    metadatahub_files = None  # type: [MDHFile]
 
     directory_tree = Node
 
-    def __init__(self, root):
-        self.root = root
+    def __init__(self):
+        """
+        Sets the directory tree up using the filters in config.cfg
+        """
+        self.root = ""
 
         # Set up our files
-        md_res = MetadataResult()
-        md_res.files = File()
-        md_res.files.dir_path = True
-        md_res.files.name = True
-        md_query = MetadataQuery(md_res)
+        query_root = MDHQueryRoot()
+        query = config_parser.create_query_from_config("../config/config.cfg")
+        query.result.files = MDHFile()
+        query.result.files.metadata = MDHMetadatum()
+        query.result.files.metadata.value = True
+        query.result.files.metadata.name = True
+        query_root.queries.append(query)
 
-        result = md_query.build_and_send_request()  # type: MetadataResult
-        self.metadatahub_files = result.files
-
+        query_root.build_and_send_request()  # type: MDHResultSet
+        self.metadatahub_files = query_root.queries[0].result.files
         self.directory_tree = fuse_utils.build_tree_from_files(self.metadatahub_files)
         print(RenderTree(self.directory_tree))
         print("fuse running")
-
 
     # Helpers
     # =======
@@ -67,6 +136,7 @@ class Passthrough(Operations):
         # full_path = self._full_path(path)
         # if not os.access(full_path, mode):
         #    raise FuseOSError(errno.EACCES)
+        return 0
 
     def chmod(self, path, mode):
         print("chmod called")
@@ -88,34 +158,30 @@ class Passthrough(Operations):
             return path_stat.__dict__
 
         file_finder = Resolver("name")
-        path = path[1:]  #  strip leading "/"
+        path = path[1:]  # strip leading "/"
         path_node: Node = file_finder.get(self.directory_tree, path)
         if len(path_node.children) == 0:
+            print("got regular file")
             path_stat.st_mode = stat.S_IFREG | 0o755
         else:
             path_stat.st_mode = stat.S_IFDIR | 0o755
         return path_stat.__dict__
 
-
     def readdir(self, path, fh):
-        full_path = self._full_path(path)
+        # full_path = self._full_path(path)
 
         print(f"readdir called with {path}")
-        folder_set = set()
-        folder_set.add(".")
-        folder_set.add("..")
-
+        children = [".", ".."]
 
         file_finder = Resolver("name")
-        path = path[1:]  #  strip leading "/"
+        path = path[1:]  # strip leading "/"
         path_node: Node = file_finder.get(self.directory_tree, path)
 
         child: Node
         for child in path_node.children:
-            folder_set.add(child.name)
-
-        return list(folder_set)
-
+            children.append(child.name)
+            print(f"added {child.name}")
+        return children
 
     def readlink(self, path):
         print("readlink called")
@@ -172,8 +238,8 @@ class Passthrough(Operations):
     # ============
 
     def open(self, path, flags):
-        print("open called")
-        full_path = self._full_path(path)
+        print("open called with path " + path)
+        full_path = path
         return os.open(full_path, flags)
 
     def create(self, path, mode, fi=None):
@@ -211,8 +277,15 @@ class Passthrough(Operations):
         return self.flush(path, fh)
 
 
-def main(mountpoint, root):
-    FUSE(Passthrough(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True})
+def main(mountpoint):
+    mdh_fuse = MDH_FUSE()
+
+    # create the event handler and run the watch in a seperate thread so that it doesn't block our main thread
+    event_handler = ConfigfileEventHandler(mdh_fuse)
+    threading.Thread(target=config_parser.setup, args=("../config/", event_handler)).start()
+    print("initializing fuse")
+    # start the fuse with out custom FUSE class and the given mount point
+    FUSE(mdh_fuse, mountpoint, nothreads=True, foreground=True)
 
 
 if __name__ == '__main__':
@@ -222,4 +295,4 @@ if __name__ == '__main__':
     # Hello from Matti <3
     # Hello from Charinee <3
     # Hello from Sandra
-    main(sys.argv[2], sys.argv[1])
+    main(sys.argv[1])

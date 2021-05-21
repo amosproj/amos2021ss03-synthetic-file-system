@@ -1,9 +1,12 @@
+# Python imports
 import os.path
 
+# 3rd party imports
 import pyinotify
 import toml
 
-from mdh_bridge import *
+# Local imports
+from mdh_bridge import MDHQuery_searchMetadata, MDHFilterFunction, MetadataOption, LogicOption
 
 
 def setup(config_path: str, event_handler: pyinotify.ProcessEvent):

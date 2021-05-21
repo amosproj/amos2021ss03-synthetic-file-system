@@ -1,24 +1,20 @@
-#!/usr/bin/python3
-# ----
-# The starting point is the FUSE implementation from
-# https://github.com/skorokithakis/python-fuse-sample/blob/master/passthrough.py
-# ---
+#!/usr/bin/env python3
 
+# Python imports
 from __future__ import with_statement
-
+import argparse
+import config_parser
+import fuse_utils
 import os
-# import errno
 import stat
-import sys
 import threading
 
-# import anytree
+# 3rd party imports
 import pyinotify
 from anytree import Node, RenderTree, Resolver
 from fuse import FUSE, Operations  # FuseOSError
 
-import config_parser
-import fuse_utils
+# Local imports
 from mdh_bridge import MDHQueryRoot, MDHFile, MDHMetadatum, MDHResultSet
 
 
@@ -284,15 +280,13 @@ def main(mountpoint):
     event_handler = ConfigfileEventHandler(mdh_fuse)
     threading.Thread(target=config_parser.setup, args=("../config/", event_handler)).start()
     print("initializing fuse")
-    # start the fuse with out custom FUSE class and the given mount point
+    # start the fuse without custom FUSE class and the given mount point
     FUSE(mdh_fuse, mountpoint, nothreads=True, foreground=True)
 
 
 if __name__ == '__main__':
-    # Hello from Dominik
-    # Hello from Marlon
-    # Hello from Vaidehi
-    # Hello from Matti <3
-    # Hello from Charinee <3
-    # Hello from Sandra
-    main(sys.argv[1])
+    parser = argparse.ArgumentParser(description="Command Line Interface of SFS")
+    parser.add_argument("mountpoint", type=str)
+    args = parser.parse_args()
+
+    main(args.mountpoint)

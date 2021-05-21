@@ -1,5 +1,7 @@
+# 3rd party imports
 from anytree import Node, Resolver
 
+# Local imports
 from mdh_bridge import MDHFile, MDHMetadatum
 
 

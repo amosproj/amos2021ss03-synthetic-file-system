@@ -1,7 +1,9 @@
+# Python imports
 import copy
 import json
 from enum import Enum
 
+# 3rd party imports
 import requests
 
 """
@@ -385,42 +387,3 @@ class MDHQueryRoot:
         query = self.serialize()
         result = session.post(url, json={"query": query})
         self.deserialize(result.text)
-
-
-"""
-temporary test case for the bridge and the fuse_utils; IGNORE
-TODO: remove this when a proper test case has been written
-if __name__ == '__main__':
-    query_root = MDHQueryRoot()
-    query = MDHQuery_searchMetadata()
-    query.result.files = MDHFile()
-    query.result.files.metadata = MDHMetadatum()
-    query.result.files.metadata.value = True
-    query.result.files.metadata.name = True
-    query_root.queries.append(query)
-    query_root.build_and_send_request()
-    metadatahub_files = query_root.queries[0].result.files
-    import fuse_utils
-    from anytree import RenderTree
-    directory_tree = fuse_utils.build_tree_from_files(metadatahub_files)
-    print(RenderTree(directory_tree))
-    rq = MDHQueryRoot()
-    q = MDHQuery_searchMetadata()
-    q.result.toIndex = True
-    f = MDHFile()
-    f.id = True
-    f.metadata = MDHMetadatum()
-    f.metadata.name = True
-    f.metadata.value = True
-    q.result.files = f
-    q.fileIds = [13, 69, 420]
-    rq.queries.append(q)
-    query2 = MDHQuery_getServerState()
-    query2.result.runningSince = True
-    rq.queries.append(query2)
-    query3 = MDHQuery_systemInfo()
-    query3.result.harvestedFiles = True
-    rq.queries.append(query3)
-    rq.build_and_send_request()
-    print(rq.serialize())
-"""

@@ -1,0 +1,30 @@
+query
+{
+  searchMetadata
+  (
+    filterFunctions:[]
+    filterLogicOption: AND,
+    selectedTags:["FileName", "FileSize", "MIMEType", "FileInodeChangeDate", "SourceFile", ],
+  )
+  {
+    totalFilesCount,
+    returnedFilesCount,
+    instanceName,
+    timeZone,
+    fixedReturnColumnSize,
+    dataTypes
+    {
+      name,
+      type,
+    }
+    files
+    {
+      id,
+      metadata
+      {
+        name,
+        value,
+      }
+    }
+  }
+}

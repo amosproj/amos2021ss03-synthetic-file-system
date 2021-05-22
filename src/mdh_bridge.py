@@ -1,8 +1,6 @@
-# Python imports
-import os
-
 # 3rd party imports
-import mdh
+from mdh import query
+from mdh.errors import StateError, APIError, GraphQLSyntaxError
 
 
 class MDHQueryRoot:
@@ -12,15 +10,17 @@ class MDHQueryRoot:
         self.query_file = query_file
         self.result = None
 
-    def send_request(self) -> None:
-        self.result = mdh.query.query(self.core, self.query_file)
-
-
-if __name__ == "__main__":
-
-    graphql_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "search_mdh.graphql")
-
-    mdh.init()
-    mdhqueryroot = MDHQueryRoot("core-sfs", graphql_path)
-    mdhqueryroot.send_request()
-    print(mdhqueryroot.result['searchMetadata']['totalFilesCount'])
+    def send_request_get_result(self) -> None:
+        try:
+            self.result = query.query(self.core, self.query_file)
+        # TODO: Error handling
+        except StateError:
+            raise
+        except APIError:
+            raise
+        except ConnectionError:
+            raise
+        except FileNotFoundError:
+            raise
+        except GraphQLSyntaxError:
+            raise

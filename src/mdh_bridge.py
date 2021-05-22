@@ -41,6 +41,322 @@ only want to see the total number of results and all the metadata for all the re
     ...
 """
 
+MetadataOption = Enum("MetadataOption",
+                      "NOT_CONTAINS EQUAL NOT_EQUAL GREATER SMALLER EXISTS NOT_EXISTS EMPTY NOT_EMPTY")
+LogicOption = Enum("LogicOption", "AND OR INDIVIDUAL")
+SortByOption = Enum("SortByOption", "ASC DESC")
+
+session = requests.session()
+session.headers["X-Authorization-Bearer"] = "admin"
+
+
+class MDHObject:
+
+    def serialize(self):
+        # Get all members of the object
+        attributes = [attr for attr in dir(self) if not callable(
+            getattr(self, attr)) and not attr.startswith("_") and attr not in ["query_name", "result"]]
+
+        query = ""
+        # Enumerate over all arguments and add them to the query
+        for i, attribute in enumerate(attributes):
+            value = getattr(self, attribute)
+
+            if value:
+                if isinstance(value, MDHObject):
+                    attribute = attribute + "{" + value.serialize() + "}"
+
+                query += f"{attribute}" + "\n"
+
+        return query
+
+    def deserialize(self, json: dict):
+
+        for entry in json.keys():
+            if not isinstance(json[entry], list):
+                attribute = getattr(self, entry)
+                if isinstance(attribute, MDHObject):
+                    attribute.deserialize(json[entry])
+                else:
+                    setattr(self, entry, json[entry])
+
+            else:
+                attribute = getattr(self, entry)
+                if isinstance(attribute, MDHObject):
+                    new_attribute = []
+                    for e in json[entry]:
+                        new_attribute_entry = copy.deepcopy(attribute)
+                        new_attribute_entry.deserialize(e)
+                        new_attribute.append(new_attribute_entry)
+                    setattr(self, entry, new_attribute)
+                else:
+                    setattr(self, entry, json[entry])
+
+
+class MDHArgument(MDHObject):
+
+    def serialize(self) -> str:
+        attributes = [attr for attr in dir(self) if not callable(
+            getattr(self, attr)) and not attr.startswith("_") and attr not in ["query_name", "result"]]
+
+        argument = "{"
+        # Enumerate over all arguments and add them to the argument
+        for i, attribute in enumerate(attributes):
+            value = getattr(self, attribute)
+            if isinstance(value, str):
+                value = f"\"{value}\""
+            if isinstance(value, Enum):
+                value = value.name
+            argument += f"{attribute}:{value}"
+            if i != len(attributes) - 1:
+                argument += ", "
+        argument += "}"
+
+        return argument
+
+
+class MDHQuery(MDHObject):
+    query_name = ""
+    result: MDHObject = None
+
+    def serialize(self):
+        query = self.query_name
+
+        # Get all members of the Query
+        attributes = [attr for attr in dir(self) if not callable(
+            getattr(self, attr)) and not attr.startswith("_") and attr not in ["query_name", "result"]]
+
+        has_arguments = False
+
+        argument_string = ""
+        # Enumerate over all arguments and add them to the query
+        for i, attribute in enumerate(attributes):
+            value = getattr(self, attribute)
+
+            if value:
+                if isinstance(value, MDHArgument):
+                    value = "{" + value.serialize() + "}"
+                if isinstance(value, Enum):
+                    value = value.name
+
+                if isinstance(value, list) and len(value) > 0 and isinstance(value[0], MDHArgument):
+                    serialized = "["
+                    for mdh_argument in value:  # type: MDHArgument
+                        serialized += mdh_argument.serialize()
+                        serialized += ", "
+                    serialized += "]"
+                    value = serialized
+
+                argument_string += f" {attribute}: {value} "
+                has_arguments = True
+                if not i == len(attributes) - 1:
+                    argument_string += ", "
+
+        # if arguments are given add them to the query
+        if has_arguments:
+            query += "(" + argument_string + ")"
+
+        # At this point the query function has been built
+        # Next we have to add the results filter
+        query += "{" + self.result.serialize() + "}"
+        return query
+
+    def deserialize(self, json):
+        return self.result.deserialize(json)
+
+
+class MDHMetadatatagDataType(MDHObject):
+    name: bool or str = False
+    type: bool or str = False
+
+
+class MDHFileType(MDHObject):
+    name: bool or str = False
+    fileCount: bool or int = False
+    mimeType: bool or str = False
+    metadataCount: bool or int = False
+    metadataCountAggregatedValues: bool or int
+
+
+class MDHMimeType(MDHObject):
+    name: bool or str = False
+    fileCount: bool or int = False
+    fileTypes: bool or [MDHFileType] = False
+
+
+class MDHMetadatum(MDHObject):
+    name: bool or str = False
+    value: bool or str = False
+
+
+class MDHMetadata(MDHObject):
+    name: bool or str = False
+    count: bool or int = False
+    type: bool or str = False
+    searchDeactivated: bool = False  # TODO
+    virtual: bool = False  # TODO
+    # randomExample  NOT IMPLEMENTED YET
+
+
+class MDHFileTypeStat(MDHObject):
+    name: bool or str = False
+    count: bool or int = False
+
+
+class MDHSystemInfo(MDHObject):
+    instanceName: bool or str = False
+    currentUserRole: bool or str = False
+    hostSystem: bool or str = False
+    installTime: bool or str = False  # TODO maybe use proper time types?
+    lastReboot: bool or str = False
+    scannedFiles: bool or int = False
+    harvestedFiles: bool or int = False
+    differentFileTypes: bool or int = False
+    harvestedMetadata: bool or int = False
+    differentMetadata: bool or int = False
+    treewalkState: bool or str = False
+    lastExecutedTreewalk: bool or str = False
+    nextScheduledTreewalk: bool or str = False
+    versionExtractorTreewalk: bool or str = False
+    versionMetadataHub: bool or str = False
+    versionBuild: bool or str = False
+    isDeveloperMode: bool = False  # TODO
+    instanceDescription: bool or str = False
+    topFileTypes: bool or [MDHFileTypeStat] = False
+
+
+class MDHServerState(MDHObject):
+    state: bool or int = False
+    runningSince: bool or int = False
+
+
+class MDHFilterFunction(MDHArgument):
+    tag: bool or str = False
+    value: bool or str = False
+    operation: bool or MetadataOption = False
+
+
+class MDHSortFunction(MDHArgument):
+    sortBy: bool or str = False
+    sortByOption: bool or SortByOption = False
+
+
+class MDHQuery_systemInfo(MDHQuery):
+    query_name = "systemInfo"
+    result = MDHSystemInfo()
+
+
+class MDHQuery_getServerState(MDHQuery):
+    query_name = "getServerState"
+    result = MDHServerState()
+
+
+class MDHQuery_getMetadataTags(MDHQuery):
+    fileTypeScope: bool or str = False
+    mimeTypeScope: bool or str = False
+    nameFilter: bool or str = False
+    excludeMetadata: bool or str = False
+    limit: bool or int = False
+    offset: bool or int = False
+
+    query_name = "getMetadataTags"
+    result: [MDHMetadata] = []
+
+
+class MDHQuery_getFileTypes(MDHQuery):
+    excludeFileType: bool or str = False
+    excludeMimeType: bool or str = False
+    nameFilter: bool or str = False
+    limit: bool or int = False
+    offset: bool or int = False
+
+    query_name = "getFileTypes"
+    result: [MDHFileType] = []
+
+
+class MDHQuery_getMimeTypes(MDHQuery):
+    excludeMimeType: bool or str = False
+    nameFilter: bool or str = False
+    limit: bool or int = False
+    offset: bool or int = False
+
+    query_name = "getMimeTypes"
+    result: [MDHMimeType] = []
+
+
+class MDHQuery_getMetadata(MDHQuery):
+    fileTypeScope: bool or str = False
+    mimeTypeScope: bool or str = False
+    name: bool or str = False
+
+    query_name = "getMetadata"
+    result = MDHMetadata()
+
+
+class MDHQuery_getFileType(MDHQuery):
+    name: bool or str = False
+
+    query_name = "getFileType"
+    result = MDHFileType()
+
+
+class MDHQuery_getMimeType:
+    name: bool or str = False
+
+    query_name = "getMimeType"
+    result = MDHMimeType()
+
+
+class MDHFile(MDHObject):
+    id: bool or str = False
+    metadata: bool or MDHMetadata or [MDHMetadatum] = False
+
+
+class MDHResultSet(MDHObject):
+    fromIndex: bool or int = False
+    toIndex: bool or int = False
+    totalFilesCount: bool or int = False
+    returnedFilesCount: bool or int = False
+    timeZone: bool or str = False
+    instanceName: bool or str = False
+    fixedReturnColumnSize: bool = False  # TODO how do we do this here?
+    graphQLQuery: bool or str = False
+    graphQLVariables: bool or str = False
+    files: bool or MDHFile or [MDHFile] = False
+    graphQLDebug: bool or str = False
+    dataTypes: bool or MDHMetadatatagDataType or [MDHMetadatatagDataType] = False
+
+
+class MDHQuery_searchMetadata(MDHQuery):
+    fileIds: bool or [int] = False
+    filterFunctions: bool or [MDHFilterFunction] = False
+    filterLogicOption: bool or LogicOption = False
+    sortFunctions: bool or [MDHSortFunction] = False
+    filterLogicalIndividual: bool or str = False
+    limit: bool or int = False
+    offset: bool or int = False
+    fileSizeAsHumanReadable: bool = False  # TODO how do we do this with bool values?
+    convertDateTimeTo: bool or str = False
+    _selectedTags: bool or [str] = False
+
+    @property
+    def selectedTags(self) -> bool or [str]:
+        if self._selectedTags and isinstance(self._selectedTags, bool):
+            _selectedTags = []
+            for dataType in self.result.dataTypes:
+                _selectedTags.append(dataType.name)
+
+            self._selectedTags = _selectedTags
+
+        return self._selectedTags
+
+    @selectedTags.setter
+    def selectedTags(self, selectedTags) -> None:
+        self._selectedTags = selectedTags
+
+    result = MDHResultSet()
+    query_name = "searchMetadata"
+
 
 class MDHQueryRoot:
 

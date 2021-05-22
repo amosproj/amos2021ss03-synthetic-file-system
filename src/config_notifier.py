@@ -1,12 +1,12 @@
 # 3rd party imports
-import pyinotify
+from pyinotify import Event, ProcessEvent
 from mdh_bridge import MDHQueryRoot
 
 # Local import
 from fuse_utils import build_tree_from_files
 
 
-class ConfigfileEventHandler(pyinotify.ProcessEvent):
+class ConfigFileEventHandler(ProcessEvent):
     """
     Event handler that gets triggered when the "config.cfg" file changes. If this happens, this class is
     responsible for updating the directory tree, according to the new filters
@@ -23,7 +23,7 @@ class ConfigfileEventHandler(pyinotify.ProcessEvent):
         self.core_name = core_name
         self.fuse = fuse
 
-    def update_tree(self):
+    def update_tree(self) -> None:
         """
         Update the directory tree in the fuse, according to the new config
         :return: Nothing
@@ -31,12 +31,12 @@ class ConfigfileEventHandler(pyinotify.ProcessEvent):
 
         print("Updating the directory tree")
         query_root = MDHQueryRoot(self.core_name, self.config_path)
-        query_root.send_request()
+        query_root.send_request_get_result()
 
         self.fuse.metadatahub_files = query_root.result['searchMetadata']['files']
         self.fuse.directory_tree = build_tree_from_files(self.metadatahub_files)
 
-    def process_IN_MODIFY(self, event):
+    def process_IN_MODIFY(self, event: Event) -> None:
         """
         gets called when a IN_MODIFY event is triggered on the config file
         :param event: see parent class documentation; unused

@@ -13,7 +13,7 @@ from anytree import Node, RenderTree, Resolver
 from fuse import FUSE, Operations  # FuseOSError
 
 # Local imports
-from config_notifier import ConfigfileEventHandler
+from config_notifier import ConfigFileEventHandler
 from fuse_utils import build_tree_from_files
 from mdh_bridge import MDHQueryRoot
 
@@ -24,7 +24,7 @@ CONFIG_PATH = os.path.join(ROOT_PATH, "config")
 # File paths
 CONFIG_FILE_PATH = os.path.join(CONFIG_PATH, "config.graphql")
 
-CORE_NAME = "core-sfs"
+CORE_NAME = "core-sfs"  # FIXME: Set the name corresponding to your mdh-core
 
 
 class FuseStat:
@@ -47,22 +47,37 @@ class SFS_FUSE(Operations):
     the hooked function calls. For more information see https://github.com/fusepy/fusepy
     """
 
-    def __init__(self):
+    def __init__(self, root=""):
         """
         Sets the directory tree up using the filters in config.cfg
         """
         self.directory_tree = Node
         self.metadatahub_files = None
-        self.root = ""
+        self.root = root
 
         query_root = MDHQueryRoot(CORE_NAME, CONFIG_FILE_PATH)
-        query_root.send_request()
+        query_root.send_request_get_result()
 
         self.metadatahub_files = query_root.result['searchMetadata']['files']
         self.directory_tree = build_tree_from_files(self.metadatahub_files)
         print(RenderTree(self.directory_tree))
         print("fuse running")
 
+        self.set_up_config_notifier()
+
+    def set_up_config_notifier(self):
+        """
+        Create the event handler and run the watch in a seperate thread so that it doesn't block our main thread
+        """
+        event_handler = ConfigFileEventHandler(self, CORE_NAME, CONFIG_FILE_PATH)
+        watch_manager = pyinotify.WatchManager()
+
+        notifier = pyinotify.ThreadedNotifier(watch_manager, event_handler)
+        notifier.start()
+
+        watch_manager.add_watch(CONFIG_PATH, pyinotify.IN_MODIFY)
+
+    # =======
     # Helpers
     # =======
 
@@ -72,6 +87,7 @@ class SFS_FUSE(Operations):
         path = os.path.join(self.root, partial)
         return path
 
+    # ==================
     # Filesystem methods
     # ==================
 
@@ -178,6 +194,7 @@ class SFS_FUSE(Operations):
         print("utimens called")
         return os.utime(self._full_path(path), times)
 
+    # ============
     # File methods
     # ============
 
@@ -222,22 +239,14 @@ class SFS_FUSE(Operations):
 
 
 def main(mountpoint):
-    mdh.init()
+    try:
+        mdh.init()
+    # TODO: Error handling
+    except EnvironmentError:
+        raise
 
-    mdh_fuse = SFS_FUSE()
-
-    # create the event handler and run the watch in a seperate thread so that it doesn't block our main thread
-    event_handler = ConfigfileEventHandler(mdh_fuse, CORE_NAME, CONFIG_FILE_PATH)
-    watch_manager = pyinotify.WatchManager()
-
-    notifier = pyinotify.ThreadedNotifier(watch_manager, event_handler)
-    notifier.start()
-
-    watch_manager.add_watch(CONFIG_PATH, pyinotify.IN_MODIFY)
-
-    print("initializing fuse")
-    # start the fuse without custom FUSE class and the given mount point
-    FUSE(mdh_fuse, mountpoint, nothreads=True, foreground=True)
+    # Start the fuse without custom FUSE class and the given mount point
+    FUSE(SFS_FUSE(), mountpoint, nothreads=True, foreground=True)
 
 
 if __name__ == '__main__':

@@ -16,13 +16,7 @@ from fuse import FUSE, Operations  # FuseOSError
 from config_notifier import ConfigFileEventHandler
 from fuse_utils import build_tree_from_files
 from mdh_bridge import MDHQueryRoot
-
-# Directory paths
-ROOT_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-CONFIG_PATH = os.path.join(ROOT_PATH, "config")
-
-# File paths
-CONFIG_FILE_PATH = os.path.join(CONFIG_PATH, "config.graphql")
+from paths import CONFIG_PATH, CONFIG_FILE_PATH
 
 CORE_NAME = "core-sfs"  # FIXME: Set the name corresponding to your mdh-core
 
@@ -49,7 +43,7 @@ class SFS_FUSE(Operations):
 
     def __init__(self, root=""):
         """
-        Sets the directory tree up using the filters in config.cfg
+        Sets the directory tree up using the filters in config.graphql
         """
         self.directory_tree = Node
         self.metadatahub_files = None
@@ -58,18 +52,19 @@ class SFS_FUSE(Operations):
         query_root = MDHQueryRoot(CORE_NAME, CONFIG_FILE_PATH)
         query_root.send_request_get_result()
 
-        self.metadatahub_files = query_root.result['searchMetadata']['files']
-        self.directory_tree = build_tree_from_files(self.metadatahub_files)
+        self.mdh_files = query_root.result['searchMetadata']['files']
+        self.directory_tree = build_tree_from_files(self.mdh_files)
         print(RenderTree(self.directory_tree))
         print("fuse running")
 
-        self.set_up_config_notifier()
+        # Watch change events for config file
+        self._set_up_config_notifier()
 
-    def set_up_config_notifier(self):
+    def _set_up_config_notifier(self):
         """
         Create the event handler and run the watch in a seperate thread so that it doesn't block our main thread
         """
-        event_handler = ConfigFileEventHandler(self, CORE_NAME, CONFIG_FILE_PATH)
+        event_handler = ConfigFileEventHandler(self, CORE_NAME)
         watch_manager = pyinotify.WatchManager()
 
         notifier = pyinotify.ThreadedNotifier(watch_manager, event_handler)

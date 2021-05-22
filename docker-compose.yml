@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  
+
   synthetic-file-system:
     build:
       context: .
@@ -11,6 +11,7 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix 
       - $XAUTHORITY:/root/.Xauthority
+      - $MDH_HOME:/app/mdh/
     environment:
       - DISPLAY=$DISPLAY
     stdin_open: true

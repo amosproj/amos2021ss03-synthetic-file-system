@@ -11,6 +11,7 @@ import stat
 import mdh
 import pyinotify
 from anytree import Node, RenderTree, Resolver
+from anytree.resolver import ChildResolverError
 from fuse import FUSE, FuseOSError, Operations
 
 # Local imports
@@ -27,13 +28,14 @@ class FuseStat:
     class that is used to represent the stat struct used by the Linux kernel, where it is used to store/access
     metadata for files. For more information on the specific variables see stat(2)
     """
-    st_atime: int = 0
-    st_ctime: int = 0
-    st_gid: int = 0
+    st_uid: int = 1000
+    st_gid: int = 1000
     st_mode: int = stat.S_IFDIR | 0o755
-    st_mtime: int = 0
     st_nlink: int = 1
     st_size: int = 43000
+    st_atime: int = 0
+    st_mtime: int = 0
+    st_ctime: int = 0
 
 
 class SFS_FUSE(Operations):
@@ -56,7 +58,7 @@ class SFS_FUSE(Operations):
         self.mdh_files = query_root.result['searchMetadata']['files']
         self.directory_tree = build_tree_from_files(self.mdh_files)
 
-        #print(RenderTree(self.directory_tree))
+        print(RenderTree(self.directory_tree))
         print("fuse running")
 
         # Watch change events for config file
@@ -112,21 +114,26 @@ class SFS_FUSE(Operations):
             raise FuseOSError(errno.ENOENT)
 
         path_stat = FuseStat()
+        path_stat.st_uid = os.getuid()
+        path_stat.st_gid = os.getgid()
         print(f"getattr called with: {path}")
 
         if path in [".", "..", "/"]:
-
             path_stat.st_mode = stat.S_IFDIR | 0o755
             return path_stat.__dict__
 
         file_finder = Resolver("name")
         path = path[1:]  # strip leading "/"
-        path_node: Node = file_finder.get(self.directory_tree, path)
-        if len(path_node.children) == 0:
-            print("got regular file")
-            path_stat.st_mode = stat.S_IFREG | 0o755
-        else:
-            path_stat.st_mode = stat.S_IFDIR | 0o755
+
+        try:
+            path_node: Node = file_finder.get(self.directory_tree, path)
+            if len(path_node.children) == 0:
+                print("got regular file")
+                path_stat.st_mode = stat.S_IFREG | 0o755
+            else:
+                path_stat.st_mode = stat.S_IFDIR | 0o755
+        except ChildResolverError:
+            raise FuseOSError(errno.ENOENT)
 
         return path_stat.__dict__
 

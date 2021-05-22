@@ -28,17 +28,13 @@ COPY mount.sh mount.sh
 COPY ./src/ ./src/
 COPY ./config/ ./config/
 
+ENV MDH_HOME=/app/mdh/
+
 RUN pip3 install -r requirements.txt
+
+COPY mdh-1.5.0-py3-none-any.whl mdh-1.5.0-py3-none-any.whl
+RUN pip3 install mdh-1.5.0-py3-none-any.whl
+
 RUN mkdir -p /fuse_mount
-RUN mkdir -p /test_root
 
-RUN mkdir /test_root/test_sub_folder
-RUN touch /test_root/test.txt /test_root/test2.text /test_root/test_sub_folder/test2.txt
-
-RUN echo "test text" >> /test_root/test.txt
-RUN echo "test2 text" >> /test_root/test_sub_folder/test2.txt
-
-# USER sfs
-#["python3"]
 CMD ["bash"]
-#CMD ["main.py", "/test_root", "/fuse_mount"]

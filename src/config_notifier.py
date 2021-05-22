@@ -35,7 +35,7 @@ class ConfigFileEventHandler(ProcessEvent):
         query_root.send_request_get_result()
 
         self.fuse.metadatahub_files = query_root.result['searchMetadata']['files']
-        self.fuse.directory_tree = build_tree_from_files(self.metadatahub_files)
+        self.fuse.directory_tree = build_tree_from_files(self.fuse.metadatahub_files)
 
     def process_IN_MODIFY(self, event: Event) -> None:
         """

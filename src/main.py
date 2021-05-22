@@ -3,6 +3,7 @@
 # Python imports
 from __future__ import with_statement
 import argparse
+import errno
 import os
 import stat
 
@@ -10,7 +11,7 @@ import stat
 import mdh
 import pyinotify
 from anytree import Node, RenderTree, Resolver
-from fuse import FUSE, Operations  # FuseOSError
+from fuse import FUSE, FuseOSError, Operations
 
 # Local imports
 from config_notifier import ConfigFileEventHandler
@@ -54,7 +55,8 @@ class SFS_FUSE(Operations):
 
         self.mdh_files = query_root.result['searchMetadata']['files']
         self.directory_tree = build_tree_from_files(self.mdh_files)
-        print(RenderTree(self.directory_tree))
+
+        #print(RenderTree(self.directory_tree))
         print("fuse running")
 
         # Watch change events for config file
@@ -105,10 +107,15 @@ class SFS_FUSE(Operations):
 
     def getattr(self, path, fh=None):
 
+        # This method is called before all operations at least once, to check if the file object at *path* exists at all
+        if not os.path.exists(path):
+            raise FuseOSError(errno.ENOENT)
+
         path_stat = FuseStat()
         print(f"getattr called with: {path}")
 
         if path in [".", "..", "/"]:
+
             path_stat.st_mode = stat.S_IFDIR | 0o755
             return path_stat.__dict__
 
@@ -120,6 +127,7 @@ class SFS_FUSE(Operations):
             path_stat.st_mode = stat.S_IFREG | 0o755
         else:
             path_stat.st_mode = stat.S_IFDIR | 0o755
+
         return path_stat.__dict__
 
     def readdir(self, path, fh):

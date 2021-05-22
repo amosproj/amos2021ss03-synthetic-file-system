@@ -4,18 +4,25 @@
 from __future__ import with_statement
 import argparse
 import config_parser
-import fuse_utils
 import os
 import stat
 import threading
 
 # 3rd party imports
+import mdh
 import pyinotify
 from anytree import Node, RenderTree, Resolver
 from fuse import FUSE, Operations  # FuseOSError
 
 # Local imports
+from fuse_utils import build_tree_from_files
 from mdh_bridge import MDHQueryRoot, MDHFile, MDHMetadatum, MDHResultSet
+
+ROOT_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+CONFIG_PATH = os.path.join(ROOT_PATH, "config")
+GRAPHQL_PATH = os.path.join(ROOT_PATH, "search_mdh.graphql")
+
+CORE_NAME = "core-sfs"
 
 
 class FuseStat:
@@ -55,7 +62,7 @@ class ConfigfileEventHandler(pyinotify.ProcessEvent):
 
         print("Updating the directory tree")
         query_root = MDHQueryRoot()
-        query = config_parser.create_query_from_config("../config/config.cfg")
+        query = config_parser.create_query_from_config(os.path.join(CONFIG_PATH, "config.cfg"))
         query.result.files = MDHFile()
         query.result.files.metadata = MDHMetadatum()
         query.result.files.metadata.value = True
@@ -64,7 +71,7 @@ class ConfigfileEventHandler(pyinotify.ProcessEvent):
 
         query_root.build_and_send_request()  # type: MDHResultSet
         self.fuse.metadatahub_files = query_root.queries[0].result.files
-        self.fuse.directory_tree = fuse_utils.build_tree_from_files(self.fuse.metadatahub_files)
+        self.fuse.directory_tree = build_tree_from_files(self.fuse.metadatahub_files)
 
     def process_IN_CLOSE_NOWRITE(self, event):
         """
@@ -100,18 +107,11 @@ class MDH_FUSE(Operations):
         """
         self.root = ""
 
-        # Set up our files
-        query_root = MDHQueryRoot()
-        query = config_parser.create_query_from_config("../config/config.cfg")
-        query.result.files = MDHFile()
-        query.result.files.metadata = MDHMetadatum()
-        query.result.files.metadata.value = True
-        query.result.files.metadata.name = True
-        query_root.queries.append(query)
+        query_root = MDHQueryRoot(CORE_NAME, GRAPHQL_PATH)
+        query_root.build_and_send_request()
 
-        query_root.build_and_send_request()  # type: MDHResultSet
-        self.metadatahub_files = query_root.queries[0].result.files
-        self.directory_tree = fuse_utils.build_tree_from_files(self.metadatahub_files)
+        self.metadatahub_files = query_root.result['searchMetadata']['files']
+        self.directory_tree = build_tree_from_files(self.metadatahub_files)
         print(RenderTree(self.directory_tree))
         print("fuse running")
 
@@ -274,11 +274,13 @@ class MDH_FUSE(Operations):
 
 
 def main(mountpoint):
+    mdh.init()
+
     mdh_fuse = MDH_FUSE()
 
     # create the event handler and run the watch in a seperate thread so that it doesn't block our main thread
     event_handler = ConfigfileEventHandler(mdh_fuse)
-    threading.Thread(target=config_parser.setup, args=("../config/", event_handler)).start()
+    threading.Thread(target=config_parser.setup, args=(CONFIG_PATH, event_handler)).start()
     print("initializing fuse")
     # start the fuse without custom FUSE class and the given mount point
     FUSE(mdh_fuse, mountpoint, nothreads=True, foreground=True)

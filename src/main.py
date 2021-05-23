@@ -6,6 +6,7 @@ import argparse
 import errno
 import os
 import stat
+import time
 
 # 3rd party imports
 import mdh
@@ -32,10 +33,11 @@ class FuseStat:
     st_gid: int = 1000
     st_mode: int = stat.S_IFDIR | 0o755
     st_nlink: int = 1
-    st_size: int = 43000
+    st_size: int = 100  # 43000
     st_atime: int = 0
     st_mtime: int = 0
     st_ctime: int = 0
+    st_blocks = (int)((st_size + 4095) / 4096)
 
 
 class SFS_FUSE(Operations):
@@ -43,7 +45,6 @@ class SFS_FUSE(Operations):
     Main class of the FUSE. Responsible for correctly sending the information from the MDH to the filesystem via
     the hooked function calls. For more information see https://github.com/fusepy/fusepy
     """
-
     def __init__(self, root=""):
         """
         Sets the directory tree up using the filters in config.graphql
@@ -61,6 +62,7 @@ class SFS_FUSE(Operations):
         print(RenderTree(self.directory_tree))
         print("fuse running")
 
+    def init(self, path):
         # Watch change events for config file
         self._set_up_config_notifier()
 
@@ -113,9 +115,14 @@ class SFS_FUSE(Operations):
         if not os.path.exists(path):
             raise FuseOSError(errno.ENOENT)
 
+        now = time.time()
         path_stat = FuseStat()
         path_stat.st_uid = os.getuid()
         path_stat.st_gid = os.getgid()
+        path_stat.st_atime = now
+        path_stat.st_mtime = now
+        path_stat.st_ctime = now
+
         print(f"getattr called with: {path}")
 
         if path in [".", "..", "/"]:
@@ -138,7 +145,6 @@ class SFS_FUSE(Operations):
         return path_stat.__dict__
 
     def readdir(self, path, fh):
-        # full_path = self._full_path(path)
 
         print(f"readdir called with {path}")
         children = [".", ".."]
@@ -210,8 +216,8 @@ class SFS_FUSE(Operations):
 
     def open(self, path, flags):
         print("open called with path " + path)
-        full_path = path
-        return os.open(full_path, flags)
+        # full_path = self._full_path(path)
+        return os.open(path, flags)
 
     def create(self, path, mode, fi=None):
         print("create called")
@@ -236,7 +242,6 @@ class SFS_FUSE(Operations):
 
     def flush(self, path, fh):
         print("flush called")
-
         return os.fsync(fh)
 
     def release(self, path, fh):

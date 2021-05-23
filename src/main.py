@@ -24,11 +24,26 @@ from paths import CONFIG_PATH, CONFIG_FILE_PATH
 CORE_NAME = "core-sfs"  # FIXME: Set the name corresponding to your mdh-core
 
 
-class SFS_FUSE(Operations):
+class SFS_Stat:
+    """
+    class that is used to represent the stat struct used by the Linux kernel, where it is used to store/access
+    metadata for files. For more information on the specific variables see stat(2)
+    """
+    st_atime: int = 0
+    st_ctime: int = 0
+    st_gid: int = 0
+    st_mode: int = stat.S_IFDIR | 0o755
+    st_mtime: int = 0
+    st_nlink: int = 1
+    st_size: int = 43000
+
+
+class SFS(Operations):
     """
     Main class of the FUSE. Responsible for correctly sending the information from the MDH to the filesystem via
     the hooked function calls. For more information see https://github.com/fusepy/fusepy
     """
+
     def __init__(self, root=""):
         """
         Sets the directory tree up using the filters in config.graphql
@@ -94,43 +109,22 @@ class SFS_FUSE(Operations):
         return os.chown(full_path, uid, gid)
 
     def getattr(self, path, fh=None):
-
-        # This method is called before all operations at least once, to check if the file object at *path* exists at all
-        if not os.path.exists(path):
-            raise FuseOSError(errno.ENOENT)
-
-        now = time.time()
-        os_stat = os.stat(path)
-
-        st = {}
-        st['st_uid'] = os_stat.st_uid
-        st['st_gid'] = os_stat.st_gid
-        st['st_size'] = os_stat.st_size
-        st['st_atime'] = now
-        st['st_mtime'] = now
-        st['st_ctime'] = now
-        st['blksize'] = os_stat.st_blksize
-        st['st_blocks'] = os_stat.st_blocks
+        path_stat = SfsStat()
         print(f"getattr called with: {path}")
 
         if path in [".", "..", "/"]:
-            st['st_mode'] = stat.S_IFDIR | 0o755
-            return st
+            path_stat.st_mode = stat.S_IFDIR | 0o755
+            return path_stat.__dict__
 
         file_finder = Resolver("name")
         path = path[1:]  # strip leading "/"
-
-        try:
-            path_node: Node = file_finder.get(self.directory_tree, path)
-            if len(path_node.children) == 0:
-                print("got regular file")
-                st['st_mode'] = stat.S_IFREG | 0o755
-            else:
-                st['st_mode'] = stat.S_IFDIR | 0o755
-        except ChildResolverError:
-            raise FuseOSError(errno.ENOENT)
-
-        return st
+        path_node: Node = file_finder.get(self.directory_tree, path)
+        if len(path_node.children) == 0:
+            print("got regular file")
+            path_stat.st_mode = stat.S_IFREG | 0o755
+        else:
+            path_stat.st_mode = stat.S_IFDIR | 0o755
+        return path_stat.__dict__
 
     def readdir(self, path, fh):
 
@@ -249,7 +243,7 @@ def main(mountpoint):
         raise
 
     # Start the fuse without custom FUSE class and the given mount point
-    FUSE(SFS_FUSE(), mountpoint, nothreads=True, foreground=True)
+    FUSE(SFS(), mountpoint, nothreads=True, foreground=True)
 
 
 if __name__ == '__main__':

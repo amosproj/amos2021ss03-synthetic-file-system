@@ -24,23 +24,6 @@ from paths import CONFIG_PATH, CONFIG_FILE_PATH
 CORE_NAME = "core-sfs"  # FIXME: Set the name corresponding to your mdh-core
 
 
-class FuseStat:
-    """
-    class that is used to represent the stat struct used by the Linux kernel, where it is used to store/access
-    metadata for files. For more information on the specific variables see stat(2)
-    """
-    st_uid: int = 1000
-    st_gid: int = 1000
-    st_mode: int = stat.S_IFDIR | 0o755
-    st_nlink: int = 1
-    st_size: int = 100
-    st_atime: int = 0
-    st_mtime: int = 0
-    st_ctime: int = 0
-    st_blksize: int = 4096
-    st_blocks: int = (int)((st_size + st_blksize - 1) / st_blksize)
-
-
 class SFS_FUSE(Operations):
     """
     Main class of the FUSE. Responsible for correctly sending the information from the MDH to the filesystem via
@@ -117,21 +100,22 @@ class SFS_FUSE(Operations):
             raise FuseOSError(errno.ENOENT)
 
         now = time.time()
-        path_stat = FuseStat()
         os_stat = os.stat(path)
-        path_stat.st_uid = os_stat.st_uid
-        path_stat.st_gid = os_stat.st_gid
-        path_stat.st_size = os_stat.st_size
-        path_stat.st_atime = now
-        path_stat.st_mtime = now
-        path_stat.st_ctime = now
-        path_stat.blksize = os_stat.st_blksize
-        path_stat.st_blocks = os_stat.st_blocks
+
+        st = {}
+        st['st_uid'] = os_stat.st_uid
+        st['st_gid'] = os_stat.st_gid
+        st['st_size'] = os_stat.st_size
+        st['st_atime'] = now
+        st['st_mtime'] = now
+        st['st_ctime'] = now
+        st['blksize'] = os_stat.st_blksize
+        st['st_blocks'] = os_stat.st_blocks
         print(f"getattr called with: {path}")
 
         if path in [".", "..", "/"]:
-            path_stat.st_mode = stat.S_IFDIR | 0o755
-            return path_stat.__dict__
+            st['st_mode'] = stat.S_IFDIR | 0o755
+            return st
 
         file_finder = Resolver("name")
         path = path[1:]  # strip leading "/"
@@ -140,13 +124,13 @@ class SFS_FUSE(Operations):
             path_node: Node = file_finder.get(self.directory_tree, path)
             if len(path_node.children) == 0:
                 print("got regular file")
-                path_stat.st_mode = stat.S_IFREG | 0o755
+                st['st_mode'] = stat.S_IFREG | 0o755
             else:
-                path_stat.st_mode = stat.S_IFDIR | 0o755
+                st['st_mode'] = stat.S_IFDIR | 0o755
         except ChildResolverError:
             raise FuseOSError(errno.ENOENT)
 
-        return path_stat.__dict__
+        return st
 
     def readdir(self, path, fh):
 

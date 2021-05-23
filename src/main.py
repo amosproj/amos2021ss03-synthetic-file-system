@@ -33,7 +33,7 @@ class FuseStat:
     st_gid: int = 1000
     st_mode: int = stat.S_IFDIR | 0o755
     st_nlink: int = 1
-    st_size: int = 100  # 43000
+    st_size: int = 100
     st_atime: int = 0
     st_mtime: int = 0
     st_ctime: int = 0
@@ -123,7 +123,7 @@ class SFS_FUSE(Operations):
         path_stat.st_atime = now
         path_stat.st_mtime = now
         path_stat.st_ctime = now
-
+        path_stat.st_blocks = (int)((path_stat.st_size + 4095) / 4096)
         print(f"getattr called with: {path}")
 
         if path in [".", "..", "/"]:

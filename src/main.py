@@ -119,6 +119,7 @@ class SFS_FUSE(Operations):
         path_stat = FuseStat()
         path_stat.st_uid = os.getuid()
         path_stat.st_gid = os.getgid()
+        path_stat.st_size = os.stat(path).st_size
         path_stat.st_atime = now
         path_stat.st_mtime = now
         path_stat.st_ctime = now

@@ -118,14 +118,15 @@ class SFS_FUSE(Operations):
 
         now = time.time()
         path_stat = FuseStat()
+        os_stat = os.stat(path)
         path_stat.st_uid = os.getuid()
         path_stat.st_gid = os.getgid()
-        path_stat.st_size = os.stat(path).st_size
+        path_stat.st_size = os_stat.st_size
         path_stat.st_atime = now
         path_stat.st_mtime = now
         path_stat.st_ctime = now
-        path_stat.blksize = os.stat(path).st_blksize
-        path_stat.st_blocks = os.stat(path).st_blocks
+        path_stat.blksize = os_stat.st_blksize
+        path_stat.st_blocks = os_stat.st_blocks
         print(f"getattr called with: {path}")
 
         if path in [".", "..", "/"]:

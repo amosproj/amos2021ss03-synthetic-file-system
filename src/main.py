@@ -109,7 +109,7 @@ class SFS(Operations):
         return os.chown(full_path, uid, gid)
 
     def getattr(self, path, fh=None):
-        path_stat = SfsStat()
+        path_stat = SFS_Stat()
         print(f"getattr called with: {path}")
 
         if path in [".", "..", "/"]:

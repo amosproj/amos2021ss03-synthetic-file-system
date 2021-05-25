@@ -26,7 +26,7 @@
 
 
 
-<!-- PROJECT LOGO -->
+< !-- PROJECT LOGO -->
 <br />
 <p align="center">
   <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system">
@@ -57,7 +57,6 @@
     ·
     <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues">Request Feature</a>
   </p>
-</p>
 
 
 
@@ -66,10 +65,7 @@
   <summary><h2 style="display: inline-block">Table of Contents</h2></summary>
   <ol>
     <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
+        <a href="#about-the-project">About The Project</a>
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
@@ -80,10 +76,10 @@
     </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
+    <!-- <li><a href="#contributing">Contributing</a></li> -->
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgements">Acknowledgements</a></li>
+    <!--<li><a href="#acknowledgements">Acknowledgements</a></li>-->
   </ol>
 </details>
 
@@ -167,7 +163,7 @@ Due to the current Corona pandemic, as much data as possible is to be analyzed a
    ```
    This will mount the virtual filesystem under ~/fuse_mount
 
-3. Attention when under using docker:
+3. Attention when start the FUSE using docker:
   Since the FUSE blocks the current terminal, a new terminal in the docker has to be opened. For this you can just open a new terminal on the host and connect it again to the docker via ```docker exec -it synthetic-file-system tmux ```, or use tmux in the docker to open a new terminal (```ctrl+b -> ctrl+%```). For more information please refer to the [tmux documentation](https://github.com/tmux/tmux/wiki)
 
 4. Traverse the virtual filesystem via a terminal, or via any file browser like ```nautilus```. 
@@ -182,7 +178,7 @@ For docker: The docker container is configured to support X-forwarding, so any U
 The FUSE allows for filtering of the files that it will list via their metadata. For this, a config file, ```config/config.cfg``` is used. When starting, the FUSE reads all the filters from this file and applies them when retrieving the metadata from the Metadatahub.   
 The filters are specified as a list of triplets, where the first element of each triplet specifies the name of the metadata that the filter shall use, the second one a value, and as the third some relation specifies how values are compared to the one specified in the filter.  
 
-For example, to tell the FUSE to only show all ".jpg" files with an image height greater 500, a config file could look something like this:
+For example, to tell the FUSE to only show file with file name "DME-30521-7.jpeg" with an image height greater than 500, a config file will look as followed:
 ```toml
 [FILTER]
 filters = [
@@ -198,7 +194,7 @@ The way the dynamic configuration works, it is needed, that the config file is w
 
 <!--Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
-<!--_For more examples, please refer to the [Documentation](https://example.com)_ -->
+< !--_For more examples, please refer to the [Documentation](https://example.com)_ -->
 
 
 
@@ -212,11 +208,11 @@ See the [open issues](https://github.com/amosproj/amos-ss2021-synthetic-file-sys
 
 
 <!-- CONTRIBUTING -->
-## Contributing
+<!-- ## Contributing -->
 
 <!--Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-<!--1. Fork the Project
+< !--1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)

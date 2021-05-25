@@ -43,19 +43,17 @@
   <br>●Be able to filter which files are shown using meta-data<br />
   <br>●Be configured from a configuration file during startup time<br />
   <br><br><br /><br />
-  <br>Test cases are<br />
-  
- <br> ●Browsing using an existing Linux file system browser (e.g. Nautilus)<br />
-  <br>●Using cp to copy from the new virtual file system<br />
+  <br>Test cases are: <br />
+    <br> ●Browsing using an existing Linux file system browser (e.g. Nautilus)<br />
+    <br>●Using cp to copy from the new virtual file system<br />
     <br />
     <!--<a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system"><strong>Explore the docs »</strong></a>-->
     <br />
     <br />
     <!--<a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system">View Demo</a>-->
-    .
     <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues">amos-ss2021-synthetic-file-system Bug</a>
     ·
-    <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues">Requested Feature</a>
+    <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues">Requested Features</a>
   </p>
 
 

@@ -48,14 +48,14 @@
  <br> ●Browsing using an existing Linux file system browser (e.g. Nautilus)<br />
   <br>●Using cp to copy from the new virtual file system<br />
     <br />
-    <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system"><strong>Explore the docs »</strong></a>
+    <!--<a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system"><strong>Explore the docs »</strong></a>-->
     <br />
     <br />
-    <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system">View Demo</a>
+    <!--<a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system">View Demo</a>-->
+    .
+    <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues">amos-ss2021-synthetic-file-system Bug</a>
     ·
-    <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues">amos-ss2021-synthetic-file-systemrt Bug</a>
-    ·
-    <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues">Request Feature</a>
+    <a href="https://github.com/amosproj/amos-ss2021-synthetic-file-system/issues">Requested Feature</a>
   </p>
 
 

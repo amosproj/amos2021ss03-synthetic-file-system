@@ -3,7 +3,6 @@
 # Python imports
 from __future__ import with_statement
 import argparse
-import errno
 import os
 import stat
 import time
@@ -12,8 +11,7 @@ import time
 import mdh
 import pyinotify
 from anytree import Node, RenderTree, Resolver
-from anytree.resolver import ChildResolverError
-from fuse import FUSE, FuseOSError, Operations
+from fuse import FUSE, Operations
 
 # Local imports
 from config_notifier import ConfigFileEventHandler
@@ -29,13 +27,18 @@ class SFS_Stat:
     class that is used to represent the stat struct used by the Linux kernel, where it is used to store/access
     metadata for files. For more information on the specific variables see stat(2)
     """
-    st_atime: int = 0
-    st_ctime: int = 0
-    st_gid: int = 0
     st_mode: int = stat.S_IFDIR | 0o755
-    st_mtime: int = 0
     st_nlink: int = 1
-    st_size: int = 43000
+    st_uid: int = 0
+    st_gid: int = 0
+    st_rdev: int = 0
+    st_size: int = 100
+    st_blksize: int = 4096
+    st_blocks: int = (int)((st_size + st_blksize - 1) / st_blksize)
+
+    st_atime: int = 0
+    st_mtime: int = 0
+    st_ctime: int = 0
 
 
 class SFS(Operations):
@@ -111,6 +114,16 @@ class SFS(Operations):
     def getattr(self, path, fh=None):
         path_stat = SFS_Stat()
         print(f"getattr called with: {path}")
+
+        os_path = os.stat(path)
+
+        path_stat.st_size = os_path.st_size
+        path_stat.st_blocks
+
+        now = time.time()
+        path_stat.st_atime = now
+        path_stat.st_mtime = now
+        path_stat.st_ctime = now
 
         if path in [".", "..", "/"]:
             path_stat.st_mode = stat.S_IFDIR | 0o755

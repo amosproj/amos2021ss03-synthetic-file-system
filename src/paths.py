@@ -1,3 +1,4 @@
+# Python imports
 import os
 
 # Directory paths

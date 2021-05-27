@@ -1,8 +1,15 @@
 # Python imports
 import unittest
 
+# Local imports
+from src.sfs import SFS
+
 
 class TestSFSFuse(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        pass
 
     # =======================
     # Test Filesystem methods

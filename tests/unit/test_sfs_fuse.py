@@ -1,9 +1,6 @@
 # Python imports
 import unittest
 
-# Local imports
-from src.sfs import SFS
-
 
 class TestSFSFuse(unittest.TestCase):
 

@@ -1,0 +1,183 @@
+{
+  "test_obj1": [
+    [
+      {
+        "id": "1",
+        "metadata": [
+          {
+            "name": "FileName",
+            "value": "DRUSEN-6193297-5.jpeg"
+          },
+          {
+            "name": "FileSize",
+            "value": "60000"
+          },
+          {
+            "name": "MIMEType",
+            "value": "image/jpeg"
+          },
+          {
+            "name": "FileInodeChangeDate",
+            "value": "2021-05-04 12:58: 00"
+          },
+          {
+            "name": "SourceFile",
+            "value": "/home/dome_/test_tree/dir2/DRUSEN-6193297-5.jpeg"
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "metadata": [
+          {
+            "name": "FileName",
+            "value": "DME-8602716-3.jpeg"
+          },
+          {
+            "name": "FileSize",
+            "value": "74000"
+          },
+          {
+            "name": "MIMEType",
+            "value": "image/jpeg"
+          },
+          {
+            "name": "FileInodeChangeDate",
+            "value": "2021-05-04 12:58:00"
+          },
+          {
+            "name": "SourceFile",
+            "value": "/home/dome_/test_tree/dir2/dir3/dir52/dir53/dir57/dir58/DME-8602716-3.jpeg"
+          }
+        ]
+      },
+      {
+        "id": "3",
+        "metadata": [
+          {
+            "name": "FileName",
+            "value": "DRUSEN-2108193-2.jpeg"
+          },
+          {
+            "name": "FileSize",
+            "value": "50000"
+          },
+          {
+            "name": "MIMEType",
+            "value": "image/jpeg"
+          },
+          {
+            "name": "FileInodeChangeDate",
+            "value": "2021-05-04 12:58:00"
+          },
+          {
+            "name": "SourceFile",
+            "value": "/home/dome_/test_tree/dir2/dir4/dir6/dir22/DRUSEN-2108193-2.jpeg"
+          }
+        ]
+      },
+      {
+        "id": "4",
+        "metadata": [
+          {
+            "name": "FileName",
+            "value": "8_Writing_Equations_of_Lines.mp4"
+          },
+          {
+            "name": "FileSize",
+            "value": "4200000"
+          },
+          {
+            "name": "MIMEType",
+            "value": "video/mp4"
+          },
+          {
+            "name": "FileInodeChangeDate",
+            "value": "2021-05-04 12:58:00"
+          },
+          {
+            "name": "SourceFile",
+            "value": "/home/dome_/test_tree/dir2/dir4/dir6/dir22/8_Writing_Equations_of_Lines.mp4"
+          }
+        ]
+      }
+    ],
+    {
+      "name": "Root",
+      "children": [
+        {
+          "name": "home",
+          "children": [
+            {
+              "name": "dome_",
+              "children": [
+                {
+                  "name": "test_tree",
+                  "children": [
+                    {
+                      "name": "dir2",
+                      "children": [
+                        {
+                          "name": "DRUSEN-6193297-5.jpeg"
+                        },
+                        {
+                          "name": "dir3",
+                          "children": [
+                            {
+                              "name": "dir52",
+                              "children": [
+                                {
+                                  "name": "dir53",
+                                  "children": [
+                                    {
+                                      "name": "dir57",
+                                      "children": [
+                                        {
+                                          "name": "dir58",
+                                          "children": [
+                                            {
+                                              "name": "DME-8602716-3.jpeg"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "name": "dir4",
+                          "children": [
+                            {
+                              "name": "dir6",
+                              "children": [
+                                {
+                                  "name": "dir22",
+                                  "children": [
+                                    {
+                                      "name": "DRUSEN-2108193-2.jpeg"
+                                    },
+                                    {
+                                      "name": "8_Writing_Equations_of_Lines.mp4"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

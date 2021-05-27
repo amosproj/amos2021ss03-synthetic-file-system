@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Python imports
 from __future__ import with_statement
 import os

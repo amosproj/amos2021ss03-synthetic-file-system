@@ -2,22 +2,20 @@
 
 # Python imports
 from __future__ import with_statement
-import argparse
 import os
 import stat
 import time
 
 # 3rd party imports
-import mdh
 import pyinotify
 from anytree import Node, RenderTree, Resolver
-from fuse import FUSE, Operations
+from fuse import Operations
 
 # Local imports
-from config_notifier import ConfigFileEventHandler
-from fuse_utils import build_tree_from_files
-from mdh_bridge import MDHQueryRoot
-from paths import CONFIG_PATH, CONFIG_FILE_PATH
+from .config_notifier import ConfigFileEventHandler
+from .fuse_utils import build_tree_from_files
+from .mdh_bridge import MDHQueryRoot
+from .paths import CONFIG_PATH, CONFIG_FILE_PATH
 
 CORE_NAME = "core-sfs"  # FIXME: Set the name corresponding to your mdh-core
 
@@ -246,22 +244,3 @@ class SFS(Operations):
     def fsync(self, path, fdatasync, fh):
         print("fsync called")
         return self.flush(path, fh)
-
-
-def main(mountpoint):
-    try:
-        mdh.init()
-    # TODO: Error handling
-    except EnvironmentError:
-        raise
-
-    # Start the fuse without custom FUSE class and the given mount point
-    FUSE(SFS(), mountpoint, nothreads=True, foreground=True)
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Command Line Interface of SFS")
-    parser.add_argument("mountpoint", type=str)
-    args = parser.parse_args()
-
-    main(args.mountpoint)

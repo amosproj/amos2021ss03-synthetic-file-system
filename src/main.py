@@ -4,7 +4,6 @@
 from __future__ import with_statement
 import argparse
 import os
-import time
 import stat
 import time
 

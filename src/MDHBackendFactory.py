@@ -1,31 +1,22 @@
 from BackendFactory import BackendFactory
-from Backend import Backend
 from MDHBackend import MDHBackend
 from BackendFactoryManager import BackendFactoryManager
 from mdh_bridge import *
-from anytree import Node, RenderTree
+from anytree import RenderTree
 import fuse_utils
 import paths
 
-_QUERY = " \
-\
-query {\
-  searchMetadata {\
-    files {\
-      metadata {\
-        value\
-        name\
-      }\
-    }\
-  }\
-}"
-
 
 class MDHBackendFactory(BackendFactory):
+    """
+    Implementation of the BackendFactory for the MDH.
+    This Factory will create MDHBackends for given sections.
+    See BackendFactory for more information
+    """
 
     def __init__(self):
         super().__init__()
-        self.core_name = "core-test"
+        self.core_name = "core-test"  # TODO read from section
 
     def create_backend_from_section(self, section) -> MDHBackend:
 

@@ -1,7 +1,7 @@
 import stat
 
 
-class SFS_Stat:
+class SFSStat:
     """
     class that is used to represent the stat struct used by the Linux kernel, where it is used to store/access
     metadata for files. For more information on the specific variables see stat(2)
@@ -13,7 +13,7 @@ class SFS_Stat:
     st_rdev: int = 0
     st_size: int = 100
     st_blksize: int = 4096
-    st_blocks: int = (int)((st_size + st_blksize - 1) / st_blksize)
+    st_blocks: int = int((st_size + st_blksize - 1) / st_blksize)
 
     st_atime: int = 0
     st_mtime: int = 0

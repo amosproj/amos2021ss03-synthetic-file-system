@@ -1,8 +1,11 @@
 import BackendManager
 from BackendFactoryManager import BackendFactoryManager
-from BackendFactory import BackendFactory
 from BackendManager import BackendManager
-import MDHBackendFactory
+
+"""
+TEST FILE UNTIL THE PROPER CONFIG PARSER IS DONE!!!!
+THIS FILE WILL BE REMOVED
+"""
 
 
 def test_setup():
@@ -10,4 +13,3 @@ def test_setup():
     backendfac = backfacman.get_factory_for_config_tag("MDH")
     backend = backendfac.create_backend_from_section(section="")
     BackendManager().add_backend(backend)
-

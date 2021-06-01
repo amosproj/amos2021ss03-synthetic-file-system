@@ -1,0 +1,522 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta name="ContentType" content="Product Documentation">
+<title>LabVIEW 2015 Service Pack 1 Readme for Windows</title>
+
+<style type="text/css">
+<!--
+/***************************************************/
+/* MINIMAL STYLES */
+/* The following section defines styles that every HTML Help project should need. */
+
+/* Specifies white background color for page and font style for text. */
+body {background-color:#FFFFFF; font-family:Verdana, sans-serif; font-size:8pt; color: #000000;}
+
+/* Use P for normal paragraphs. */
+p { margin-top:6.00pt; margin-bottom:6.00pt; }
+
+br { font-size:4.00pt; }
+
+/* Use H1 for all topic headings. */
+h1 { margin-top:3.00pt; margin-bottom:3.00pt; font-size:150%; font-weight:bold; }
+
+/* Use H2 for second-level headings. */
+h2 { margin-top:9.00pt; margin-bottom:3.00pt; font-size:125%; font-weight:bold; }
+
+/* Use H3 for third-level headings. */
+h3 { margin-top:6.00pt; margin-bottom:3.00pt; font-size:100%; font-weight:bold; }
+
+/* Use H4 for fourth-level headings. */
+h4 { margin-top:6.00pt; margin-bottom:3.00pt; font-size:100%; font-weight:bold; }
+
+/* H5 and H6 have the same definition as H4 because you should not need this level of heading in one topic. If you need to use H5 or H6, consider breaking up your topic into more than one topic. */
+h5 { margin-top:6.00pt; margin-bottom:3.00pt; font-size:100%; font-weight:bold; }
+h6 { margin-top:6.00pt; margin-bottom:3.00pt; font-size:100%; font-weight:bold; }
+
+/* Use the Body style class for normal paragraphs. */
+p.Body { }
+
+/* Use the Anchor style class for graphic references on a line by themselves. */
+p.Anchor { font-size:125%; }
+
+/* Use the Indent style classes to indent a paragraph. If you need to indent text below a list item, use <br><br> to start the new paragraph within the same set of <li></li> tags. If you need to indent a list within another list, nest the indented list within the first list's set of <ol></ol> or <ul></ul> tags. */
+p.Indent1 { margin-left:12.00pt; margin-bottom:3.00pt; }
+p.Indent2 { margin-left:24.00pt; margin-bottom:3.00pt; }
+p.Indent3 { margin-left:36.00pt; margin-bottom:3.00pt; }
+p.Indent4 { margin-left:48.00pt; margin-bottom:3.00pt; }
+p.Indent5 { margin-left:60.00pt; margin-bottom:3.00pt; }
+
+/* Use the LI style for all list items. */
+li { margin-top:3.00pt; margin-bottom:3.00pt; }
+
+/* Use the OL style for numbered lists. You do not have to type the number for each list item in a numbered list. */
+ol { margin-left:22.00pt; margin-top:3.00pt; margin-bottom:3.00pt; text-indent:0pt; list-style-type: decimal; }
+
+/* Use the OL style for numbered lists. Nested lists will use the bullet types according to the nesting scheme below */
+ol ol {list-style-type:lower-alpha}
+ol ol ol {list-style-type:decimal}
+ol ol ol ol {list-style-type:lower-alpha}
+ol ol ol ol ol {list-style-type:decimal}
+ol ol ol ol ol ol {list-style-type:lower-alpha}
+ol ol ol ol ol ol ol {list-style-type:decimal}
+ol ol ol ol ol ol ol ol {list-style-type:lower-alpha}
+
+
+/* Use the EquationNum style class for numbered lists of equations. You do not have to type the number for each list item in a numbered list. */
+ol.EquationNum { margin-left:36.00pt; text-indent:0pt; list-style-type: decimal; }
+
+/* Use the List-abc style class for lettered lists. You do not have to type the letter for each list item in a lettered list. */
+ol.List-abc { margin-left:22.00pt; text-indent:0pt; list-style-type:lower-alpha; }
+
+/* Use the UL style for bulleted lists. You do not have to type the bullet for each list item in a bulleted list. */
+ul { margin-left:22.00pt; text-indent:0pt; margin-top:3.00pt; margin-bottom:3.00pt; list-style-type: disc; }
+
+/* Use the UL style for bulleted lists. Nested lists will use the bullet types according to the nesting scheme below. */
+ul ul {list-style-image: none;list-style-type: circle}
+ul ul ul {list-style-image:none;list-style-type:disc}
+ul ul ul ul {list-style-image: none;list-style-type: circle}
+ul ul ul ul ul {list-style-image:none;list-style-type:disc}
+ul ul ul ul ul ul {list-style-image: none;list-style-type: circle}
+ul ul ul ul ul ul ul {list-style-image:none;list-style-type:disc}
+ul ul ul ul ul ul ul ul ul{list-style-image: none;list-style-type: circle}
+
+/* Use the List-Box style class for bulleted lists with boxes instead of bullets. You do not have to type the box for each list item in a box list. */
+ul.List-Box {list-style-image: none;list-style-type: square}
+
+table { font-size:100%; }
+
+/* Use the Borderless style class for tables that do not need borders, such as for 2-column or 3-column lists with no headings. */
+table.Borderless { border:none; }
+
+/* Use the Bordered style class for tables that need borders. */
+table.Bordered { border-width: 1pt; border-style: solid; border-color: #000000; border-collapse: collapse; }
+
+/* Use the TD style for table cells in Borderless or Borderless-Wide tables. */
+td { vertical-align:top; padding:3px; }
+
+/* Use the Bordered style class for table headings and cells in Bordered or Bordered-Wide tables. */
+.Bordered { border-width: 1pt; border-style: solid; border-color: #000000; }
+
+/* Use the Icon style class for table cells that contain note, caution, warning, or tip icons, or LabVIEW datatype terminals. */
+td.Icon { width:40px; }
+
+/* Use the TH style for table heading cells in Borderless or Borderless-Wide tables. */
+th { font-weight:bold; padding:3px; }
+
+/* Use the Left-Align style class for table headings and cells that you want to left align instead of center align. */
+.Left-Align { text-align:left; }
+
+/***************************************************/
+/* CHARACTER FORMATS */
+/* The following section defines character formats that every HTML Help project should need. */
+
+/* CHARACTER FORMATS Updated to conform with the CSE HTML Validator Pro */
+/* The following section defines character formats that every HTML Help project should need. */
+
+/* Use the Dark-Red format for warnings or cautions. */
+.Dark-Red { color: #800000 }
+
+/* Use the Monospace format for code or syntax examples. */
+.Monospace { font-family: "Courier New",monospace; font-size: 100%; }
+
+/* Use the Monospace-Bold format for messages and responses that the computer automatically prints to the screen. */
+.Monospace-Bold { font-family: "Courier New",monospace; font-weight: bold; font-size: 100%; }
+
+/* Use the Monospace-Italic format to denote text that is a placeholder for a word or value that the user must supply. */
+.Monospace-Italic { font-family: "Courier New",monospace; font-style: italic; font-size: 100%; }
+
+/* small class */
+.smallFont { font-size:87.5%; }
+
+/* Bold class */
+.Bold { font-weight: bold; }
+
+/* Italic class */
+.Italic { font-style: italic; }
+
+/* Use the Platform format to denote a specific platform. */
+.Platform { color: #0000FF; font-weight: bold; }
+
+/* Use the Symbol format for characters not in the Verdana character set. Use this format sparingly. When possible, you should use the correct ASCII code for the symbol or use a graphic to recreate the symbol. */
+.Symbol { font-family: Symbol; }
+
+/* Use the Red-text format to call attention to text that needs information added or edited by techcomm */
+.Red-text {color: #FF0000;}
+
+/* Use the Green-Underline format for the green defintion in the conventions topic */
+.Green-Underline {color: #007700; text-decoration : underline;}
+
+/* Use the glossButton format for the glossary buttons used in the glossary topic */
+.glossButton { font-size:12px; color:black; }
+
+/* Use for text sections and hyphenated words that should not break at line wraps */
+.nobreak{white-space:nowrap}
+
+/* Use for template instructions. */
+.instructions{color:red; font-style:italic}
+
+/*Use for words and text sections that do not need to be localized */
+.DNL { }
+
+/* The following styles define the color of links. */
+a:link { color: #007700 }
+a:visited { color: #7F007F }
+a:link:hover { color: #FF0000 }
+a:link:active { color: #FF0000 }
+
+/***************************************************/
+/* Forms */
+
+form { margin-top:0pt; margin-bottom:3pt; color:black; }
+select { font-size:100%; color:black; }
+
+/*******************************************************/
+/* Margins */
+/* Use these styles for block-level elements inside tables cells or list items where you do not want extra padding at the top or bottom of a cell. */
+.noTopMargin { margin-top:0pt;}
+.noBottomMargin { margin-bottom:0pt;}
+
+/***************************************************/
+/* CODE STYLES */
+/* The following section defines styles that you need to format entire sections of code or syntax examples. If you have just a few words you need to format as a code or syntax example, use the Monospace character format. */
+
+p.Code { margin-top:3.00pt; margin-bottom:0.00pt; font-family: "Courier New",monospace; }
+p.Code1 { margin-left:12.00pt; margin-top:3.00pt; margin-bottom:0.00pt; font-family: "Courier New",monospace; }
+p.Code2 { margin-left:24.00pt; margin-top:3.00pt; margin-bottom:0.00pt; font-family: "Courier New",monospace; }
+p.Code3 { margin-left:36.00pt; margin-top:3.00pt; margin-bottom:0.00pt; font-family: "Courier New",monospace; }
+-->
+</style>
+
+</head>
+
+<body>
+
+<h1>LabVIEW 2015 Service Pack 1 Readme for Windows</h1>
+<p>December 2015</p>
+
+<p>This file contains important information about LabVIEW 2015 Service Pack 1 (SP1) for Windows, including system requirements, installation instructions, known issues, and a partial list of bugs fixed for LabVIEW 2015 SP1.</p> 
+<p>Refer to the <a href="http://digital.ni.com/express.nsf/bycode/exe7aa" target="_blank">NI website</a> for the latest information about LabVIEW 2015 SP1.</p>
+<p>Refer to the <span class="Monospace">labview\readme</span> directory for readme files about LabVIEW add-ons, such as modules and toolkits.</p>
+
+
+<p><a href="#requirements">System Requirements</a></p> 
+<p><a href="#installation">Installation Instructions</a></p>
+<p><a href="#updates">Product Security and Critical Updates</a></p>
+<p><a href="#known">Known Issues</a></p>
+<p><a href="#lv64bit">LabVIEW 2015 SP1 (64-bit)</a></p>
+<p><a href="#additions">Additions to the LabVIEW Help</a></p>
+<p><a href="#fixes">Bug Fixes</a></p>
+<p><a href="#help">Accessing the Help</a></p>
+<p><a href="#examples">Finding Examples</a></p>
+<p><a href="#autoinstall">Automating the Installation of NI Products</a></p>
+<p><a href="#win10">Using NI Software with Microsoft Windows 10</a></p>
+<p><a href="#win8">Using NI Software with Microsoft Windows 8.1</a></p>
+<p><a href="#OSSupport">NI Software Support for Microsoft Windows Vista, Windows XP, and Windows Server 2003</a></p>
+<p><a href="#legal">Legal Information</a></p>
+
+<hr>
+
+<!-- System Requirements -->
+<h2><a name="requirements">System Requirements</a></h2>
+<table class="Bordered">
+    <tr>
+        <th class="Bordered">Windows</th>
+        <th class="Bordered">Run-Time Engine</th>
+        <th class="Bordered">Development Environment</th>
+    </tr>
+    <tr>
+        <td class="Bordered">Processor</td>
+        <td class="Bordered">
+        	Pentium III/Celeron 866 MHz (or equivalent) or later (32-bit)<br>
+            Pentium 4 G1 (or equivalent) or later (64-bit)
+		</td>
+        <td class="Bordered">
+        	Pentium 4M (or equivalent) or later (32-bit)<br>
+            Pentium 4 G1 (or equivalent) or later (64-bit)
+        </td>
+    </tr>
+    <tr>
+        <td class="Bordered">RAM</td>
+        <td class="Bordered">256 MB</td>
+        <td class="Bordered">1 GB</td>
+    </tr>
+    <tr>
+        <td class="Bordered">Screen Resolution</td>
+        <td class="Bordered">1024 x 768 pixels</td>
+        <td class="Bordered">1024 x 768 pixels</td>
+    </tr>
+    <tr>
+        <td class="Bordered">Operating System</td>
+        <td class="Bordered">
+            Windows 10/8.1/7 Service Pack 1/Vista (32-bit and 64-bit)<br>
+            Windows XP SP3 (32-bit)<br>
+            Windows Server 2003 R2 (32-bit)</td>
+        <td class="Bordered">
+            Windows 10/8.1/7 Service Pack 1/Vista (32-bit and 64-bit)<br>
+            Windows XP SP3 (32-bit)<br>
+            Windows Server 2003 R2 (32-bit)
+        </td>
+    </tr>
+    <tr>
+        <td class="Bordered">Disk Space</td>
+        <td class="Bordered">620 MB</td>
+        <td class="Bordered">5 GB (includes default drivers from the NI Device Drivers media)</td>
+    </tr>
+    <tr>
+        <td class="Bordered">Color Palette</td>
+        <td class="Bordered">N/A</td>
+        <td class="Bordered">LabVIEW and the <em>LabVIEW Help</em> contain 16-bit color graphics. LabVIEW requires a minimum color palette setting of 16-bit color.</td>
+    </tr>
+    <tr>
+        <td class="Bordered">Temporary Files Directory</td>
+        <td class="Bordered">N/A</td>
+        <td class="Bordered">LabVIEW uses a directory for storing temporary files. NI recommends that you have several megabytes of disk space
+    available for this temporary directory.</td>
+    </tr>
+    <tr>
+        <td class="Bordered">Adobe Reader</td>
+        <td class="Bordered">N/A</td>
+        <td class="Bordered">You must have Adobe Reader installed to search PDF versions of all LabVIEW manuals.</td></tr>
+    <tr>
+        <td colspan="3"><strong>Note&nbsp;&nbsp;</strong>The following list describes restrictions for using LabVIEW on Windows:
+            <ul>
+                <li>LabVIEW does not support Windows 2000/NT/Me/98/95, Windows XP x64, Windows Server 2008 R2, or Windows Server 2012 R2.</li>
+                <li>You cannot access LabVIEW using a Guest account on Windows.</li>
+            </ul>
+        </td>
+    </tr>
+</table>
+
+
+<!-- Installation Instruction -->
+<h2><a name="installation">Installation Instructions</a></h2>
+<p>Depending on whether you are installing LabVIEW for the first time or upgrading from a previous version, refer to one of the following documents for information about installing LabVIEW:</p>
+<ul>
+	<li><em>LabVIEW Installation Guide</em>&#8212;Includes information about installing LabVIEW, modules and toolkits, drivers, and hardware.</li>
+	<li><em>LabVIEW Upgrade Notes</em>&#8212;Includes information about protecting existing VIs and projects before you install a new version of LabVIEW, as well as upgrade and compatibility issues and a complete list of new features in LabVIEW 2015.</li>
+</ul>
+<p>You can access the <a href="http://digital.ni.com/express.nsf/bycode/LVinstallWin2015SP1" target="_blank">LabVIEW Installation Guide</a> and the <a href="http://digital.ni.com/express.nsf/bycode/upnote15" target="_blank">LabVIEW Upgrade Notes</a> at <span class="Monospace">ni.com</span> as well as on the installation media.</p>
+<p><strong>Note</strong>&nbsp;&nbsp;If you purchased this product with an NI Software Suite or NI Product Bundle, use the installation media that shipped with your purchase to install this product.</p> 
+
+<!--Critical updates-->
+<h2><a name="updates">Product Security and Critical Updates</a></h2>
+
+<p>Visit <a href="http://www.ni.com/security" target="_blank">ni.com/security</a> to view and subscribe to receive security notifications about NI products. Visit <a href="http://ni.com/critical-updates" target="_blank">ni.com/critical-updates</a> for information about critical updates from NI.</p>
+
+<!-- Known Issues -->
+<h2><a name="known">Known Issues</a></h2>
+<p>You can access the software and documentation known issues list online. Refer to the <a href="http://digital.ni.com/express.nsf/bycode/LV2015KI" target="_blank">NI website</a> for an up-to-date list of known issues in LabVIEW 2015 and LabVIEW 2015 SP1.</p>
+
+<!-- LabVIEW 64 Bit -->
+<h2><a name="lv64bit">LabVIEW 2015 SP1 (64-bit)</a></h2>
+<p>When run on Windows (64-bit), LabVIEW 2015 SP1 (64-bit) provides access to more memory than a 32-bit operating system or a 32-bit application can provide. LabVIEW 2015 SP1 (64-bit) includes nearly all of the development environment features of LabVIEW 2015 SP1 (32-bit).</p>
+<p>Refer to the <a href="http://digital.ni.com/express.nsf/bycode/lv64bit" target="_blank">NI website</a> for information about obtaining a copy of LabVIEW 2015 SP1  (64-bit).</p>
+<h3>Supported Hardware</h3>
+<p>LabVIEW 2015 SP1 (64-bit) supports many hardware devices. Refer to the <a href="http://digital.ni.com/express.nsf/bycode/nidriver" target="_blank">NI website</a> for information about drivers compatible with LabVIEW 2015 SP1 (64-bit). For GPIB devices, you must use at least NI-488.2 2.6 for Windows. Refer to the specific hardware documentation for more information about compatibility with LabVIEW 2015 SP1 (64-bit).</p>
+
+<h3>Supported Modules and Toolkits</h3>
+<p>LabVIEW 2015 SP1 (64-bit) supports a limited number of modules and toolkits. The following list is a subset of modules and toolkits supported by LabVIEW 2015 SP1 (64-bit).</p>
+<ul>
+    <li>Advanced Signal Processing Toolkit</li>
+    <li>Report Generation Toolkit for Microsoft Office</li>
+	<li>Sound and Vibration Measurement Suite (excluding Express VIs)</li>
+    <li>Vision Development Module</li>
+</ul>
+<p>Refer to the <a href="http://digital.ni.com/express.nsf/bycode/labview64bit" target="_blank">NI website</a> for more information about LabVIEW (64-bit) and supported modules and toolkits.</p>
+
+<!-- Additions to the LabVIEW Help -->
+<h2><a name="additions">Additions to the <em>LabVIEW Help</em></a></h2>
+<p>The following list contains additional changes to LabVIEW that are not included in the <em>LabVIEW Help</em>, the <em>LabVIEW Upgrade Notes</em>, or both:</p>
+<ul>
+	<li>NI does not support remote front panels for Google Chrome starting from version 42. Visit the <a href="http://digital.ni.com/express.nsf/bycode/BlockedPlugin" target="_blank">NI website</a> for more information.</li>
+</ul>
+
+<!-- Bug Fixes -->
+<h2><a name="fixes">Bug Fixes</a></h2>
+<p>The following items are the IDs and titles of a subset of issues fixed in LabVIEW 2015 SP1. This is not an exhaustive list of issues fixed in the current version of LabVIEW. If you have a CAR ID, you can search this list to validate that the issue has been fixed.</p>
+<div class="DNL">
+<table class="Bordered">
+	<tr>
+		<th class="Bordered">ID</th>
+		<th class="Bordered">Fixed Issue</th>
+	</tr>
+    <tr>
+        <td class="Bordered">515054</td>
+        <td class="Bordered">Icon transparency of VIs is not maintained when building a Source Distribution</td>
+    </tr>   
+    <tr>
+        <td class="Bordered">530816</td>
+        <td class="Bordered">In rare cases, LabVIEW may crash when saving the results of the Compare VI Hierarchies tool when used on a reentrant VI</td>
+    </tr>
+    <tr>
+        <td class="Bordered">530928</td>
+        <td class="Bordered">Internal warning when saving a VI with a Fixed-Point datatype for LabVIEW 8.2 or earlier</td>
+    </tr>
+    <tr>
+        <td class="Bordered">534471</td>
+        <td class="Bordered">When building a packed project library containing classes, changes in class inheritance would not propagate to calling VIs</td>
+    </tr>
+    <tr>
+        <td class="Bordered">537078</td>
+        <td class="Bordered">Case Structure auto-complete functions incorrectly when used with Enum Controls in LabVIEW 2015</td>
+    </tr>
+    <tr>
+        <td class="Bordered">537780</td>
+        <td class="Bordered">Unregistering and re-registering an event while an event callback VI is running may crash LabVIEW when the callback VI returns</td>
+    </tr>
+    <tr>
+        <td class="Bordered">537859</td>
+        <td class="Bordered">LabVIEW 64-bit crashes when selecting a result from the Search text box on Windows 10</td>
+    </tr>
+    <tr>
+        <td class="Bordered">538332</td>
+        <td class="Bordered">Make Space/Remove Space does not work when Bookmark Manager is open and there is a bookmark in the VI</td>
+    </tr>
+    <tr>
+        <td class="Bordered">540922</td>
+        <td class="Bordered">Channel Wires are incompatible with Control & Simulation Loop tunnels</td>
+    </tr>
+    <tr>
+        <td class="Bordered">542232</td>
+        <td class="Bordered">LabVIEW executables with ActiveX Server enabled do not have read-only properties</td>
+    </tr>
+    <tr>
+        <td class="Bordered">542858</td>
+        <td class="Bordered">In rare cases, LabVIEW applications that contain a Web Service may crash on exit</td>
+    </tr>
+    <tr>
+        <td class="Bordered">543507</td>
+        <td class="Bordered">DAbort 0x2CADF6E3 caused by scrolling the mouse wheel within an array</td>
+    </tr>
+    <tr>
+        <td class="Bordered">544852</td>
+        <td class="Bordered">In some cases, LabVIEW 2015 creates a minor internal warning when shrinking diagrams</td>
+    </tr>
+    <tr>
+        <td class="Bordered">545175</td>
+        <td class="Bordered">In some cases, using Sort 1D Array and Array Max & Min or Less Than on a cluster would report incorrect data</td>
+    </tr>
+    <tr>
+        <td class="Bordered">546121</td>
+        <td class="Bordered">Ctrl-A, then Delete does not delete the icon in the Icon Editor in LabVIEW 2015</td>
+    </tr>
+    <tr>
+        <td class="Bordered">552345</td>
+        <td class="Bordered">In rare cases, updating an IMAQ indicator and a LabVIEW Listbox at a high rate in two different, but visible, VIs can cause LabVIEW to crash</td>
+    </tr>
+</table>
+</div>
+
+<!-- Accessing the Help -->
+<h2><a name="help">Accessing the Help</a></h2>
+<p>Refer to the <em>LabVIEW Help</em>, accessible by selecting <strong>Help&#0187;LabVIEW Help</strong> from LabVIEW, for information about LabVIEW 2015 SP1.</p>
+
+<!-- Finding Examples -->
+<h2><a name="examples">Finding Examples</a></h2>
+<p>Select <strong>Help&#0187;Find Examples</strong> from LabVIEW to launch the NI Example Finder. You can modify an example VI to fit an application, or you can copy and paste from one or more examples into a VI that you create.</p>
+
+<!-- Autoinstall -->
+<h2><a name="autoinstall">Automating the Installation of NI Products</a></h2>
+<p>You can automate the installation of most NI products using command-line arguments to suppress some or all of the installer user interface and dialog boxes. However, starting with the August 2012 releases (products using NI Installers version 3.1 or later), you may need to perform additional steps before or during a silent installation of NI software.</p>
+
+<p>If the NI product you are installing uses Microsoft .NET 4.0, the .NET installer may run before any NI software installs and may require a reboot before the installation of NI software begins. To avoid a .NET reboot, install .NET 4.0 separately before you install NI software.</p>
+
+<p>For more information about automating the installation of NI products, refer to the following KnowledgeBase articles:</p>
+<ul>
+<li>For more information about silent installations of individual NI products, refer to KB 4CJDP38M, <a href="http://digital.ni.com/express.nsf/bycode/InstallerAutomation" target="_blank">Automating the Installation of a Single Installer</a>.</li>
+<li>For more information about silent installations of NI products in a suite, such as NI Developer Suite, refer to KB 4GGGDQH0, <a href="http://digital.ni.com/express.nsf/bycode/SuiteInstallerAutomation" target="_blank">How Do I Automate the Installation of a Suited Installer?</a>.</li>
+<li>To determine what version of NI Installers your product contains, refer to KB 4CJDR18M, <a href="http://digital.ni.com/express.nsf/bycode/InstallerVersion" target="_blank">How Can I Determine the Type and Version of My NI Installer?</a>.</li>
+</ul>
+
+<!-- Windows 10 Support Information-->
+<h2><a name="win10">Using NI Software with Microsoft Windows 10</a></h2>
+<p>Microsoft Windows 10 is the latest version of the Windows operating system and features significant changes compared to previous versions. Windows 10 introduces several new capabilities and also combines features from both Windows 7 and Windows 8. For more information about NI support for Windows 10, visit <a href="http://ni.com/windows10" target="_blank">ni.com/windows10</a>.</p>
+
+<!-- Windows 8 Support Information-->
+<h2><a name="win8">Using NI Software with Microsoft Windows 8.1</a></h2>
+
+<p>When you install NI software on Microsoft Windows 8.1, you will notice a few additional tiles in the Apps view, including shortcuts to NI application software products such as NI LabVIEW, Measurement &amp; Automation Explorer (NI MAX), and NI Launcher.</p>
+
+<h3>Using NI Launcher</h3>
+<p>NI Launcher helps you find and launch installed NI products. It provides you with a method of finding NI products similar to the Start menu in previous versions of Microsoft Windows. To use NI Launcher, click the <strong>NI Launcher</strong> tile in the Apps view. NI Launcher launches the desktop and opens a menu containing a list of NI products. Click any NI product to launch it.</p>
+
+<p><strong>Note</strong>&nbsp;&nbsp;NI MAX does not appear as a desktop shortcut when installed on Microsoft Windows 8.1. You can launch NI MAX either from the Apps view or from within NI Launcher. </p>
+
+<h3>Pinning Frequently Used Applications</h3>
+<p>For convenience, you can pin your most-used NI applications, such as MAX, to either the Start screen or the Taskbar on the desktop, as necessary:</p>
+<table class="Bordered">
+	<tr><th class="Bordered">Current Application</th><th class="Bordered">Icon Location</th><th class="Bordered">Pin to Action</th></tr>
+	<tr>
+<td class="Bordered">Windows 8.1 Desktop</td><td class="Bordered">Desktop Taskbar</td><td class="Bordered">Right-click application and select <strong>Pin to Taskbar</strong></td></tr>
+	<tr>
+<td class="Bordered">Windows 8.1 Desktop</td>
+<td class="Bordered">Start screen</td><td class="Bordered">Right-click application and select <strong>Pin to Start</strong></td></tr>
+	<tr>
+<td class="Bordered">Windows 8.1 Start screen</td><td class="Bordered">Desktop Taskbar</td><td class="Bordered">Right-click application and select <strong>Pin to taskbar</strong> from the menu bar on the bottom of the screen</td></tr>
+</table>
+
+<h3>Finding All Programs</h3>
+<p>If you want to find a particular application or related files, such as documentation files, from the Start screen, you can access all installed files from the Apps view. To get to the Apps view, click the down arrow on the bottom left of the screen.</p>
+
+<p>For more information about NI support for Windows 8.1, visit <a href="http://ni.com/windows8" target="_blank">ni.com/windows8</a>.</p>
+
+<!-- Windows XP support information -->
+<h2><a name="OSSupport"></a>LabVIEW Drops Support for Microsoft Windows Vista, Windows XP, and Windows Server 2003 in 2016</h2>
+<p>LabVIEW will drop support for Microsoft Windows Vista, Windows XP, and Windows Server 2003 as of July 1, 2016. Versions of LabVIEW that ship after July 1, 2016 will not install or run on Windows Vista, Windows XP, or Windows Server 2003. For detailed information about NI application software product life cycles, visit <a href="http://ni.com/info" target="_blank">ni.com/info</a> and enter one of the following Info Codes:</p>
+<table class="Bordered">
+	<tr><th class="Bordered">Product</th>
+<th class="Bordered">Info Code</th></tr>
+	<tr><td class="Bordered"> LabVIEW</td><td class="Bordered"><a href="http://digital.ni.com/express.nsf/bycode/lifecycle" target="_blank">lifecycle</a></td></tr>
+	<tr><td class="Bordered"> LabWindows&#8482;/CVI&#8482;</td><td class="Bordered"><a href="http://digital.ni.com/express.nsf/bycode/cvi_lifecycle" target="_blank">cvi_lifecycle</a></td></tr>
+	<tr><td class="Bordered"> Measurement Studio</td><td class="Bordered"><a href="http://digital.ni.com/express.nsf/bycode/mstudiolifecycle" target="_blank">mstudiolifecycle</a></td></tr>
+	<tr><td class="Bordered"> TestStand</td><td class="Bordered"><a href="http://digital.ni.com/express.nsf/bycode/tslcp" target="_blank">tslcp</a></td></tr>
+	<tr><td class="Bordered"> DIAdem</td><td class="Bordered"><a href="http://digital.ni.com/express.nsf/bycode/ddlcp" target="_blank">ddlcp</a></td></tr>
+	<tr><td class="Bordered"> SignalExpress</td><td class="Bordered"><a href="http://digital.ni.com/express.nsf/bycode/selcp" target="_blank">selcp</a></td></tr>
+	<tr><td class="Bordered"> VeriStand</td><td class="Bordered"><a href="http://digital.ni.com/express.nsf/bycode/nivslifecycle" target="_blank">nivslifecycle</a></td></tr>
+</table>
+
+<!--Important Information-->
+<hr>
+
+<h2><a name="legal">Legal Information</a></h2>
+<!--Copyright-->
+<p><strong>Copyright</strong></p>
+<p>&#0169; 2004&ndash;2015 National Instruments. All rights reserved.</p>
+
+<p>Under the copyright laws, this publication may not be reproduced or transmitted in any form, electronic or mechanical, including photocopying, recording, storing in an information retrieval system, or translating, in whole or in part, without the prior written consent of National Instruments Corporation.</p>
+
+<p>NI respects the intellectual property of others, and we ask our users to do the same. NI software is protected by copyright and other intellectual property laws. Where NI software may be used to reproduce software or other materials belonging to others, you may use NI software only to reproduce materials that you may reproduce in accordance with the terms of any applicable license or other legal restriction.</p>
+
+<p><strong>End-User License Agreements and Third-Party Legal Notices</strong></p>
+<p>You can find end-user license agreements (EULAs) and third-party legal notices in the following locations after installation:</p>
+<ul>
+<li>Notices are located in the <span class="Monospace">&lt;National Instruments&gt;\_Legal Information</span> and <span class="Monospace">&lt;National Instruments&gt;</span> directories.</li> 
+<li>EULAs are located in the <span class="Monospace">&lt;National Instruments&gt;\Shared\MDF\Legal\license</span> directory.</li>
+<li>Review <span class="Monospace">&lt;National Instruments&gt;\_Legal Information.txt</span> for information on including legal information in installers built with NI products.</li>
+</ul>
+<p><strong>U.S. Government Restricted Rights</strong></p>
+<p>If you are an agency, department, or other entity of the United States Government (&quot;Government&quot;), the use, duplication, reproduction, release, modification, disclosure or transfer of the technical data included in this manual is governed by the Restricted Rights provisions under Federal Acquisition Regulation 52.227-14 for civilian agencies and Defense Federal Acquisition Regulation Supplement Section 252.227-7014 and 252.227-7015 for military agencies.</p>
+
+<p><strong>IVI Foundation Copyright Notice</strong></p>
+
+<p><span class="DNL">Content from the IVI specifications reproduced with permission from the IVI Foundation.</span></p>
+
+<p><span class="DNL">The IVI Foundation and its member companies make no warranty of any kind with regard to this material, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose. The IVI Foundation and its member companies shall not be liable for errors contained herein or for incidental or consequential damages in connection with the furnishing, performance, or use of this material.</span></p>
+
+
+<!--Trademarks-->
+<p><strong>Trademarks</strong></p>
+
+<p>Refer to the <em><span class="DNL">NI Trademarks and Logo Guidelines</span></em> at <a href="http://digital.ni.com/express.nsf/bycode/rdtrad" target="_blank"><span class="DNL">ni.com/trademarks</span></a> for information on <span class="DNL">NI</span> trademarks. Other product and company names mentioned herein are trademarks or trade names of their respective companies.</p>
+
+<!--Patents-->
+<p><strong>Patents</strong></p>
+<p>For patents covering the NI products/technology, refer to the appropriate location: <strong>Help&#0187;Patents</strong> in your software, the <span class="Monospace">patents.txt</span> file on your media, or the <em>NI Patent Notice</em> at <a href="http://digital.ni.com/express.nsf/bycode/rdlv17" target="_blank">ni.com/patents</a>.</p>
+
+<p>374715D-01</p>
+
+</body>
+</html>

@@ -93,19 +93,16 @@ class SFS(Operations):
 
     def access(self, path, mode):
         print("access called")
-        if not os.access(path, mode):
-            raise FuseOSError(EACCES)
+        # full_path = self._full_path(path)
+        # if not os.access(full_path, mode):
+        #    raise FuseOSError(errno.EACCES)
         return 0
 
     def chmod(self, path, mode):
-        print("chmod called")
-        full_path = self._full_path(path)
-        return os.chmod(full_path, mode)
+        return BackendManager().get_backend_for_path(path).chmod(path, mode)
 
     def chown(self, path, uid, gid):
-        print("chown called")
-        full_path = self._full_path(path)
-        return os.chown(full_path, uid, gid)
+        return BackendManager().get_backend_for_path(path).chown(path, uid, gid)
 
     def getattr(self, path, fh=None):
         path_stat = SFS_Stat()
@@ -151,85 +148,61 @@ class SFS(Operations):
         return children
 
     def readlink(self, path):
-        print("readlink called")
-        pathname = os.readlink(path)
-        if pathname.startswith("/"):
-            # Path name is absolute, sanitize it.
-            return os.path.relpath(pathname, self.root)
-        else:
-            return pathname
+        return BackendManager().get_backend_for_path(path).readlink(path)
 
     def mknod(self, path, mode, dev):
-        print("mknod called")
-        return os.mknod(self._full_path(path), mode, dev)
+        return BackendManager().get_backend_for_path(path).mknod(path, mode, dev)
 
     def rmdir(self, path):
-        print("rmdir called")
-        full_path = self._full_path(path)
-        return os.rmdir(full_path)
+        return BackendManager().get_backend_for_path(path).rmdir(path)
 
     def mkdir(self, path, mode):
-        print("mkdir called")
-        return os.mkdir(self._full_path(path), mode)
+        return BackendManager().get_backend_for_path(path).mkdir(path, mode)
+
+    def statfs(self, path):
+        return BackendManager().get_backend_for_path(path).statfs(path)
 
     def unlink(self, path):
-        print("unlink called")
-        return os.unlink(self._full_path(path))
+        return BackendManager().get_backend_for_path(path).unlink(path)
 
     def symlink(self, name, target):
-        print("symlink called")
-        return os.symlink(target, self._full_path(name))
+        # TODO
+        return BackendManager().get_backend_for_path(name).symlink(name, target)
 
     def rename(self, old, new):
-        print("rename called")
-        return os.rename(self._full_path(old), self._full_path(new))
+        # TODO
+        return BackendManager().get_backend_for_path(old).rename(old, new)
 
     def link(self, target, name):
-        print("link called")
-        return os.link(self._full_path(name), self._full_path(target))
+        return BackendManager().get_backend_for_path(target).link(target, name)
 
     def utimens(self, path, times=None):
-        print("utimens called")
-        return os.utime(self._full_path(path), times)
+        return BackendManager().get_backend_for_path(path).utimens(path, times)
 
     # ============
     # File methods
     # ============
 
     def open(self, path, flags):
-        print("open called with path " + path)
-        # full_path = self._full_path(path)
-        return os.open(path, flags)
+        return BackendManager().get_backend_for_path(path).open(path, flags)
 
     def create(self, path, mode, fi=None):
-        print("create called")
-        full_path = self._full_path(path)
-        return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
+        return BackendManager().get_backend_for_path(path).create(path, mode, fi)
 
     def read(self, path, length, offset, fh):
-        print("read called")
-        os.lseek(fh, offset, os.SEEK_SET)
-        return os.read(fh, length)
+        return BackendManager().get_backend_for_path(path).read(path, length, offset, fh)
 
     def write(self, path, buf, offset, fh):
-        print("write called")
-        os.lseek(fh, offset, os.SEEK_SET)
-        return os.write(fh, buf)
+        return BackendManager().get_backend_for_path(path).write(path, buf, offset, fh)
 
     def truncate(self, path, length, fh=None):
-        print("truncate called")
-        full_path = self._full_path(path)
-        with open(full_path, 'r+') as f:
-            f.truncate(length)
+        return BackendManager().get_backend_for_path(path).truncate(path, length, fh)
 
     def flush(self, path, fh):
-        print("flush called")
-        return os.fsync(fh)
+        return BackendManager().get_backend_for_path(path).flush(path, fh)
 
     def release(self, path, fh):
-        print("release called")
-        return os.close(fh)
+        return BackendManager().get_backend_for_path(path).release(path, fh)
 
     def fsync(self, path, fdatasync, fh):
-        print("fsync called")
-        return self.flush(path, fh)
+        return BackendManager().get_backend_for_path(path).fsync(path, fdatasync, fh)

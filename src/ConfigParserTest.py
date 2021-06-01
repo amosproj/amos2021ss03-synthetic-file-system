@@ -1,6 +1,7 @@
 import BackendManager
 from BackendFactoryManager import BackendFactoryManager
 from BackendManager import BackendManager
+import MDHBackendFactory  # this is not actually unused. This import triggers the auto registration of the factory
 
 """
 TEST FILE UNTIL THE PROPER CONFIG PARSER IS DONE!!!!

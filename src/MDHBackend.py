@@ -1,20 +1,23 @@
 import Backend
-from FUSEStat import SFS_Stat
-import fuse_utils
-from anytree import Node, Resolver, RenderTree
-from anytree.resolver import ChildResolverError
+from FUSEStat import SFSStat
+from anytree import Node, Resolver
 import logging
-import errno
 import os
-import mdh
 import time
 import stat
-from fuse import FuseOSError
 
 
 class MDHBackend(Backend.Backend):
+    """
+    Implementation of the Backend interface for the MDH.
+    For documentation of the functions see Backend.py
+    """
 
     def __init__(self, root: Node):
+        """
+        Constructor
+        :param root: the root node of the directory tree of the files that the backend is holding
+        """
         self.directory_root = root
 
     def contains_path(self, path: str) -> bool:
@@ -25,9 +28,6 @@ class MDHBackend(Backend.Backend):
 
     def get_directory_tree(self) -> Node:
         return self.directory_root
-
-    def read_directory(self, path: str):
-        pass
 
     def access(self, path, mode):
         logging.info("access called!")
@@ -43,9 +43,7 @@ class MDHBackend(Backend.Backend):
 
     def getattr(self, path, fh=None):
         logging.info("getattr called!")
-        path_stat = SFS_Stat()
-        print(f"getattr called with: {path}")
-
+        path_stat = SFSStat()
         os_path = os.stat(path)
 
         path_stat.st_size = os_path.st_size
@@ -68,7 +66,6 @@ class MDHBackend(Backend.Backend):
         else:
             path_stat.st_mode = stat.S_IFDIR | 0o755
         return path_stat.__dict__
-
 
     def readdir(self, path, fh):
         logging.info("readdir called!")

@@ -1,3 +1,6 @@
+"""
+Singleton decorator, used for the manager classes
+"""
 
 
 def singleton(class_):

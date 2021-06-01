@@ -38,6 +38,10 @@ class SFS_Stat:
     st_ctime: int = 0
 
 
+
+CORE_NAME = "core-test"  # FIXME: Set the name corresponding to your mdh-core
+
+
 class SFS(Operations):
     """
     Main class of the FUSE. Responsible for correctly sending the information from the MDH to the filesystem via
@@ -45,25 +49,12 @@ class SFS(Operations):
     """
 
     def __init__(self, root=""):
-        """
-        Sets the directory tree up using the filters in config.graphql
-        """
-        self.directory_tree = Node
-        self.metadatahub_files = None
-        self.root = root
-
-        query_root = MDHQueryRoot(CORE_NAME, CONFIG_FILE_PATH)
-        query_root.send_request_get_result()
-
-        self.mdh_files = query_root.result['searchMetadata']['files']
-        self.directory_tree = build_tree_from_files(self.mdh_files)
-
-        print(RenderTree(self.directory_tree))
-        print("fuse running")
+        ConfigParserTest.test_setup()
 
     def init(self, path):
         # Watch change events for config file
-        self._set_up_config_notifier()
+        # self._set_up_config_notifier()
+        pass
 
     def _set_up_config_notifier(self):
         """

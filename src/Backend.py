@@ -1,19 +1,37 @@
-import abc
+import abc  # needed for abstract methods
+import anytree
 
 
 class Backend:
+    """
+    Abstract class that represents a backend for the SFS.
+    To implement a backend for the SFS subclass this class and implement the
+    respective functions for it. These functions will be accessed by the
+    FUSE, so to see documentation for what every function is supposed to do,
+    see the FUSE documentation.
+    """
 
     @abc.abstractmethod
-    def get_directory_tree(self):
+    def get_directory_tree(self) -> anytree.Node:
+        """
+        Getter for the directory tree of the files that this backend is holding
+        :return: the root node of the dirctory tree
+        """
         pass
 
-    @abc.abstractmethod
-    def get_attribute(self, path: str):
-        pass
 
     @abc.abstractmethod
-    def read_directory(self, path: str):
+    def contains_path(self, path: str) -> bool:
+        """
+        Checks if a certain path is held by the backend
+        :param path: string representing the path that is investigated
+        :return: true if the path is held by the backend, false otherwise
+        """
         pass
+
+    """
+    Here the FUSE functions begin
+    """
 
     @abc.abstractmethod
     def access(self, path, mode):
@@ -107,6 +125,3 @@ class Backend:
     def fsync(self, path, fdatasync, fh):
         pass
 
-    @abc.abstractmethod
-    def contains_path(self, path: str) -> bool:
-        pass

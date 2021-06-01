@@ -3,11 +3,12 @@ from __future__ import with_statement
 import os
 import stat
 import time
+from errno import EACCES
 
 # 3rd party imports
 import pyinotify
 from anytree import Node, RenderTree, Resolver
-from fuse import Operations
+from fuse import Operations, FuseOSError
 
 # Local imports
 from .config_notifier import ConfigFileEventHandler
@@ -92,9 +93,8 @@ class SFS(Operations):
 
     def access(self, path, mode):
         print("access called")
-        # full_path = self._full_path(path)
-        # if not os.access(full_path, mode):
-        #    raise FuseOSError(errno.EACCES)
+        if not os.access(path, mode):
+            raise FuseOSError(EACCES)
         return 0
 
     def chmod(self, path, mode):

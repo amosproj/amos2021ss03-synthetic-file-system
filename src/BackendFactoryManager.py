@@ -39,3 +39,4 @@ class BackendFactoryManager:
                 return factory
 
         logging.error("Invalid tag name: " + config_tag)
+

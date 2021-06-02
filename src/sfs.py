@@ -6,9 +6,21 @@ import time
 from errno import EACCES
 
 # 3rd party imports
+<<<<<<< HEAD:src/sfs.py
 import pyinotify
 from anytree import Node, RenderTree, Resolver
 from fuse import Operations, FuseOSError
+=======
+import errno
+import logging
+
+import mdh
+import pyinotify
+from fuse import FUSE, Operations
+import FUSEStat
+import os
+import time
+>>>>>>> - Started work on implementing write support:src/main.py
 
 # Local imports
 from .config_notifier import ConfigFileEventHandler
@@ -96,6 +108,7 @@ class SFS(Operations):
         return BackendManager().get_backend_for_path(path).chown(path, uid, gid)
 
     def getattr(self, path, fh=None):
+<<<<<<< HEAD:src/sfs.py
         path_stat = SFS_Stat()
         print(f"getattr called with: {path}")
 
@@ -122,6 +135,19 @@ class SFS(Operations):
         else:
             path_stat.st_mode = stat.S_IFDIR | 0o755
         return path_stat.__dict__
+=======
+        backend = BackendManager().get_backend_for_path(path)
+        if not backend:
+            path_stat = FUSEStat.SFSStat()
+            os_path = os.stat(path)
+            path_stat.st_size = os_path.st_size
+            now = time.time()
+            path_stat.st_atime = now
+            path_stat.st_mtime = now
+            path_stat.st_ctime = now
+            return path_stat.__dict__
+        return backend.getattr(path, fh)
+>>>>>>> - Started work on implementing write support:src/main.py
 
     def readdir(self, path, fh):
 
@@ -177,8 +203,15 @@ class SFS(Operations):
     def open(self, path, flags):
         return BackendManager().get_backend_for_path(path).open(path, flags)
 
-    def create(self, path, mode, fi=None):
-        return BackendManager().get_backend_for_path(path).create(path, mode, fi)
+    def create(self, path: str, mode, fi=None):
+        backend_manager = BackendManager().get_backend_for_path(path)
+        if not backend_manager:
+            parent_path = path.rsplit("/", 1)[0]
+            backend_manager = BackendManager().get_backend_for_path(parent_path)
+            if not backend_manager:
+                logging.error("Invalid path for create!")
+                return None
+        return backend_manager.create(path, mode, fi)
 
     def read(self, path, length, offset, fh):
         return BackendManager().get_backend_for_path(path).read(path, length, offset, fh)

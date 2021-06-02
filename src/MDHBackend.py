@@ -1,3 +1,5 @@
+import anytree.resolver
+
 import Backend
 from FUSEStat import SFSStat
 from anytree import Node, Resolver
@@ -5,6 +7,10 @@ import logging
 import os
 import time
 import stat
+import mdh
+from mdh_bridge import MDHQueryRoot
+import fuse_utils
+import paths
 
 
 class MDHBackend(Backend.Backend):
@@ -20,10 +26,21 @@ class MDHBackend(Backend.Backend):
         """
         self.directory_root = root
 
+    def update_tree(self):
+        query_root = MDHQueryRoot("core-test", paths.CONFIG_FILE_PATH)
+        query_root.send_request_get_result()
+
+        mdh_files = query_root.result['searchMetadata']['files']
+        self.directory_root = fuse_utils.build_tree_from_files(mdh_files)
+
     def contains_path(self, path: str) -> bool:
         file_finder = Resolver("name")
         path = path[1:]  # strip leading "/"
-        path_node: Node = file_finder.get(self.directory_root, path)
+        try:
+            path_node: Node = file_finder.get(self.directory_root, path)
+        except anytree.resolver.ChildResolverError:
+            return False
+
         return path_node is not None
 
     def get_directory_tree(self) -> Node:
@@ -129,7 +146,15 @@ class MDHBackend(Backend.Backend):
 
     def create(self, path, mode, fi=None):
         logging.info("create called!")
-        raise NotImplementedError()
+        ret = os.open(path, os.O_RDWR | os.O_CREAT, mode)
+        data = b"test"
+        os.write(ret, data)
+        # TODO: trigger rescan in the MDH
+        mdh.harvest.schedule_add("core-test", "rescan_mdh.graphql")
+        time.sleep(10)
+        # TODO remove content from file
+        self.update_tree()
+        return ret
 
     def read(self, path, length, offset, fh):
         logging.info("read called!")
@@ -138,7 +163,10 @@ class MDHBackend(Backend.Backend):
 
     def write(self, path, buf, offset, fh):
         logging.info("write called!")
-        raise NotImplementedError()
+        os.lseek(fh, offset, os.SEEK_SET)
+        ret = os.write(fh, buf)
+        # TODO trigger rescan
+        return ret
 
     def truncate(self, path, length, fh=None):
         logging.info("truncate called!")

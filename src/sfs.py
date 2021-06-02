@@ -152,7 +152,7 @@ class SFS(Operations):
 
     def readlink(self, path):
         print("readlink called")
-        pathname = os.readlink(self._full_path(path))
+        pathname = os.readlink(path)
         if pathname.startswith("/"):
             # Path name is absolute, sanitize it.
             return os.path.relpath(pathname, self.root)
@@ -171,15 +171,6 @@ class SFS(Operations):
     def mkdir(self, path, mode):
         print("mkdir called")
         return os.mkdir(self._full_path(path), mode)
-
-    def statfs(self, path):
-        print("statfs called")
-        full_path = self._full_path(path)
-        stv = os.statvfs(full_path)
-        return dict((key, getattr(stv, key)) for key in ('f_bavail', 'f_bfree',
-                                                         'f_blocks', 'f_bsize', 'f_favail', 'f_ffree', 'f_files',
-                                                         'f_flag',
-                                                         'f_frsize', 'f_namemax'))
 
     def unlink(self, path):
         print("unlink called")

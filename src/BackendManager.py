@@ -16,7 +16,7 @@ class BackendManager:
     def add_backend(self, backend: Backend):
         """
         Registers a backend to the Manager
-        :param backend: The Backend that is to be registerd
+        :param backend: The Backend that is to be registered
         :return: None
         """
         self.backends.append(backend)

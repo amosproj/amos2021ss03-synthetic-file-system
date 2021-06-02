@@ -25,7 +25,7 @@ class TestSFSFuse(unittest.TestCase):
         cls.file_path = Path(__file__)
         cls.file_directory_path = cls.file_path.parent
 
-        cls.file_path_symlink = Path(f"/tmp/symlink_to_test_sfs_fuse")
+        cls.file_path_symlink = Path("/tmp/symlink_to_test_sfs_fuse")
         if not cls.file_path_symlink.exists():
             cls.file_path_symlink.symlink_to(cls.file_path)
 

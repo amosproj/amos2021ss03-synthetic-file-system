@@ -18,6 +18,8 @@ def build_tree_from_files(files: List[Dict]) -> Node:
     root_node = Node("Root")
     parent_finder = Resolver("name")
     file_paths = _extract_file_paths_parts(files)
+
+    ## This part already has file parts   Ex.: ['home', 'usr', 'dir1']
     max_index = _length_of_longest_path(file_paths)
     for i in range(max_index):
         # In every iteration of the outer loop we only work on parts up to position i

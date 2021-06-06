@@ -20,11 +20,11 @@ class PassthroughBackendFactory(BackendFactory):
     def __init__(self):
         super().__init__()
 
-    def create_backend_from_section(self, section) -> MDHBackend:
+    def create_backend_from_section(self, instance_cfg) -> MDHBackend:
+        target_dir = instance_cfg['path']
 
-        def create_file_tree():
+        def create_file_tree(target_dir):
             file_paths = []
-            target_dir = "/home/matti/PycharmProjects/amos-ss2021-synthetic-file-system/mdh/test_tree/"
             for filename in glob.iglob(target_dir + "**",
                                        recursive=True):
                 file_paths.append(filename.split("/")[1:])
@@ -46,17 +46,17 @@ class PassthroughBackendFactory(BackendFactory):
                         Node(last_path_node, parent_node)
             return root_node
 
-        directory_tree = create_file_tree()
+        directory_tree = create_file_tree(target_dir)
 
-        print(RenderTree(directory_tree))
-        print("created dir tree!")
+        #print(RenderTree(directory_tree))
+        #print("created dir tree!")
 
         backend = PassthroughBackend(directory_tree)
 
         return backend
 
 
-PassthroughBackendFactory().create_backend_from_section("")
+#PassthroughBackendFactory().create_backend_from_section("")
 
 
 # auto register backend

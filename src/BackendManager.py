@@ -2,6 +2,8 @@ import logging
 
 from singleton import singleton
 from Backend import Backend
+from MDHBackend import MDHBackend
+from PassthroughBackend import PassthroughBackend
 
 
 @singleton
@@ -28,7 +30,22 @@ class BackendManager:
         :param path: The path to a file for which the responsible backend is retrieved
         :return: The backend responsible for the given file or None if there is no Backend that fits
         """
+
         for backend in self.backends:
             if backend.contains_path(path):
                 return backend
         logging.error("There is no backend responsible for this path!")
+
+    def get_files_from_all_backends(self):
+        files = []
+        for backend in self.backends:
+            source = 'unknown'
+            if isinstance(backend, MDHBackend):
+                source = 'MDH'
+            if isinstance(backend, PassthroughBackend):
+                source = 'PT'
+            print(source)
+            backend_files = (source, backend.get_all_files())
+            #print(backend_files)
+            files.append(backend_files)
+        return files

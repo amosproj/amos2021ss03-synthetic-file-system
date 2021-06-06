@@ -44,7 +44,7 @@ class SFSConfig:
         self.settings = sfs_config.pop('SETTINGS', None)
 
         # High level validation
-        for key in sfs_config.keys()query:
+        for key in sfs_config.keys():
             if key not in SFSConfig.SUPPORTED_BACKENDS:
                 raise NotImplementedError(f"The current version of SFS does not support: {key}")
 

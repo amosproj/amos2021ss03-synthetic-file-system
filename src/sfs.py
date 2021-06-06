@@ -1,23 +1,20 @@
-#!/usr/bin/env python3
-
 # Python imports
 from __future__ import with_statement
-import argparse
 import os
 import stat
 import time
+from errno import EACCES
 
 # 3rd party imports
-import mdh
 import pyinotify
 from anytree import Node, RenderTree, Resolver
-from fuse import FUSE, Operations
+from fuse import Operations, FuseOSError
 
 # Local imports
-from config_notifier import ConfigFileEventHandler
-from fuse_utils import build_tree_from_files
-from mdh_bridge import MDHQueryRoot
-from paths import CONFIG_PATH, CONFIG_FILE_PATH
+from .config_notifier import ConfigFileEventHandler
+from .fuse_utils import build_tree_from_files
+from .mdh_bridge import MDHQueryRoot
+from .paths import CONFIG_PATH, CONFIG_FILE_PATH
 
 CORE_NAME = "core-sfs"  # FIXME: Set the name corresponding to your mdh-core
 
@@ -96,9 +93,8 @@ class SFS(Operations):
 
     def access(self, path, mode):
         print("access called")
-        # full_path = self._full_path(path)
-        # if not os.access(full_path, mode):
-        #    raise FuseOSError(errno.EACCES)
+        if not os.access(path, mode):
+            raise FuseOSError(EACCES)
         return 0
 
     def chmod(self, path, mode):
@@ -156,7 +152,7 @@ class SFS(Operations):
 
     def readlink(self, path):
         print("readlink called")
-        pathname = os.readlink(self._full_path(path))
+        pathname = os.readlink(path)
         if pathname.startswith("/"):
             # Path name is absolute, sanitize it.
             return os.path.relpath(pathname, self.root)
@@ -175,15 +171,6 @@ class SFS(Operations):
     def mkdir(self, path, mode):
         print("mkdir called")
         return os.mkdir(self._full_path(path), mode)
-
-    def statfs(self, path):
-        print("statfs called")
-        full_path = self._full_path(path)
-        stv = os.statvfs(full_path)
-        return dict((key, getattr(stv, key)) for key in ('f_bavail', 'f_bfree',
-                                                         'f_blocks', 'f_bsize', 'f_favail', 'f_ffree', 'f_files',
-                                                         'f_flag',
-                                                         'f_frsize', 'f_namemax'))
 
     def unlink(self, path):
         print("unlink called")
@@ -246,22 +233,3 @@ class SFS(Operations):
     def fsync(self, path, fdatasync, fh):
         print("fsync called")
         return self.flush(path, fh)
-
-
-def main(mountpoint):
-    try:
-        mdh.init()
-    # TODO: Error handling
-    except EnvironmentError:
-        raise
-
-    # Start the fuse without custom FUSE class and the given mount point
-    FUSE(SFS(), mountpoint, nothreads=True, foreground=True)
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Command Line Interface of SFS")
-    parser.add_argument("mountpoint", type=str)
-    args = parser.parse_args()
-
-    main(args.mountpoint)

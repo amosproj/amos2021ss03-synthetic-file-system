@@ -1,8 +1,8 @@
 # Python imports
-import pathlib
+from pathlib import Path
 
 # Directory paths
-ROOT_PATH = pathlib.Path(__file__).parent.parent
+ROOT_PATH = Path(__file__).parent.parent
 CONFIG_PATH = ROOT_PATH / "config"
 
 # File paths

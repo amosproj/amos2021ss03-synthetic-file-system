@@ -19,4 +19,4 @@ jobs:
         pip install -r requirements.txt
         pip install pytest
         pip install pytest-cov
-        python -m pytest --cov=.
+        python -m pytest tests/unit --cov=src

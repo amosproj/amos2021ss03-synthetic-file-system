@@ -1,10 +1,10 @@
 # 3rd party imports
 from pyinotify import Event, ProcessEvent
-from mdh_bridge import MDHQueryRoot
 
 # Local import
-from fuse_utils import build_tree_from_files
-from paths import CONFIG_FILE_PATH
+from .fuse_utils import build_tree_from_files
+from .mdh_bridge import MDHQueryRoot
+from .paths import CONFIG_FILE_PATH
 
 
 class ConfigFileEventHandler(ProcessEvent):

@@ -7,3 +7,4 @@ CONFIG_PATH = ROOT_PATH / "config"
 
 # File paths
 CONFIG_FILE_PATH = CONFIG_PATH / "config.graphql"
+CONFIG_FILE_PATH2 = CONFIG_PATH / "config.cfg"

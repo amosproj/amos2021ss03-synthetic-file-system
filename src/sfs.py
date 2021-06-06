@@ -6,11 +6,9 @@ import time
 from errno import EACCES
 
 # 3rd party imports
-<<<<<<< HEAD:src/sfs.py
 import pyinotify
 from anytree import Node, RenderTree, Resolver
 from fuse import Operations, FuseOSError
-=======
 import errno
 import logging
 
@@ -20,36 +18,15 @@ from fuse import FUSE, Operations
 import FUSEStat
 import os
 import time
->>>>>>> - Started work on implementing write support:src/main.py
 
 # Local imports
-from .config_notifier import ConfigFileEventHandler
-from .fuse_utils import build_tree_from_files
-from .mdh_bridge import MDHQueryRoot
-from .paths import CONFIG_PATH, CONFIG_FILE_PATH
-
-CORE_NAME = "core-sfs"  # FIXME: Set the name corresponding to your mdh-core
-
-
-class SFS_Stat:
-    """
-    class that is used to represent the stat struct used by the Linux kernel, where it is used to store/access
-    metadata for files. For more information on the specific variables see stat(2)
-    """
-    st_mode: int = stat.S_IFDIR | 0o755
-    st_nlink: int = 1
-    st_uid: int = 0
-    st_gid: int = 0
-    st_rdev: int = 0
-    st_size: int = 100
-    st_blksize: int = 4096
-    st_blocks: int = (int)((st_size + st_blksize - 1) / st_blksize)
-
-    st_atime: int = 0
-    st_mtime: int = 0
-    st_ctime: int = 0
-
-
+from config_notifier import ConfigFileEventHandler
+from paths import CONFIG_PATH
+#import ConfigParserTest
+from config import SFSConfig
+from BackendManager import BackendManager
+from file_tree import DirectoryTree
+from anytree import RenderTree
 
 CORE_NAME = "core-test"  # FIXME: Set the name corresponding to your mdh-core
 
@@ -60,8 +37,15 @@ class SFS(Operations):
     the hooked function calls. For more information see https://github.com/fusepy/fusepy
     """
 
-    def __init__(self, root=""):
-        ConfigParserTest.test_setup()
+    def __init__(self):
+        # ConfigParserTest.test_setup()
+        self.sfs_config = SFSConfig()
+        self.sfs_config.init()
+        self.directory_tree = DirectoryTree(algorithm='default')
+        # self.directory_tree = tree_builder.init()
+        self.directory_tree.build_out(BackendManager().get_files_from_all_backends())
+        print("-"*50)
+        self.directory_tree.printTree()
 
     def init(self, path):
         # Watch change events for config file
@@ -108,60 +92,36 @@ class SFS(Operations):
         return BackendManager().get_backend_for_path(path).chown(path, uid, gid)
 
     def getattr(self, path, fh=None):
-<<<<<<< HEAD:src/sfs.py
-        path_stat = SFS_Stat()
-        print(f"getattr called with: {path}")
+        backend = None #BackendManager().get_backend_for_path(path)
 
-        os_path = os.stat(path)
-
-        path_stat.st_size = os_path.st_size
-        path_stat.st_blocks
-
-        now = time.time()
-        path_stat.st_atime = now
-        path_stat.st_mtime = now
-        path_stat.st_ctime = now
+        if not backend or backend:
+            path_stat = FUSEStat.SFSStat()
+            #os_path = os.stat(path)
+            path_stat.st_size = 1337 #os_path.st_size
+            now = time.time()
+            path_stat.st_atime = now
+            path_stat.st_mtime = now
+            path_stat.st_ctime = now
+            #return path_stat.__dict__
 
         if path in [".", "..", "/"]:
             path_stat.st_mode = stat.S_IFDIR | 0o755
             return path_stat.__dict__
 
-        file_finder = Resolver("name")
-        path = path[1:]  # strip leading "/"
-        path_node: Node = file_finder.get(self.directory_tree, path)
-        if len(path_node.children) == 0:
+        if self.directory_tree.is_file(path):
             print("got regular file")
             path_stat.st_mode = stat.S_IFREG | 0o755
         else:
             path_stat.st_mode = stat.S_IFDIR | 0o755
+
+        #return backend.getattr(path, fh)
         return path_stat.__dict__
-=======
-        backend = BackendManager().get_backend_for_path(path)
-        if not backend:
-            path_stat = FUSEStat.SFSStat()
-            os_path = os.stat(path)
-            path_stat.st_size = os_path.st_size
-            now = time.time()
-            path_stat.st_atime = now
-            path_stat.st_mtime = now
-            path_stat.st_ctime = now
-            return path_stat.__dict__
-        return backend.getattr(path, fh)
->>>>>>> - Started work on implementing write support:src/main.py
 
     def readdir(self, path, fh):
-
-        print(f"readdir called with {path}")
-        children = [".", ".."]
-
-        file_finder = Resolver("name")
-        path = path[1:]  # strip leading "/"
-        path_node: Node = file_finder.get(self.directory_tree, path)
-
-        child: Node
-        for child in path_node.children:
-            children.append(child.name)
-            print(f"added {child.name}")
+        if 'Passthrough' in path:
+            return BackendManager().get_backend_for_path(path).readdir(path, fh)
+        children = self.directory_tree.get_children(path)
+        #return BackendManager().get_backend_for_path(path).readdir(path, fh)
         return children
 
     def readlink(self, path):

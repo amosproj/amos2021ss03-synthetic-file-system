@@ -25,12 +25,16 @@ class PassthroughBackend(Backend.Backend):
         """
         return self.directory_root
 
+    def get_all_files(self):
+        return self.get_directory_tree()
+
     def contains_path(self, path: str) -> bool:
         """
         Checks if a certain path is held by the backend
         :param path: string representing the path that is investigated
         :return: true if the path is held by the backend, false otherwise
         """
+        print("XXXXX: ", path)
         file_finder = Resolver("name")
         path = path[1:]  # strip leading "/"
         path_node: Node = file_finder.get(self.directory_root, path)
@@ -69,6 +73,8 @@ class PassthroughBackend(Backend.Backend):
 
     def readdir(self, path, fh):
         logging.info("readdir called")
+        print(path)
+        #path = path[len():]
         return ['.', '..'] + os.listdir(path)
 
     def readlink(self, path):

@@ -1,8 +1,8 @@
 import anytree.resolver
-
+from typing import Dict, List
 import Backend
 from FUSEStat import SFSStat
-from anytree import Node, Resolver
+from anytree import Node, Resolver, RenderTree
 import logging
 import os
 import time
@@ -19,32 +19,74 @@ class MDHBackend(Backend.Backend):
     For documentation of the functions see Backend.py
     """
 
-    def __init__(self, root: Node):
+    def __init__(self, instance_config: Dict):
         """
         Constructor
         :param root: the root node of the directory tree of the files that the backend is holding
         """
-        self.directory_root = root
+        self.instance_config = instance_config
+        self.directory_tree = None
+        self.mdh_files: List[Dict] = []
+        self.update_files()
 
-    def update_tree(self):
-        query_root = MDHQueryRoot("core-test", paths.CONFIG_FILE_PATH)
+    def get_all_files(self):
+        return self._extract_file_paths_parts()
+
+    def _extract_file_paths_parts(self) -> List[List[str]]:
+        """Extracts the file paths from each dict which contains the entire result
+
+        Args:
+            files (List[Dict]): list containing all results from the mdh.
+
+        Returns:
+            List[List[str]]: list containing only the paths. Each path is a list of its parts.
+        """
+        file_paths = []
+        for file in self.mdh_files:
+            full_file_path = ""
+            for metadata in file['metadata']:
+                if metadata['name'] == "SourceFile":
+                    full_file_path = metadata['value']
+            file_paths.append(full_file_path)
+
+        file_paths_parts = []
+        for file_path in file_paths:
+            # if file_path.startswith('/home/dome_/test_tree'):
+            #    file_path = file_path[len('/home/dome_/test_tree'):]
+            file_paths_parts.append(file_path.split("/")[1:])
+        return file_paths_parts
+
+    def update_files(self):
+        core = self.instance_config['core']
+        if self.instance_config['querySource'] == 'inline':
+            raise NotImplementedError
+        if self.instance_config['querySource'] == 'file':
+            path = self.instance_config['query']['path']
+
+        query_root = MDHQueryRoot(core, path)
         query_root.send_request_get_result()
-
-        mdh_files = query_root.result['searchMetadata']['files']
-        self.directory_root = fuse_utils.build_tree_from_files(mdh_files)
+        self.mdh_files = query_root.result['searchMetadata']['files']
+        #self.directory_tree = fuse_utils.build_tree_from_files(mdh_files)
+        #print("update_tree:")
+        #print(RenderTree(self.directory_tree))
+        #print("created dir tree!")
 
     def contains_path(self, path: str) -> bool:
+        return 'MDH' in path
+        """
         file_finder = Resolver("name")
         path = path[1:]  # strip leading "/"
+        print(self.directory_tree)
         try:
-            path_node: Node = file_finder.get(self.directory_root, path)
+            path_node: Node = file_finder.get(self.directory_tree, path)
         except anytree.resolver.ChildResolverError:
             return False
 
         return path_node is not None
+        """
 
     def get_directory_tree(self) -> Node:
-        return self.directory_root
+        return self.directory_tree
 
     def access(self, path, mode):
         logging.info("access called!")
@@ -70,18 +112,6 @@ class MDHBackend(Backend.Backend):
         path_stat.st_mtime = now
         path_stat.st_ctime = now
 
-        if path in [".", "..", "/"]:
-            path_stat.st_mode = stat.S_IFDIR | 0o755
-            return path_stat.__dict__
-
-        file_finder = Resolver("name")
-        path = path[1:]  # strip leading "/"
-        path_node: Node = file_finder.get(self.directory_root, path)
-        if len(path_node.children) == 0:
-            print("got regular file")
-            path_stat.st_mode = stat.S_IFREG | 0o755
-        else:
-            path_stat.st_mode = stat.S_IFDIR | 0o755
         return path_stat.__dict__
 
     def readdir(self, path, fh):
@@ -92,8 +122,7 @@ class MDHBackend(Backend.Backend):
 
         file_finder = Resolver("name")
         path = path[1:]  # strip leading "/"
-        path_node: Node = file_finder.get(self.directory_root, path)
-
+        path_node: Node = file_finder.get(self.directory_tree, path)
         child: Node
         for child in path_node.children:
             children.append(child.name)

@@ -2,10 +2,10 @@ from BackendFactory import BackendFactory
 from MDHBackend import MDHBackend
 from BackendFactoryManager import BackendFactoryManager
 from mdh_bridge import *
-from anytree import RenderTree
+
 import fuse_utils
 import paths
-
+import mdh
 
 class MDHBackendFactory(BackendFactory):
     """
@@ -16,20 +16,19 @@ class MDHBackendFactory(BackendFactory):
 
     def __init__(self):
         super().__init__()
-        self.core_name = "core-test"  # TODO read from section
+        try:
+            mdh.init()
+            # TODO: Error handling
+        except Exception:
+            raise EnvironmentError
+        #self.core_name = "core-test"  # TODO read from section
 
-    def create_backend_from_section(self, section) -> MDHBackend:
-
-        query_root = MDHQueryRoot(self.core_name, paths.CONFIG_FILE_PATH)
-        query_root.send_request_get_result()
-
-        mdh_files = query_root.result['searchMetadata']['files']
-        directory_tree = fuse_utils.build_tree_from_files(mdh_files)
-
-        print(RenderTree(directory_tree))
-        print("created dir tree!")
-
-        mdh_backend = MDHBackend(directory_tree)
+    def create_backend_from_section(self, instance_cfg) -> MDHBackend:
+        core_name = instance_cfg['core']
+        print('*'*80)
+        print(instance_cfg)
+        # Setting up the config for the Backend
+        mdh_backend = MDHBackend(instance_cfg)
         return mdh_backend
 
 

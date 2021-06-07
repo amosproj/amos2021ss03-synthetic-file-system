@@ -88,30 +88,30 @@ class TestIntegratedTool(unittest.TestCase):
 
 
 
-    @pytest.mark.dependency(depends=['test_mount'])
-    def test_dir_structure(self):
-        print("/************************************* Entered test_dir_structure *************************************/")
+    #@pytest.mark.dependency(depends=['test_mount'])
+    #def test_dir_structure(self):
+        #print("/************************************* Entered test_dir_structure *************************************/")
 
-        common_dir = self.MOUNTED_FROM.split("/")
+        #common_dir = self.MOUNTED_FROM.split("/")
 
         # Read all fuse files into an array
-        fuse_mounted_files=open(self.FUSE_MOUNTED_FILES_LIST, "r")
-        fuse_abs_mount_lines=fuse_mounted_files.readlines()
-        fuse_mounted_files.close()
+        #fuse_mounted_files=open(self.FUSE_MOUNTED_FILES_LIST, "r")
+        #fuse_abs_mount_lines=fuse_mounted_files.readlines()
+        #fuse_mounted_files.close()
 
         # transforms '/home/sfsuser/Vaidehi/amos-rep/test_tree/dir0/dir144/dir158/dir160/dir164/dir165/CNV-1699976-2.jpeg' into '/dir0/dir144/dir158/dir160/dir164/dir165/CNV-1699976-2.jpeg'
-        fuse_mount_lines=[i.split(common_dir[-1], 1)[1]
-                            for i in fuse_abs_mount_lines]
+        #fuse_mount_lines=[i.split(common_dir[-1], 1)[1]
+                            #for i in fuse_abs_mount_lines]
 
         # Checks if files found at mounted_from were actually mounted on the vfs
-        for root, dirs, files in os.walk(self.MOUNTED_FROM):
-            for f in files:
+        #for root, dirs, files in os.walk(self.MOUNTED_FROM):
+            #for f in files:
                 # /home/sfsuser/Vaidehi/amos-rep/test_tree/dir0/dir144/dir158/dir160/dir164/dir165/CNV-1699976-2.jpeg
-                file_path=os.path.join(root, f)
-                req_path=file_path.split(common_dir[-1])
+                #file_path=os.path.join(root, f)
+                #req_path=file_path.split(common_dir[-1])
 
-                if (req_path[1] in fuse_mount_lines) == False:
-                    self.assertRaises(FileNotFoundError)
+                #if (req_path[1] in fuse_mount_lines) == False:
+                    #self.assertRaises(FileNotFoundError)
 
 
     # Turn off docker services
@@ -124,6 +124,6 @@ class TestIntegratedTool(unittest.TestCase):
         # Check if subprocess is running
         is_down=docker_compose_down.poll()
 
-        # COuld do with an assertion error, I don't know which one.
+        # Could do with an assertion error, I don't know which one.
         if is_down is None:
             print("************** COULD NOT SHUT DOWN DOCKER **************")

@@ -1,12 +1,6 @@
 from sfs.backend import BackendFactory
 from sfs.backend import BackendFactoryManager
-from anytree import RenderTree, Node, Resolver
-import sfs.utils
 from .backend import PassthroughBackend
-
-import glob
-
-# root_dir needs a trailing slash (i.e. /root/dir/)
 
 
 class PassthroughBackendFactory(BackendFactory):
@@ -20,42 +14,7 @@ class PassthroughBackendFactory(BackendFactory):
         super().__init__()
 
     def create_backend_from_section(self, instance_cfg) -> PassthroughBackend:
-        target_dir = instance_cfg['path']
-
-        def create_file_tree(target_dir):
-            file_paths = []
-            for filename in glob.iglob(target_dir + "**",
-                                       recursive=True):
-                file_paths.append(filename.split("/")[1:])
-
-            root_node = Node("Root")
-            parent_finder = Resolver("name")
-
-            max_index = sfs.utils._length_of_longest_path(file_paths)
-            for i in range(max_index):
-                # In every iteration of the outer loop we only work on parts up to position i
-                for file_path in file_paths:
-                    if i >= len(file_path):
-                        # After reaching the last part of a path it can be skipped
-                        continue
-                    last_path_node = file_path[i]
-                    path_without_last_node = sfs.utils._create_path_from_parts(file_path[:i])
-                    parent_node = parent_finder.get(root_node, path_without_last_node)
-                    if not sfs.utils._parent_has_child(parent_node, last_path_node):
-                        Node(last_path_node, parent_node)
-            return root_node
-
-        directory_tree = create_file_tree(target_dir)
-
-        #print(RenderTree(directory_tree))
-        #print("created dir tree!")
-
-        backend = PassthroughBackend(directory_tree)
-
-        return backend
-
-
-#PassthroughBackendFactory().create_backend_from_section("")
+        return PassthroughBackend(instance_cfg)
 
 
 # auto register backend

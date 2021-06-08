@@ -9,7 +9,6 @@ import time
 import stat
 import mdh
 from .query import MDHQueryRoot
-#from sfs.fuse_utils import buid
 import sfs.paths
 
 
@@ -26,37 +25,35 @@ class MDHBackend(Backend):
         """
         self.instance_config = instance_config
         self.directory_tree = None
-        self.mdh_files: List[Dict] = []
-        self.update_files()
+        self.metadata_files: List[Dict] = []
+        self.file_paths = []
+        self._update_state()
 
-    def get_all_files(self):
-        return self._extract_file_paths_parts()
+    def _update_state(self):
+        self._update_metadata_files()
+        self._extract_file_paths()
 
-    def _extract_file_paths_parts(self) -> List[List[str]]:
-        """Extracts the file paths from each dict which contains the entire result
+    def get_file_paths(self):
+        return self.file_paths
 
-        Args:
-            files (List[Dict]): list containing all results from the mdh.
-
-        Returns:
-            List[List[str]]: list containing only the paths. Each path is a list of its parts.
-        """
-        file_paths = []
-        for file in self.mdh_files:
+    def _extract_file_paths(self):
+        updated_file_paths = []
+        for file in self.metadata_files:
             full_file_path = ""
             for metadata in file['metadata']:
                 if metadata['name'] == "SourceFile":
                     full_file_path = metadata['value']
-            file_paths.append(full_file_path)
+            updated_file_paths.append(full_file_path)
 
+        self.file_paths = updated_file_paths
+
+    def _extract_file_paths_parts(self) -> List[List[str]]:
         file_paths_parts = []
         for file_path in file_paths:
-            # if file_path.startswith('/home/dome_/test_tree'):
-            #    file_path = file_path[len('/home/dome_/test_tree'):]
             file_paths_parts.append(file_path.split("/")[1:])
         return file_paths_parts
 
-    def update_files(self):
+    def _update_metadata_files(self):
         core = self.instance_config['core']
         if self.instance_config['querySource'] == 'inline':
             raise NotImplementedError
@@ -65,29 +62,14 @@ class MDHBackend(Backend):
 
         query_root = MDHQueryRoot(core, path)
         query_root.send_request_get_result()
-        self.mdh_files = query_root.result['searchMetadata']['files']
-        #self.directory_tree = fuse_utils.build_tree_from_files(mdh_files)
-        #print("update_tree:")
-        #print(RenderTree(self.directory_tree))
-        #print("created dir tree!")
+        self.metadata_files = query_root.result['searchMetadata']['files']
 
     def contains_path(self, path: str) -> bool:
-        return 'MDH' in path
-        """
-        file_finder = Resolver("name")
-        path = path[1:]  # strip leading "/"
-        print(self.directory_tree)
-        try:
-            path_node: Node = file_finder.get(self.directory_tree, path)
-        except anytree.resolver.ChildResolverError:
-            return False
+        return path in self.file_paths
 
-        return path_node is not None
-        """
-
-    def get_directory_tree(self) -> Node:
-        return self.directory_tree
-
+    ######################
+    # File System Calls #
+    ######################
     def access(self, path, mode):
         logging.info("access called!")
         return 0

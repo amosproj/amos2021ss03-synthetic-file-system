@@ -36,15 +36,14 @@ class BackendManager:
                 return backend
         logging.error("There is no backend responsible for this path!")
 
-    def get_files_from_all_backends(self):
-        files = []
-        for backend in self.backends:
-            source = 'unknown'
+    def get_file_paths(self, backends=None):
+        if backends is None:
+            backends = self.backends
+        file_paths = []
+        for backend in backends:
             if isinstance(backend, MDHBackend):
                 source = 'mdh'
             if isinstance(backend, PassthroughBackend):
                 source = 'passthrough'
-            print(source)
-            backend_files = (source, backend.get_all_files())
-            files.append(backend_files)
-        return files
+            file_paths.append((source, backend.get_file_paths()))
+        return file_paths

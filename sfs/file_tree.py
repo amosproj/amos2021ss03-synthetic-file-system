@@ -1,6 +1,10 @@
+# Python imports
+
+# 3rd party imports
 from anytree import Node, Resolver, RenderTree
 from typing import List
 import logging
+# Local imports
 
 
 class DirectoryTree:
@@ -10,26 +14,18 @@ class DirectoryTree:
         self.directory_tree = Node('Root')
         self.resolver = Resolver("name")
 
-    def init(self):
-        mdh_node = Node('/mdh')
-        passthrough_node = Node('/mdh')
-        Node(mdh_node, self.root_node)
-        Node(passthrough_node, self.root_node)
-
     def printTree(self):
         print(RenderTree(self.directory_tree))
 
     def build_out(self, file_list):
         for backend_name, files in file_list:
             Node(backend_name, self.directory_tree)
-            if backend_name == 'PT':
+            if backend_name == 'passthrough':
                 tree = files
-            elif backend_name == 'MDH':
+            elif backend_name == 'mdh':
                 tree = build_tree(files)
-            print('**')
-            print(backend_name)
-            print(RenderTree(tree))
-
+            else:
+                return
             backend_root_node: Node = self.resolver.get(self.directory_tree, f'/Root/{backend_name}')
             for child in tree.children:
                 child.parent = backend_root_node
@@ -47,7 +43,6 @@ class DirectoryTree:
         child: Node
         for child in path_node.children:
             children.append(child.name)
-            #print(f"added {child.name}")
         return children
 
 

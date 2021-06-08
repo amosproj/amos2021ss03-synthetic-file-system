@@ -1,9 +1,9 @@
 import logging
 
-from singleton import singleton
-from Backend import Backend
-from MDHBackend import MDHBackend
-from PassthroughBackend import PassthroughBackend
+from sfs.singleton import singleton
+from .backend import Backend
+from .mdh import MDHBackend
+from .passthrough import PassthroughBackend
 
 
 @singleton
@@ -41,11 +41,10 @@ class BackendManager:
         for backend in self.backends:
             source = 'unknown'
             if isinstance(backend, MDHBackend):
-                source = 'MDH'
+                source = 'mdh'
             if isinstance(backend, PassthroughBackend):
-                source = 'PT'
+                source = 'passthrough'
             print(source)
             backend_files = (source, backend.get_all_files())
-            #print(backend_files)
             files.append(backend_files)
         return files

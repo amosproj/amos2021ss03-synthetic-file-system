@@ -1,7 +1,7 @@
 import logging
 
-from singleton import singleton
-from BackendFactory import BackendFactory
+from sfs.singleton import singleton
+from .backend_factory import BackendFactory
 
 
 @singleton
@@ -15,7 +15,7 @@ class BackendFactoryManager:
         """
         Constructor; just initializes the factories list.
         This list holds pairs of BackendFactories and their respective section name, e.g.
-        (MDHBackendFactory, "MDH")
+        (MDHBackendFactory, "mdh")
         """
         self.factories: [(BackendFactory, str)] = []
 

@@ -34,6 +34,14 @@ class SFSConfig:
     def init(self):
         self._setup_BackendManager()
 
+    @property
+    def mountpoint(self):
+        return self.settings["mountpoint"]
+
+    @mountpoint.setter
+    def mountpoint(self, path):
+        raise ValueError("Mountpoint is not meant to be set")
+
     def _parse_config(self) -> None:
         # Current version works with toml file format
         with open(self.path, 'r') as fpointer:

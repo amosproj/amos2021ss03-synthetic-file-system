@@ -37,10 +37,13 @@ class SFS(Operations):
     the hooked function calls. For more information see https://github.com/fusepy/fusepy
     """
 
-    def __init__(self):
-        # ConfigParserTest.test_setup()
+    def __init__(self, mountpoint=None):
         self.sfs_config = SFSConfig()
         self.sfs_config.init()
+        self.mountpoint = mountpoint
+        if self.mountpoint is None:
+            self.mountpoint = self.sfs_config.mountpoint
+
         self.directory_tree = DirectoryTree(algorithm='default')
         self.directory_tree.build_out(BackendManager().get_files_from_all_backends())
         self.directory_tree.printTree()

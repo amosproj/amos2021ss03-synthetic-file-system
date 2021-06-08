@@ -2,9 +2,9 @@
 from pyinotify import Event, ProcessEvent
 
 # Local import
-from .fuse_utils import build_tree_from_files
-from .mdh_bridge import MDHQueryRoot
-from .paths import CONFIG_FILE_PATH
+from sfs.utils import build_tree_from_files
+from sfs.backend.mdh import MDHQueryRoot
+from sfs.paths import CONFIG_FILE_PATH
 
 
 class ConfigFileEventHandler(ProcessEvent):

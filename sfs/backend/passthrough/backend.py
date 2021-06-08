@@ -1,4 +1,4 @@
-import Backend
+from sfs.backend import Backend
 import os
 from errno import EACCES
 import logging
@@ -6,7 +6,7 @@ from fuse import FuseOSError
 from anytree import Node, Resolver
 
 
-class PassthroughBackend(Backend.Backend):
+class PassthroughBackend(Backend):
 
     """
     Example Backend that just passes all requests to the OS

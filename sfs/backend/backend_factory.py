@@ -1,5 +1,5 @@
 import abc
-import Backend
+from .backend import Backend
 
 
 class BackendFactory:

@@ -15,18 +15,18 @@ import logging
 import mdh
 import pyinotify
 from fuse import FUSE, Operations
-import FUSEStat
 import os
 import time
 
 # Local imports
-from config_notifier import ConfigFileEventHandler
-from paths import CONFIG_PATH
+from sfs.config.config_notifier import ConfigFileEventHandler
+from .paths import CONFIG_PATH
 #import ConfigParserTest
-from config import SFSConfig
-from BackendManager import BackendManager
-from file_tree import DirectoryTree
+from sfs.config import SFSConfig
+from sfs.backend import BackendManager
+from .file_tree import DirectoryTree
 from anytree import RenderTree
+from .sfs_stat import SFSStat
 
 CORE_NAME = "core-test"  # FIXME: Set the name corresponding to your mdh-core
 
@@ -42,9 +42,7 @@ class SFS(Operations):
         self.sfs_config = SFSConfig()
         self.sfs_config.init()
         self.directory_tree = DirectoryTree(algorithm='default')
-        # self.directory_tree = tree_builder.init()
         self.directory_tree.build_out(BackendManager().get_files_from_all_backends())
-        print("-"*50)
         self.directory_tree.printTree()
 
     def init(self, path):
@@ -95,7 +93,7 @@ class SFS(Operations):
         backend = None #BackendManager().get_backend_for_path(path)
 
         if not backend or backend:
-            path_stat = FUSEStat.SFSStat()
+            path_stat = SFSStat()
             #os_path = os.stat(path)
             path_stat.st_size = 1337 #os_path.st_size
             now = time.time()
@@ -107,7 +105,6 @@ class SFS(Operations):
         if path in [".", "..", "/"]:
             path_stat.st_mode = stat.S_IFDIR | 0o755
             return path_stat.__dict__
-
         if self.directory_tree.is_file(path):
             print("got regular file")
             path_stat.st_mode = stat.S_IFREG | 0o755

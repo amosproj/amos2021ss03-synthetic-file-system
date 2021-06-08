@@ -11,8 +11,10 @@ from uuid import uuid4
 from fuse import FuseOSError
 
 # Local imports
-from src.fuse_utils import build_tree_from_files
-from src.sfs import SFS
+from sfs.utils import build_tree_from_files
+from sfs.file_tree import DirectoryTree
+import sfs.file_tree
+from sfs import SFS
 
 
 class TestSFSFuse(unittest.TestCase):
@@ -31,16 +33,11 @@ class TestSFSFuse(unittest.TestCase):
 
         # Instantiate sfs without initialising it
         cls.sfs = SFS.__new__(SFS)
-
         # Build directory tree
         stat = cls.file_path.stat()
-        cls.sfs.directory_tree = build_tree_from_files([{"id": "42", "metadata": [
-                {"name": "FileName", "value": f"{ cls.file_path.name }"},
-                {"name": "FileSize", "value": f"{ stat.st_size }"},
-                {"name": "MIMEType", "value": f"{ guess_type(str(cls.file_path)) }"},
-                {"name": "FileInodeChangeDate", "value": f"{ stat.st_ctime }"},
-                {"name": "SourceFile", "value": f"{ cls.file_path }"},
-        ]}])
+        cls.sfs.directory_tree = sfs.file_tree.build_tree(
+            [('mdh', [cls.file_path.parts[1:]])]
+        )
         cls.sfs.root = ""
 
     @classmethod

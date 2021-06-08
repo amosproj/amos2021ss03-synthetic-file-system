@@ -1,19 +1,19 @@
 import anytree.resolver
 from typing import Dict, List
-import Backend
-from FUSEStat import SFSStat
+from sfs.backend import Backend
+from sfs.sfs_stat import SFSStat
 from anytree import Node, Resolver, RenderTree
 import logging
 import os
 import time
 import stat
 import mdh
-from mdh_bridge import MDHQueryRoot
-import fuse_utils
-import paths
+from .query import MDHQueryRoot
+#from sfs.fuse_utils import buid
+import sfs.paths
 
 
-class MDHBackend(Backend.Backend):
+class MDHBackend(Backend):
     """
     Implementation of the Backend interface for the MDH.
     For documentation of the functions see Backend.py

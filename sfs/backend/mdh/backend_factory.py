@@ -1,10 +1,10 @@
-from BackendFactory import BackendFactory
-from MDHBackend import MDHBackend
-from BackendFactoryManager import BackendFactoryManager
-from mdh_bridge import *
+from sfs.backend import BackendFactory
+from .backend import MDHBackend
+from sfs.backend import BackendFactoryManager
+from .query import MDHQueryRoot
 
-import fuse_utils
-import paths
+import sfs.utils
+import sfs.paths
 import mdh
 
 class MDHBackendFactory(BackendFactory):
@@ -33,4 +33,4 @@ class MDHBackendFactory(BackendFactory):
 
 
 # auto register backend
-BackendFactoryManager().register_backend_factory(MDHBackendFactory(), "MDH")
+BackendFactoryManager().register_backend_factory(MDHBackendFactory(), 'mdh')

@@ -1,3 +1,5 @@
+"""Command Line interface of the SFS."""
+
 # Python imports
 import argparse
 
@@ -9,15 +11,12 @@ from fuse import FUSE
 from .sfs import SFS
 
 
-try:
-    mdh.init()
-# TODO: Error handling
-except EnvironmentError:
-    raise
-
-
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Command Line Interface of SFS")
+    """Run CLI."""
+    parser = argparse.ArgumentParser(
+        prog='sfs',
+        description="Command Line Interface of SFS"
+    )
     parser.add_argument("mountpoint", type=str)
     args = parser.parse_args()
 

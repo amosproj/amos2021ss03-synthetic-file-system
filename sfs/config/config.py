@@ -1,32 +1,31 @@
-import BackendManager
-from importlib import import_module
-from BackendFactoryManager import BackendFactoryManager
-from BackendManager import BackendManager
-# import MDHBackendFactory  # this is not actually unused. This import triggers the auto registration of the factory
-from paths import CONFIG_FILE_PATH2
-import PassthroughBackendFactory
-from typing import Dict
+# 3rd party imports
 import toml
+from typing import Dict
+from importlib import import_module
+
+# Local imports
+from sfs.paths import CONFIG_FILE_PATH
+from sfs.backend import BackendFactoryManager
+from sfs.backend import BackendManager
+# import MDHBackendFactory  # this is not actually unused. This import triggers the auto registration of the factory
 
 
 def _register_backend_factory(backend_name: str) -> None:
-    factory_name = SFSConfig.BACKEND_FACTORIES[backend_name]
-    import_module(factory_name)
+    if backend_name not in SFSConfig.SUPPORTED_BACKENDS:
+        raise NotImplementedError()
+    module_name = f'sfs.backend.{backend_name}.backend_factory'
+    import_module(module_name)
 
 
 class SFSConfig:
 
-    SUPPORTED_BACKENDS = ['MDH', 'PT']
-    BACKEND_FACTORIES = {
-        'MDH': 'MDHBackendFactory',
-        'PT': 'PassthroughBackendFactory'
-    }
+    SUPPORTED_BACKENDS = ['mdh', 'passthrough']
 
     @staticmethod
     def load_and_setup(path=None):
         return SFSConfig(path)
 
-    def __init__(self, path=CONFIG_FILE_PATH2):
+    def __init__(self, path=CONFIG_FILE_PATH):
         self.path = path
         self.settings = {}
         self.backend_configs = {}
@@ -43,6 +42,7 @@ class SFSConfig:
 
         self.settings = sfs_config.pop('SETTINGS', None)
 
+        sfs_config = {key.lower(): value for key, value in sfs_config.items()}
         # High level validation
         for key in sfs_config.keys():
             if key not in SFSConfig.SUPPORTED_BACKENDS:
@@ -60,14 +60,19 @@ class SFSConfig:
 
     def _setup_BackendManager(self) -> None:
         backend_factory_manager = BackendFactoryManager()
+        for factory in backend_factory_manager.factories:
+            print(factory)
+
         for backend_name in self.backend_configs.keys():
             _register_backend_factory(backend_name)
             backend_factory = backend_factory_manager.get_factory_for_config_tag(backend_name)
+            print(backend_name)
+            print(backend_factory)
             for instance_id, instance_cfg in self.backend_configs[backend_name].items():
 
                 print(instance_id)
                 print(instance_cfg)
-                if backend_name == 'MDH' and not instance_cfg.get("querySource", "") == 'file':
+                if backend_name == 'mdh' and not instance_cfg.get("querySource", "") == 'file':
                     continue
                 backend = backend_factory.create_backend_from_section(instance_cfg)
                 BackendManager().add_backend(backend)

@@ -24,7 +24,7 @@ from .paths import CONFIG_PATH
 #import ConfigParserTest
 from sfs.config import SFSConfig
 from sfs.backend import BackendManager
-from .file_tree import DirectoryTree
+from .dir_tree import DirectoryTree
 from anytree import RenderTree
 from .sfs_stat import SFSStat
 
@@ -44,9 +44,9 @@ class SFS(Operations):
         if self.mountpoint is None:
             self.mountpoint = self.sfs_config.mountpoint
 
-        self.directory_tree = DirectoryTree(algorithm='default')
-        self.directory_tree.build_out(BackendManager().get_files_from_all_backends())
-        self.directory_tree.printTree()
+        self.directory_tree = DirectoryTree(algorithm=self.sfs_config.tree_algorithm)
+        self.directory_tree.build(BackendManager().get_file_paths())
+        self.directory_tree.print_tree()
 
     def init(self, path):
         # Watch change events for config file

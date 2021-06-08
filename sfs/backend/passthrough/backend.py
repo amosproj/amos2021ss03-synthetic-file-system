@@ -1,4 +1,5 @@
 from sfs.backend import Backend
+from pathlib import Path
 import os
 from errno import EACCES
 import logging
@@ -11,22 +12,21 @@ class PassthroughBackend(Backend):
     """
     Example Backend that just passes all requests to the OS
     """
-    def __init__(self, root: Node):
+    def __init__(self, instance_cfg):
         """
         Constructor
-        :param root: the root node of the directory tree of the files that the backend is holding
+        :param instance_cfg: the config contains everything that the Passthrough backend needs.
+        Currently this is only the path to the target directory.
         """
-        self.directory_root = root
+        self.target_dir = instance_cfg['path']
+        self.file_paths = []
+        self._update_paths()
 
-    def get_directory_tree(self) -> Node:
-        """
-        Getter for the directory tree of the files that this backend is holding
-        :return: the root node of the dirctory tree
-        """
-        return self.directory_root
+    def _update_paths(self):
+        self.file_paths = [str(p) for p in Path(self.target_dir).glob('**/*')]
 
-    def get_all_files(self):
-        return self.get_directory_tree()
+    def get_file_paths(self):
+        return self.file_paths
 
     def contains_path(self, path: str) -> bool:
         """
@@ -34,11 +34,7 @@ class PassthroughBackend(Backend):
         :param path: string representing the path that is investigated
         :return: true if the path is held by the backend, false otherwise
         """
-        print("XXXXX: ", path)
-        file_finder = Resolver("name")
-        path = path[1:]  # strip leading "/"
-        path_node: Node = file_finder.get(self.directory_root, path)
-        return path_node is not None
+        return path in self.file_paths
 
     def _full_path(self, partial):
         if partial.startswith("/"):

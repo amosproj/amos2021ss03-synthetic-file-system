@@ -7,6 +7,7 @@ from importlib import import_module
 from sfs.paths import CONFIG_FILE_PATH
 from sfs.backend import BackendFactoryManager
 from sfs.backend import BackendManager
+from sfs.errors import ConfigError
 # import MDHBackendFactory  # this is not actually unused. This import triggers the auto registration of the factory
 
 
@@ -36,11 +37,14 @@ class SFSConfig:
 
     @property
     def mountpoint(self):
-        return self.settings["mountpoint"]
+        return self.settings.get('mountpoint')
 
-    @mountpoint.setter
-    def mountpoint(self, path):
-        raise ValueError("Mountpoint is not meant to be set")
+    def tree_algorithm(self):
+        algo = self.settings.get('tree_algorithm', '')
+        # List will soon include more algorithms
+        if algo in ['default']:
+            return algo
+        return None
 
     def _parse_config(self) -> None:
         # Current version works with toml file format
@@ -54,7 +58,7 @@ class SFSConfig:
         # High level validation
         for key in sfs_config.keys():
             if key not in SFSConfig.SUPPORTED_BACKENDS:
-                raise NotImplementedError(f"The current version of SFS does not support: {key}")
+                raise ConfigError(f"The current version of SFS does not support: {key}")
 
         # if only one instance of the backend is used include id: 1
         config_items = list(sfs_config.items())

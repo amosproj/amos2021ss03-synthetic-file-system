@@ -2,7 +2,6 @@
 from pyinotify import Event, ProcessEvent
 
 # Local import
-from sfs.utils import build_tree_from_files
 from sfs.backend.mdh import MDHQueryRoot
 from sfs.paths import CONFIG_FILE_PATH
 
@@ -43,4 +42,5 @@ class ConfigFileEventHandler(ProcessEvent):
         :param event: see parent class documentation; unused
         :return: Nothing
         """
-        self.update_tree()
+        # TODO: Correct handling for modified files
+        #self.update_tree()

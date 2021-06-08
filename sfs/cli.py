@@ -17,8 +17,7 @@ def main() -> None:
         prog='sfs',
         description="Command Line Interface of SFS"
     )
-    parser.add_argument("mountpoint", type=str)
+    parser.add_argument("--mountpoint")
     args = parser.parse_args()
-
-    # Start the fuse without custom FUSE class and the given mount point
-    FUSE(SFS(), args.mountpoint, nothreads=True, foreground=True)
+    sfs = SFS(args.mountpoint)
+    FUSE(sfs, sfs.mountpoint, nothreads=True, foreground=True)

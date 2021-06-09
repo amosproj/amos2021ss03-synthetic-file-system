@@ -1,5 +1,6 @@
+# Python imports
 import abc  # needed for abstract methods
-import anytree
+from anytree import Node
 
 
 class Backend:
@@ -12,13 +13,12 @@ class Backend:
     """
 
     @abc.abstractmethod
-    def get_directory_tree(self) -> anytree.Node:
+    def get_directory_tree(self) -> Node:
         """
         Getter for the directory tree of the files that this backend is holding
         :return: the root node of the dirctory tree
         """
         pass
-
 
     @abc.abstractmethod
     def contains_path(self, path: str) -> bool:

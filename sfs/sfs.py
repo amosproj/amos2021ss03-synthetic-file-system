@@ -6,27 +6,19 @@ import time
 from errno import EACCES
 
 # 3rd party imports
-import pyinotify
-from anytree import Node, RenderTree, Resolver
 from fuse import Operations, FuseOSError
-import errno
 import logging
-
 import mdh
 import pyinotify
 from fuse import FUSE, Operations
-import os
-import time
 
 # Local imports
-from sfs.config.config_notifier import ConfigFileEventHandler
-from .paths import CONFIG_PATH
-#import ConfigParserTest
+from sfs.config import ConfigFileEventHandler
 from sfs.config import SFSConfig
 from sfs.backend import BackendManager
 from .dir_tree import DirectoryTree
-from anytree import RenderTree
 from .sfs_stat import SFSStat
+from .paths import CONFIG_PATH
 
 CORE_NAME = "core-test"  # FIXME: Set the name corresponding to your mdh-core
 

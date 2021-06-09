@@ -4,7 +4,6 @@
 from anytree import Node, Resolver, RenderTree
 from typing import List
 import logging
-# Local imports
 
 
 class DirectoryTree:
@@ -14,23 +13,24 @@ class DirectoryTree:
         self.directory_tree = Node('Root')
         self.resolver = Resolver("name")
 
-    def print_tree(self):
+    def print_tree(self) -> None:
         print(RenderTree(self.directory_tree).by_attr())
 
-    def build(self, file_list):
+    def build(self, file_list) -> None:
         for backend_name, files in file_list:
+
             Node(backend_name, self.directory_tree)
             sub_tree = build_tree(files)
             backend_root_node: Node = self.resolver.get(self.directory_tree, f'/Root/{backend_name}')
             for child in sub_tree.children:
                 child.parent = backend_root_node
 
-    def is_file(self, path):
+    def is_file(self, path) -> bool:
         path = path[1:]  # strip leading "/"
         path_node: Node = self.resolver.get(self.directory_tree, path)
         return len(path_node.children) == 0
 
-    def get_children(self, path):
+    def get_children(self, path) -> List[str]:
         path = path[1:]  # strip leading "/"
         path_node: Node = self.resolver.get(self.directory_tree, path)
         children = [".", ".."]
@@ -39,7 +39,7 @@ class DirectoryTree:
         return children
 
 
-def build_tree(file_paths):
+def build_tree(file_paths) -> Node:
     root_node = Node("Root")
     resolver = Resolver("name")
     file_paths = [path.split("/")[1:] for path in file_paths]

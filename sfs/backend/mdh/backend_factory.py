@@ -1,10 +1,13 @@
+# 3rd party imports
+import mdh
+
+# Local imports
+import sfs.paths
 from sfs.backend import BackendFactory
-from .backend import MDHBackend
 from sfs.backend import BackendFactoryManager
+from .backend import MDHBackend
 from .query import MDHQueryRoot
 
-import sfs.paths
-import mdh
 
 class MDHBackendFactory(BackendFactory):
     """
@@ -20,13 +23,8 @@ class MDHBackendFactory(BackendFactory):
             # TODO: Error handling
         except Exception:
             raise EnvironmentError
-        #self.core_name = "core-test"  # TODO read from section
 
     def create_backend_from_section(self, instance_cfg) -> MDHBackend:
-        core_name = instance_cfg['core']
-        print('*'*80)
-        print(instance_cfg)
-        # Setting up the config for the Backend
         mdh_backend = MDHBackend(instance_cfg)
         return mdh_backend
 

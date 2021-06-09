@@ -1,5 +1,7 @@
+# 3rd party imports
 import logging
 
+# Local imports
 from sfs.singleton import singleton
 from .backend import Backend
 from .mdh import MDHBackend
@@ -30,7 +32,6 @@ class BackendManager:
         :param path: The path to a file for which the responsible backend is retrieved
         :return: The backend responsible for the given file or None if there is no Backend that fits
         """
-
         for backend in self.backends:
             if backend.contains_path(path):
                 return backend
@@ -41,6 +42,7 @@ class BackendManager:
             backends = self.backends
         file_paths = []
         for backend in backends:
+            source = 'unknown'
             if isinstance(backend, MDHBackend):
                 source = 'mdh'
             if isinstance(backend, PassthroughBackend):

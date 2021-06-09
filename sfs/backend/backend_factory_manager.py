@@ -1,5 +1,7 @@
+# 3rd party imports
 import logging
 
+# Local imports
 from sfs.singleton import singleton
 from .backend_factory import BackendFactory
 

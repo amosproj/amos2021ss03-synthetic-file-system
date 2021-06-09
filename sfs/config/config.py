@@ -8,12 +8,11 @@ from sfs.paths import CONFIG_FILE_PATH
 from sfs.backend import BackendFactoryManager
 from sfs.backend import BackendManager
 from sfs.errors import ConfigError
-# import MDHBackendFactory  # this is not actually unused. This import triggers the auto registration of the factory
 
 
 def _register_backend_factory(backend_name: str) -> None:
     if backend_name not in SFSConfig.SUPPORTED_BACKENDS:
-        raise NotImplementedError()
+        raise ConfigError()
     module_name = f'sfs.backend.{backend_name}.backend_factory'
     import_module(module_name)
 
@@ -21,10 +20,6 @@ def _register_backend_factory(backend_name: str) -> None:
 class SFSConfig:
 
     SUPPORTED_BACKENDS = ['mdh', 'passthrough']
-
-    @staticmethod
-    def load_and_setup(path=None):
-        return SFSConfig(path)
 
     def __init__(self, path=CONFIG_FILE_PATH):
         self.path = path

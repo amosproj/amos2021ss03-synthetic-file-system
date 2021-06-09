@@ -1,15 +1,19 @@
-import anytree.resolver
-from typing import Dict, List
-from sfs.backend import Backend
-from sfs.sfs_stat import SFSStat
-from anytree import Node, Resolver, RenderTree
-import logging
+# Python imports
 import os
 import time
 import stat
+
+# 3rd party imports
+from anytree import Node, Resolver
+from typing import Dict, List
+import logging
 import mdh
-from .query import MDHQueryRoot
+
+# Local imports
 import sfs.paths
+from sfs.backend import Backend
+from sfs.sfs_stat import SFSStat
+from .query import MDHQueryRoot
 
 
 class MDHBackend(Backend):

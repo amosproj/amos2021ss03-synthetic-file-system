@@ -1,12 +1,9 @@
----
-name: Feature request
-about: Suggest new feature (using user story)
----
+## Problems to solve:
 
-## User story
-1. As a {}
-2. I want / need {}
-3. So that {}
+## Further details:
+
+## Proposals:
+
 
 ## Acceptance criteria
 * Criterion 1
@@ -26,7 +23,7 @@ about: Suggest new feature (using user story)
     5. Documentation has been updated
     6. Code has been included into the release (candidate)
     7. Code Coverage:
-         60 % - for Features
-         70 % - for Sprint Release
-         80 % - for Product Release
+         40 % - for Features
+         50 % - for Sprint Release
+         60 % - for Product Release
 

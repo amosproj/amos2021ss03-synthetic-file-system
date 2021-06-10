@@ -234,7 +234,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 AMOS PROJECT - amos-fau-proj3@group.riehle.org
 
-Industry Partner - GRAU Data[https://www.graudata.com/]
+Industry Partner - GRAU Data(https://www.graudata.com/)
 
 Project Link: [https://github.com/amosproj/amos-ss2021-synthetic-file-system](https://github.com/amosproj/amos-ss2021-synthetic-file-system)
 

@@ -223,7 +223,7 @@ See the [open issues](https://github.com/amosproj/amos-ss2021-synthetic-file-sys
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License. See [LICENSE](https://github.com/amosproj/amos-ss2021-synthetic-file-system/blob/main/LICENSE) for more information.
 
 
 

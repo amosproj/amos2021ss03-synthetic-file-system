@@ -3,14 +3,11 @@ from __future__ import with_statement
 import os
 import stat
 import time
-from errno import EACCES
 
 # 3rd party imports
-from fuse import Operations, FuseOSError
 import logging
-import mdh
 import pyinotify
-from fuse import FUSE, Operations
+from fuse import Operations
 
 # Local imports
 from sfs.config import ConfigFileEventHandler
@@ -85,17 +82,17 @@ class SFS(Operations):
         return BackendManager().get_backend_for_path(path).chown(path, uid, gid)
 
     def getattr(self, path, fh=None):
-        backend = None #BackendManager().get_backend_for_path(path)
+        backend = None  # BackendManager().get_backend_for_path(path)
 
         if not backend or backend:
             path_stat = SFSStat()
-            #os_path = os.stat(path)
-            path_stat.st_size = 1337 #os_path.st_size
+            # os_path = os.stat(path)
+            path_stat.st_size = 1337  # os_path.st_size
             now = time.time()
             path_stat.st_atime = now
             path_stat.st_mtime = now
             path_stat.st_ctime = now
-            #return path_stat.__dict__
+            # return path_stat.__dict__
 
         if path in [".", "..", "/"]:
             path_stat.st_mode = stat.S_IFDIR | 0o755
@@ -106,14 +103,14 @@ class SFS(Operations):
         else:
             path_stat.st_mode = stat.S_IFDIR | 0o755
 
-        #return backend.getattr(path, fh)
+        # return backend.getattr(path, fh)
         return path_stat.__dict__
 
     def readdir(self, path, fh):
         if 'Passthrough' in path:
             return BackendManager().get_backend_for_path(path).readdir(path, fh)
         children = self.directory_tree.get_children(path)
-        #return BackendManager().get_backend_for_path(path).readdir(path, fh)
+        # return BackendManager().get_backend_for_path(path).readdir(path, fh)
         return children
 
     def readlink(self, path):

@@ -3,7 +3,6 @@
 # 3rd party imports
 from anytree import Node, Resolver, RenderTree
 from typing import List
-import logging
 
 
 class DirectoryTree:

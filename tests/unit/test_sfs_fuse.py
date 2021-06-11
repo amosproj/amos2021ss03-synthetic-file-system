@@ -2,7 +2,6 @@
 import os
 import stat
 import unittest
-from mimetypes import guess_type
 from pathlib import Path
 from tempfile import gettempdir
 from uuid import uuid4
@@ -11,9 +10,9 @@ from uuid import uuid4
 from fuse import FuseOSError
 
 # Local imports
-from sfs.utils import build_tree_from_files
-from sfs.file_tree import DirectoryTree
-import sfs.file_tree
+# from sfs.utils import build_tree_from_files
+# from sfs.file_tree import DirectoryTree
+from sfs import file_tree
 from sfs import SFS
 
 
@@ -34,8 +33,8 @@ class TestSFSFuse(unittest.TestCase):
         # Instantiate sfs without initialising it
         cls.sfs = SFS.__new__(SFS)
         # Build directory tree
-        stat = cls.file_path.stat()
-        cls.sfs.directory_tree = sfs.file_tree.build_tree(
+        # stat = cls.file_path.stat()
+        cls.sfs.directory_tree = file_tree.build_tree(
             [('mdh', [cls.file_path.parts[1:]])]
         )
         cls.sfs.root = ""

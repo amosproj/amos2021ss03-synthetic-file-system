@@ -4,7 +4,6 @@
 import argparse
 
 # 3rd party imports
-import mdh
 from fuse import FUSE
 
 # Local imports

@@ -2,11 +2,9 @@
 import mdh
 
 # Local imports
-import sfs.paths
 from sfs.backend import BackendFactory
 from sfs.backend import BackendFactoryManager
 from .backend import MDHBackend
-from .query import MDHQueryRoot
 
 
 class MDHBackendFactory(BackendFactory):
@@ -20,9 +18,8 @@ class MDHBackendFactory(BackendFactory):
         super().__init__()
         try:
             mdh.init()
-            # TODO: Error handling
-        except Exception:
-            raise EnvironmentError
+        except EnvironmentError:
+            raise
 
     def create_backend_from_section(self, instance_cfg) -> MDHBackend:
         mdh_backend = MDHBackend(instance_cfg)

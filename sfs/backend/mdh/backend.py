@@ -1,7 +1,6 @@
 # Python imports
 import os
 import time
-import stat
 
 # 3rd party imports
 from anytree import Node, Resolver
@@ -10,7 +9,6 @@ import logging
 import mdh
 
 # Local imports
-import sfs.paths
 from sfs.backend import Backend
 from sfs.sfs_stat import SFSStat
 from .query import MDHQueryRoot
@@ -53,7 +51,7 @@ class MDHBackend(Backend):
 
     def _extract_file_paths_parts(self) -> List[List[str]]:
         file_paths_parts = []
-        for file_path in file_paths:
+        for file_path in self.file_paths:
             file_paths_parts.append(file_path.split("/")[1:])
         return file_paths_parts
 

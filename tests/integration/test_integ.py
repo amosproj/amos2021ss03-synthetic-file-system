@@ -2,6 +2,7 @@
 # First install the package: pip install pytest-docker-compose
 # Run with: pytest --docker-compose="path_to_docker_compose_yml" test_integ.py
 
+# Python imports
 import pytest
 import os
 import subprocess
@@ -16,6 +17,7 @@ class TestIntegratedTool(unittest.TestCase):
 
         self.MDH_CORE = "core-sfs"
         self.MOUNT_POINT = "/home/sfsuser/Vaidehi"
+        self.DOCKER_YML = "/home/sfsuser/Vaidehi/docker-compose.yml"
 
         # Check if mdh core is running
         is_core_up = subprocess.Popen(["docker", "container", "inspect", "-f",
@@ -26,7 +28,7 @@ class TestIntegratedTool(unittest.TestCase):
             print("MDH CORE NOT RUNNING!!!")
             exit(1)
 
-        docker_compose_up = subprocess.Popen(["docker-compose", "up", "-d", "--build"], stdout=subprocess.PIPE,
+        docker_compose_up = subprocess.Popen(["docker-compose", "up", "-f", self.DOCKER_YML, "-d", "--build"], stdout=subprocess.PIPE,
                                              stderr=subprocess.PIPE)
         docker_up_out, docker_up_err = docker_compose_up.communicate()
         if docker_up_err.decode().__contains__("error") == True:
@@ -46,7 +48,7 @@ class TestIntegratedTool(unittest.TestCase):
                 print("Container synthetic-file-system cannot be started!!")
                 exit(1)
 
-    @pytest.mark.dependency()
+   
     def test_mount(self):
         print("/************************************* Entered test_mount *************************************/")
 
@@ -61,7 +63,7 @@ class TestIntegratedTool(unittest.TestCase):
             exit(1)
 
 
-    @pytest.mark.dependency(depends=['test_mount'])
+    
     def test_open_file(self):
         print("/************************************* Entered test_open_file *************************************/")
 
@@ -83,6 +85,7 @@ class TestIntegratedTool(unittest.TestCase):
 
 
     # Turn off docker services
+    @classmethod
     def tearDownClass(self):
         print("/************************************* Entered tearDown *************************************/")
 

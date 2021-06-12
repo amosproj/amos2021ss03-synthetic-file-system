@@ -21,15 +21,13 @@ class TestIntegratedTool(unittest.TestCase):
                                       stderr=subprocess.PIPE)
         out, err = is_core_up.communicate()
         if "true" not in out.decode():
-            print("MDH CORE NOT RUNNING!!!")
-            exit(1)
+            raise Exception("MDH CORE NOT RUNNING!!!")
 
         docker_compose_up = subprocess.Popen(["docker-compose", "up", "-f", self.DOCKER_YML, "-d", "--build"], stdout=subprocess.PIPE,
                                              stderr=subprocess.PIPE)
         docker_up_out, docker_up_err = docker_compose_up.communicate()
         if docker_up_err.decode().__contains__("error") == True:
-            print("ERROR RUNNING DOCKER-COMPOSE UP!")
-            exit(1)
+            raise Exception("ERROR RUNNING DOCKER-COMPOSE UP!")
 
         # Check if subprocess is running
         is_up = docker_compose_up.poll()
@@ -41,8 +39,7 @@ class TestIntegratedTool(unittest.TestCase):
                 stderr=subprocess.PIPE)
             is_up = docker_start.poll()
             if is_up is not None:
-                print("Container synthetic-file-system cannot be started!!")
-                exit(1)
+                raise Exception("Container synthetic-file-system cannot be started!!")
 
    
     def test_mount(self):
@@ -55,8 +52,7 @@ class TestIntegratedTool(unittest.TestCase):
         docker_mount_out, docker_mount_err = docker_mount.communicate()
         docker_mount_err = docker_mount_err.decode()
         if "failed" in docker_mount_err:
-            print("ERROR RUNNING MOUNT.SH!!!")
-            exit(1)
+            raise Exception("ERROR RUNNING MOUNT.SH!!!")
 
 
     
@@ -92,7 +88,7 @@ class TestIntegratedTool(unittest.TestCase):
 
         # Could do with an assertion error, I don't know which one.
         if is_down is None:
-            print("************** COULD NOT SHUT DOWN DOCKER **************")
+            raise Exception("************** COULD NOT SHUT DOWN DOCKER **************")
         else:
             docker_image_rm = subprocess.Popen(["docker", "image", "rm", "fuse_skeleton"])
             print("REMOVED DOCKER IMAGE")

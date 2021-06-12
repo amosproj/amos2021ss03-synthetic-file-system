@@ -71,7 +71,6 @@ class TestIntegratedTool(unittest.TestCase):
                         except IOError as x:
                             print(
                                 "************* UNABLE TO OPEN MOUNTED FILES!!! ***************")
-                            exit(1)
                 else:
                     break
 

@@ -50,7 +50,7 @@ class TestIntegratedTool(unittest.TestCase):
 
         # Run mount.sh
         docker_mount = subprocess.Popen(["docker", "container", "exec", "-d", "synthetic-file-system",
-                                         "./mount.sh"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                         "./mount.sh"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
         docker_mount_out, docker_mount_err = docker_mount.communicate()
         docker_mount_err = docker_mount_err.decode()

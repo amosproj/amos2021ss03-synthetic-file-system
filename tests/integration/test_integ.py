@@ -94,3 +94,6 @@ class TestIntegratedTool(unittest.TestCase):
         # Could do with an assertion error, I don't know which one.
         if is_down is None:
             print("************** COULD NOT SHUT DOWN DOCKER **************")
+        else:
+            docker_image_rm = subprocess.Popen(["docker", "image", "rm", "fuse_skeleton"])
+            print("REMOVED DOCKER IMAGE")

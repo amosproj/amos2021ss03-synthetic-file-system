@@ -88,16 +88,16 @@ class TestIntegratedTool(unittest.TestCase):
 
 
 
-    #@pytest.mark.dependency(depends=['test_mount'])
-    #def test_dir_structure(self):
-        #print("/************************************* Entered test_dir_structure *************************************/")
+    @pytest.mark.dependency(depends=['test_mount'])
+    def test_open_file(self):
+        print("/************************************* Entered test_open_file *************************************/")
 
         #common_dir = self.MOUNTED_FROM.split("/")
 
         # Read all fuse files into an array
-        #fuse_mounted_files=open(self.FUSE_MOUNTED_FILES_LIST, "r")
-        #fuse_abs_mount_lines=fuse_mounted_files.readlines()
-        #fuse_mounted_files.close()
+        fuse_mounted_files=open(self.FUSE_MOUNTED_FILES_LIST, "r")
+        fuse_abs_mount_lines=fuse_mounted_files.readlines()
+        fuse_mounted_files.close()
 
         # transforms '/home/sfsuser/Vaidehi/amos-rep/test_tree/dir0/dir144/dir158/dir160/dir164/dir165/CNV-1699976-2.jpeg' into '/dir0/dir144/dir158/dir160/dir164/dir165/CNV-1699976-2.jpeg'
         #fuse_mount_lines=[i.split(common_dir[-1], 1)[1]
@@ -119,7 +119,6 @@ class TestIntegratedTool(unittest.TestCase):
         print("/************************************* Entered tearDown *************************************/")
 
         docker_compose_down=subprocess.Popen(["docker-compose", "down"])
-        time.sleep(5)
 
         # Check if subprocess is running
         is_down=docker_compose_down.poll()

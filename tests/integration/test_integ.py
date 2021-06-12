@@ -1,7 +1,3 @@
-# HOW TO EXECUTE?
-# First install the package: pip install pytest-docker-compose
-# Run with: pytest --docker-compose="path_to_docker_compose_yml" test_integ.py
-
 # Python imports
 import pytest
 import os

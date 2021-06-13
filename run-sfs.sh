@@ -9,4 +9,3 @@ elif [[ "$1" == "flake8" ]]; then
 else
     python "-m" "sfs" "$@"  # "$@" corresponds to all the arguments that were not shifted away
 fi
-

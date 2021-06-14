@@ -1,0 +1,13 @@
+mutation {
+            harvestScheduleAdd (
+            name: "Test"
+            time: {
+                start: "2021-06-02T14:22:00.000Z"
+                interval: 0
+            }
+            directories: [ {path: "/var/opt/mdh-core/treewalk/filesystem/65108a7b8d9c0f7a/", recursive: true} ]
+            maxCPUUsage: 80
+        ) {
+                state
+            }
+        }

@@ -153,18 +153,18 @@ Due to the current Corona pandemic, as much data as possible is to be analyzed a
 ## Usage
 ### Basics
 
-1. The FUSE pulls its information from a running [Metadatahub](www.metadatahub.de) service. For more information or documentation refer to the vendor.
+1. SFS pulls its information from a running [Metadatahub](www.metadatahub.de) service. For more information or documentation refer to the vendor.
 
-2. To run the FUSE, run
+2. To run the SFS without docker, simply run
    ```sh
-    ./mount.sh
+    python3 -m src mount_point
    ```
-   This will mount the virtual filesystem under ~/fuse_mount
+   where ```mount_point``` is an empty folder you specify by yourself.
+3. Warning: SFS with docker is bugged in the current release version and will be resolved soon
+4. Attention when start the FUSE using docker:
+  Since the FUSE blocks the current terminal, a new terminal in the docker has to be opened. For this you can just open a new terminal on the host and connect it again to the docker via ```docker exec -it synthetic-file-system tmux ```, or use tmux in the docker to open a new terminal (```ctrl+b -> ctrl+%```). For more information please refer to the [tmux documentation](https://github.com/tmux/tmux/wiki).
 
-3. Attention when start the FUSE using docker:
-  Since the FUSE blocks the current terminal, a new terminal in the docker has to be opened. For this you can just open a new terminal on the host and connect it again to the docker via ```docker exec -it synthetic-file-system tmux ```, or use tmux in the docker to open a new terminal (```ctrl+b -> ctrl+%```). For more information please refer to the [tmux documentation](https://github.com/tmux/tmux/wiki)
-
-4. Traverse the virtual filesystem via a terminal, or via any file browser like ```nautilus```. 
+5. Traverse the virtual filesystem via a terminal, or via any file browser like ```nautilus```. 
 For docker: The docker container is configured to support X-forwarding, so any UI program opened on the docker will be forwarded to the host. So to traverse the filesystem using a file browser under the docker, just run 
    ```sh
     nautilus
@@ -173,18 +173,7 @@ For docker: The docker container is configured to support X-forwarding, so any U
 
 ### Configuration
 
-The FUSE allows for filtering of the files that it will list via their metadata. For this, a config file, ```config/config.cfg``` is used. When starting, the FUSE reads all the filters from this file and applies them when retrieving the metadata from the Metadatahub.   
-The filters are specified as a list of triplets, where the first element of each triplet specifies the name of the metadata that the filter shall use, the second one a value, and as the third some relation specifies how values are compared to the one specified in the filter.  
-
-For example, to tell the FUSE to only show file with file name "DME-30521-7.jpeg" with an image height greater than 500, a config file will look as followed:
-```toml
-[FILTER]
-filters = [
-    ["FileName", "DME-30521-7.jpeg", "EQUAL"] ,
-    ["ImageHeight", "500", "GREATER"],
-]
-```
-This filter is applied when the FUSE is first mounted, however, when changing that file at runtime, the filters will be updated. 
+SFS enables the filtering of files via their metadata. For this, a config file ```config/config.graphql``` is used. When starting SFS, all the filters will be read from this file and applied. More information regarding graphl syntax can be found [here](https://metadatahub.de/documents/graphql/#/definitions/ResultSet).
 
 **NOTE**  
 The way the dynamic configuration works, it is needed, that the config file is written to and closed properly, just for example pressing ```ctrl+s``` won't always work. So when ```VIM``` for example, close the file with ```:wq``` or ```:x```.

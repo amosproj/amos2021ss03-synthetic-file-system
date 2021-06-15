@@ -34,13 +34,6 @@ class SFSConfig:
     def mountpoint(self):
         return self.settings.get('mountpoint')
 
-    def tree_algorithm(self):
-        algo = self.settings.get('tree_algorithm', '')
-        # List will soon include more algorithms
-        if algo in ['default']:
-            return algo
-        return None
-
     def _parse_config(self) -> None:
         # Current version works with toml file format
         with open(self.path, 'r') as fpointer:
@@ -67,19 +60,9 @@ class SFSConfig:
 
     def _setup_BackendManager(self) -> None:
         backend_factory_manager = BackendFactoryManager()
-        for factory in backend_factory_manager.factories:
-            print(factory)
-
         for backend_name in self.backend_configs.keys():
             _register_backend_factory(backend_name)
             backend_factory = backend_factory_manager.get_factory_for_config_tag(backend_name)
-            print(backend_name)
-            print(backend_factory)
             for instance_id, instance_cfg in self.backend_configs[backend_name].items():
-
-                print(instance_id)
-                print(instance_cfg)
-                if backend_name == 'mdh' and not instance_cfg.get("querySource", "") == 'file':
-                    continue
                 backend = backend_factory.create_backend_from_section(instance_cfg)
                 BackendManager().add_backend(backend)

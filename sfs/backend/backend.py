@@ -124,4 +124,3 @@ class Backend:
     @abc.abstractmethod
     def fsync(self, path, fdatasync, fh):
         pass
-

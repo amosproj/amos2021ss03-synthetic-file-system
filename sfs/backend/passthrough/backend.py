@@ -4,7 +4,6 @@ import os
 from errno import EACCES
 import logging
 from fuse import FuseOSError
-from anytree import Node, Resolver
 
 
 class PassthroughBackend(Backend):
@@ -70,7 +69,7 @@ class PassthroughBackend(Backend):
     def readdir(self, path, fh):
         logging.info("readdir called")
         print(path)
-        #path = path[len():]
+        # path = path[len():]
         return ['.', '..'] + os.listdir(path)
 
     def readlink(self, path):

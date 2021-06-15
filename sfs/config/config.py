@@ -1,6 +1,5 @@
 # 3rd party imports
 import toml
-from typing import Dict
 from importlib import import_module
 
 # Local imports

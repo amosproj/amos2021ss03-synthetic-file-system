@@ -1,7 +1,6 @@
 # Python imports
 import os
 import time
-import stat
 
 # 3rd party imports
 import anytree
@@ -11,7 +10,6 @@ import logging
 import mdh
 
 # Local imports
-import sfs.paths
 from sfs.backend import Backend
 import sfs.backend
 from sfs.sfs_stat import SFSStat

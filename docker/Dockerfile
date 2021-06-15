@@ -25,7 +25,11 @@ WORKDIR /app
 
 COPY requirements.txt requirements.txt
 COPY mount.sh mount.sh
+<<<<<<< HEAD
 COPY ./sfs/ ./sfs/
+=======
+COPY ./src/ ./src/
+>>>>>>> 1255e9d9bd8f3cbf5195f0e00c0b560478181596
 COPY ./config/ ./config/
 
 ENV MDH_HOME=/app/mdh/

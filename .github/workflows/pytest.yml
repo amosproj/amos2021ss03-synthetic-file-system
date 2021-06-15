@@ -19,12 +19,4 @@ jobs:
         pip install -r requirements.txt
         pip install pytest
         pip install pytest-cov
-<<<<<<< HEAD
-<<<<<<< HEAD
         python -m pytest tests/unit --cov=src
-=======
-        python -m pytest --cov=.
->>>>>>> 1255e9d9bd8f3cbf5195f0e00c0b560478181596
-=======
-        python -m pytest --cov=.
->>>>>>> 1255e9d9bd8f3cbf5195f0e00c0b560478181596

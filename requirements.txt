@@ -1,5 +1,7 @@
-fusepy
-requests
-anytree
-toml
-pyinotify
+fusepy==3.0.1
+requests==2.25.1
+anytree==2.8.0
+toml==0.10.2
+pyinotify==0.9.6
+PyYAML==5.4.1
+docker==4.4.1

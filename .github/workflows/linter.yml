@@ -19,12 +19,4 @@ jobs:
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
-<<<<<<< HEAD
-<<<<<<< HEAD
         flake8 . --count --show-source --max-line-length=127 --per-file-ignores="__init__.py:F401" --statistics
-=======
-        flake8 . --count --show-source --max-line-length=127 --statistics
->>>>>>> 1255e9d9bd8f3cbf5195f0e00c0b560478181596
-=======
-        flake8 . --count --show-source --max-line-length=127 --statistics
->>>>>>> 1255e9d9bd8f3cbf5195f0e00c0b560478181596

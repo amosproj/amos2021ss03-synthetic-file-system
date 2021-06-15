@@ -1,5 +1,7 @@
 # Python imports
 from __future__ import with_statement
+
+import errno
 import os
 import stat
 import time
@@ -77,33 +79,34 @@ class SFS(Operations):
         return BackendManager().get_backend_for_path(path).chown(path, uid, gid)
 
     def getattr(self, path, fh=None):
-        backend = None #BackendManager().get_backend_for_path(path)
-        if not backend or backend:
-            path_stat = SFSStat()
-            #os_path = os.stat(path)
-            path_stat.st_size = 1337 #os_path.st_size
-            now = time.time()
-            path_stat.st_atime = now
-            path_stat.st_mtime = now
-            path_stat.st_ctime = now
-            #return path_stat.__dict__
+        print(f"getattr called with path {path}")
+        path_stat = SFSStat()
+        now = time.time()
+        path_stat.st_atime = now
+        path_stat.st_mtime = now
+        path_stat.st_ctime = now
+
 
         if path in [".", "..", "/"]:
             path_stat.st_mode = stat.S_IFDIR | 0o755
             return path_stat.__dict__
-        if self.directory_tree.is_file(path):
-            print("got regular file")
-            path_stat.st_mode = stat.S_IFREG | 0o755
-        else:
-            path_stat.st_mode = stat.S_IFDIR | 0o755
 
-        #return backend.getattr(path, fh)
-        return path_stat.__dict__
+        backend_manager = BackendManager().get_backend_for_path(path)
+        if not backend_manager:
+            parent_path = path.rsplit("/", 1)[0]
+            backend_manager = BackendManager().get_backend_for_path(parent_path)
+            if not backend_manager:
+                logging.error(f"Invalid path for getattr with path {path}!")
+                return path_stat.__dict__
+        return backend_manager.getattr(path, fh)
 
     def readdir(self, path, fh):
-
-        children = self.directory_tree.get_children(path)
-        return children
+        logging.info(f"Readdir called with path {path}")
+        if 'Passthrough' in path:
+            return BackendManager().get_backend_for_path(path).readdir(path, fh)
+        # children = self.directory_tree.get_children(path)
+        return BackendManager().get_backend_for_path(path).readdir(path, fh)
+        # return children
 
     def readlink(self, path):
         return BackendManager().get_backend_for_path(path).readlink(path)
@@ -145,6 +148,7 @@ class SFS(Operations):
         return BackendManager().get_backend_for_path(path).open(path, flags)
 
     def create(self, path: str, mode, fi=None):
+        logging.error(f"create in sfs called! with path {path}")
         backend_manager = BackendManager().get_backend_for_path(path)
         if not backend_manager:
             parent_path = path.rsplit("/", 1)[0]

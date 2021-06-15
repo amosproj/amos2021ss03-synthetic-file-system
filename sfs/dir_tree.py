@@ -1,6 +1,7 @@
 # Python imports
 
 # 3rd party imports
+import anytree.resolver
 from anytree import Node, Resolver, RenderTree
 from typing import List
 import logging
@@ -26,7 +27,8 @@ class DirectoryTree:
                 child.parent = backend_root_node
 
     def is_file(self, path) -> bool:
-        path = path[1:]  # strip leading "/"
+        #  path = path[1:]  # strip leading "/"
+        logging.error(f"is file path {path}")
         path_node: Node = self.resolver.get(self.directory_tree, path)
         return len(path_node.children) == 0
 
@@ -34,9 +36,17 @@ class DirectoryTree:
         path = path[1:]  # strip leading "/"
         path_node: Node = self.resolver.get(self.directory_tree, path)
         children = [".", ".."]
-        for child in path_node.children:
+        for child in path_node.children:  # type: Node
             children.append(child.name)
+            print(f"added node: {child.name}")
         return children
+
+    def contains(self, path) -> bool:
+        try:
+            path_node: Node = self.resolver.get(self.directory_tree, path)
+            return True
+        except (anytree.resolver.ChildResolverError, anytree.resolver.ResolverError):
+            return False
 
 
 def build_tree(files, resultStructure: str) -> Node:

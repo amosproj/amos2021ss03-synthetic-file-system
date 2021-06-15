@@ -10,10 +10,9 @@ class MDHQueryRoot:
         self.query_file = query_file
         self.result = None
 
-    def send_request_get_result(self) -> None:
+    def send_request_get_result(self) -> dict:
         try:
             self.result = query.query(self.core, self.query_file)
-        # TODO: Error handling
         except StateError:
             raise
         except APIError:
@@ -24,3 +23,5 @@ class MDHQueryRoot:
             raise
         except GraphQLSyntaxError:
             raise
+
+        return self.result

@@ -94,8 +94,10 @@ class MDHBackend(Backend):
             path = self.instance_config['query']['path']
 
         query_root = MDHQueryRoot(core, path)
-        query_root.send_request_get_result()
-        self.metadata_files = query_root.result['searchMetadata']['files']
+
+        result = query_root.send_request_get_result()
+
+        self.metadata_files = result['searchMetadata']['files']
 
     def contains_path(self, path: str) -> bool:
         if path in [".", "..", "/", "/mdh"]:
@@ -110,6 +112,7 @@ class MDHBackend(Backend):
     ######################
     # File System Calls #
     ######################
+
     def access(self, path, mode):
         logging.error("access called!")
         return 0

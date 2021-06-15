@@ -22,12 +22,15 @@ class MDHBackend(Backend):
     For documentation of the functions see Backend.py
     """
 
-    def __init__(self, instance_config: Dict):
+    def __init__(self, id: int, instance_config: Dict):
         """
         Constructor
         :param root: the root node of the directory tree of the files that the backend is holding
         """
+        self.id = id
+        self.name = f'mdh{id}'
         self.instance_config = instance_config
+        self.result_structure = instance_config.get("resultStructure")
         self.directory_tree = None
         self.metadata_files: List[Dict] = []
         self.file_paths = []

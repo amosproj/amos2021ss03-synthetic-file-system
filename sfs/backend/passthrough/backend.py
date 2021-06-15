@@ -12,13 +12,17 @@ class PassthroughBackend(Backend):
     """
     Example Backend that just passes all requests to the OS
     """
-    def __init__(self, instance_cfg):
+    def __init__(self, id: int, instance_cfg):
         """
         Constructor
         :param instance_cfg: the config contains everything that the Passthrough backend needs.
         Currently this is only the path to the target directory.
         """
+        self.id = id
+        self.name = f'passthrough{id}'
+        self.result_structure = instance_cfg.get("resultStructure")
         self.target_dir = instance_cfg['path']
+        self.root = self.target_dir
         self.file_paths = []
         self._update_paths()
 
@@ -49,6 +53,7 @@ class PassthroughBackend(Backend):
         logging.info("access called")
         if not os.access(path, mode):
             raise FuseOSError(EACCES)
+        return 0
 
     def chmod(self, path, mode):
         logging.info("chmod called")

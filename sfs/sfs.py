@@ -10,7 +10,6 @@ from fuse import Operations, FuseOSError
 import logging
 import mdh
 import pyinotify
-from fuse import FUSE, Operations
 
 # Local imports
 from sfs.config import ConfigFileEventHandler
@@ -36,8 +35,14 @@ class SFS(Operations):
         if self.mountpoint is None:
             self.mountpoint = self.sfs_config.mountpoint
 
-        self.directory_tree = DirectoryTree(algorithm=self.sfs_config.tree_algorithm)
-        self.directory_tree.build(BackendManager().get_file_paths())
+        self.directory_tree = DirectoryTree()
+        build_basis = []
+        for backend_name, file_paths in BackendManager().get_file_paths():
+            backend = BackendManager().get_backend_by_name(backend_name)
+            result_structure = backend.result_structure
+            build_basis.append((backend_name, result_structure, file_paths))
+
+        self.directory_tree.build(build_basis)
         self.directory_tree.print_tree()
 
     def init(self, path):
@@ -57,25 +62,12 @@ class SFS(Operations):
 
         watch_manager.add_watch(CONFIG_PATH, pyinotify.IN_MODIFY)
 
-    # =======
-    # Helpers
-    # =======
-
-    def _full_path(self, partial):
-        if partial.startswith("/"):
-            partial = partial[1:]
-        path = os.path.join(self.root, partial)
-        return path
-
     # ==================
     # Filesystem methods
     # ==================
 
     def access(self, path, mode):
         print("access called")
-        # full_path = self._full_path(path)
-        # if not os.access(full_path, mode):
-        #    raise FuseOSError(errno.EACCES)
         return 0
 
     def chmod(self, path, mode):
@@ -86,7 +78,6 @@ class SFS(Operations):
 
     def getattr(self, path, fh=None):
         backend = None #BackendManager().get_backend_for_path(path)
-
         if not backend or backend:
             path_stat = SFSStat()
             #os_path = os.stat(path)
@@ -110,10 +101,8 @@ class SFS(Operations):
         return path_stat.__dict__
 
     def readdir(self, path, fh):
-        if 'Passthrough' in path:
-            return BackendManager().get_backend_for_path(path).readdir(path, fh)
+
         children = self.directory_tree.get_children(path)
-        #return BackendManager().get_backend_for_path(path).readdir(path, fh)
         return children
 
     def readlink(self, path):

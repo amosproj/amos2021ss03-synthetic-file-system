@@ -12,9 +12,11 @@ class PassthroughBackendFactory(BackendFactory):
 
     def __init__(self):
         super().__init__()
+        self.pt_id = 0
 
     def create_backend_from_section(self, instance_cfg) -> PassthroughBackend:
-        return PassthroughBackend(instance_cfg)
+        self.pt_id += 1
+        return PassthroughBackend(self.pt_id, instance_cfg)
 
 
 # auto register backend

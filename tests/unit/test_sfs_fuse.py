@@ -32,6 +32,7 @@ class TestSFSFuse(unittest.TestCase):
 
         # Instantiate sfs without initialising it
         cls.sfs = SFS.__new__(SFS)
+
         # Build directory tree
         # stat = cls.file_path.stat()
         cls.sfs.directory_tree = file_tree.build_tree(

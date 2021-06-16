@@ -1,19 +1,20 @@
 # Python imports
 import os
+import stat
 import time
+from typing import Dict, List
 
 # 3rd party imports
 import anytree
-from anytree import Node, Resolver
-from typing import Dict, List
 import logging
 import mdh
 
 # Local imports
-from sfs.backend import Backend
 import sfs.backend
+from sfs.backend import Backend
+from sfs.paths import ROOT_PATH
 from sfs.sfs_stat import SFSStat
-from .query import MDHQueryRoot
+from .mdh_util import QueryTemplates, MDHQueryRoot
 from ...dir_tree import DirectoryTree
 
 
@@ -23,12 +24,15 @@ class MDHBackend(Backend):
     For documentation of the functions see Backend.py
     """
 
-    def __init__(self, instance_config: Dict):
+    def __init__(self, id: int, instance_config: Dict):
         """
         Constructor
         :param root: the root node of the directory tree of the files that the backend is holding
         """
+        self.id = id
+        self.name = f'mdh{id}'
         self.instance_config = instance_config
+        self.result_structure = instance_config.get("resultStructure")
         self.directory_tree = None
         self.metadata_files: List[Dict] = []
         self.file_paths = []
@@ -76,7 +80,7 @@ class MDHBackend(Backend):
 
         self.file_paths = updated_file_paths
         self.directory_tree = DirectoryTree()
-        self.directory_tree.build(sfs.backend.BackendManager().get_file_paths([self]))
+        self.directory_tree.build(sfs.backend.BackendManager().get_file_paths([self]), self.result_structure)
 
     def _extract_file_paths_parts(self) -> List[List[str]]:
         file_paths_parts = []
@@ -87,7 +91,12 @@ class MDHBackend(Backend):
     def _update_metadata_files(self):
         core = self.instance_config['core']
         if self.instance_config['querySource'] == 'inline':
-            raise NotImplementedError
+            query_options = self.instance_config['query']
+            query = QueryTemplates.create_query(query_options)
+            p = ROOT_PATH / 'sfs/backend/mdh/internals/inline_query.graphql'
+            with open(p, 'w') as fpointer:
+                fpointer.write(query)
+            path = str(p)
         if self.instance_config['querySource'] == 'file':
             path = self.instance_config['query']['path']
 
@@ -98,14 +107,19 @@ class MDHBackend(Backend):
         self.metadata_files = result['searchMetadata']['files']
 
     def contains_path(self, path: str) -> bool:
-        if path in [".", "..", "/", "/mdh"]:
+        if path in [".", "..", f"/{self.name}"]:
             return True
         path = "/Root" + path
         logging.error(f"contains path with: {path}")
         return self.directory_tree.contains(path)
 
     def _get_os_path(self, path):
-        return "/" + "/".join(path.split("/")[2:])
+        print('===========')
+        print(path)
+        p = "/" + "/".join(path.split("/")[2:])
+        if self.result_structure == 'flat':
+            p = f'{self.directory_tree.get_original_path(p[1:])}'
+        return p
 
     ######################
     # File System Calls #
@@ -132,27 +146,27 @@ class MDHBackend(Backend):
         path_stat.st_mtime = now
         path_stat.st_ctime = now
 
-        if path in [".", "..", "/", "/mdh"]:
+        if path in [".", "..",  f"/{self.name}"]:
             path_stat.st_mode = stat.S_IFDIR | 0o755
             return path_stat.__dict__
         try:
             # /mdh/home/
             mdh_path = "/Root" + path
-            os_path = "/" + "/".join(path.split("/")[2:])
-
             if self.directory_tree.is_file(mdh_path):
                 print("got regular file")
                 path_stat.st_mode = stat.S_IFREG | 0o755
             else:
                 path_stat.st_mode = stat.S_IFDIR | 0o755
 
+            os_path = self._get_os_path(path)
+            print(os_path)
             os_stats = os.stat(os_path)
             path_stat.st_size = os_stats.st_size
 
         except anytree.resolver.ChildResolverError:
             # file does not exist yet
             logging.error("could not find file!")
-            path_stat.st_size = os.stat(self._get_os_path(path)).st_size
+            # path_stat.st_size = os.stat(self._get_os_path(path)).st_size
         return path_stat.__dict__
 
     def readdir(self, path, fh):

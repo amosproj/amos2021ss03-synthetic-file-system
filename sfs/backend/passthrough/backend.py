@@ -1,10 +1,12 @@
-from sfs.backend import Backend
-from pathlib import Path
+# Python imports
+import logging
 import os
 from errno import EACCES
-import logging
+
+# Local imports
 from fuse import FuseOSError
-from anytree import Node, Resolver
+from pathlib import Path
+from sfs.backend import Backend
 
 
 class PassthroughBackend(Backend):
@@ -12,18 +14,25 @@ class PassthroughBackend(Backend):
     """
     Example Backend that just passes all requests to the OS
     """
-    def __init__(self, instance_cfg):
+    def __init__(self, id: int, instance_cfg):
         """
         Constructor
         :param instance_cfg: the config contains everything that the Passthrough backend needs.
         Currently this is only the path to the target directory.
         """
+        self.id = id
+        self.name = f'passthrough{id}'
+        self.result_structure = instance_cfg.get("resultStructure")
         self.target_dir = instance_cfg['path']
+        self.root = self.target_dir
         self.file_paths = []
         self._update_paths()
 
     def _update_paths(self):
-        self.file_paths = [str(p) for p in Path(self.target_dir).glob('**/*')]
+        self.file_paths = [f'/{self.name}']
+        prefix = len(str(Path(self.target_dir)))
+        self.file_paths += [f'/{self.name}{str(p)[prefix:]}' for p in Path(self.target_dir).glob('**/*')]
+        print(self.file_paths)
 
     def get_file_paths(self):
         return self.file_paths
@@ -37,7 +46,9 @@ class PassthroughBackend(Backend):
         return path in self.file_paths
 
     def _full_path(self, partial):
-        if partial.startswith("/"):
+        if partial.startswith(f'/{self.name}'):
+            partial = partial[len(self.name)+2:]
+        elif partial.startswith('/'):
             partial = partial[1:]
         path = os.path.join(self.root, partial)
         return path
@@ -47,8 +58,10 @@ class PassthroughBackend(Backend):
 
     def access(self, path, mode):
         logging.info("access called")
-        if not os.access(path, mode):
+        full_path = self._full_path(path)
+        if not os.access(full_path, mode):
             raise FuseOSError(EACCES)
+        return 0
 
     def chmod(self, path, mode):
         logging.info("chmod called")
@@ -62,16 +75,16 @@ class PassthroughBackend(Backend):
 
     def getattr(self, path, fh=None):
         logging.info("getattr called")
-        st = os.lstat(path)
+        full_path = self._full_path(path)
+        st = os.lstat(full_path)
         return dict((key, getattr(st, key)) for key in (
             'st_atime', 'st_ctime', 'st_gid', 'st_mode', 'st_mtime',
             'st_nlink', 'st_size', 'st_uid'))
 
     def readdir(self, path, fh):
         logging.info("readdir called")
-        print(path)
-        #path = path[len():]
-        return ['.', '..'] + os.listdir(path)
+        full_path = self._full_path(path)
+        return ['.', '..'] + os.listdir(full_path)
 
     def readlink(self, path):
         logging.info("readlink called")
@@ -124,7 +137,7 @@ class PassthroughBackend(Backend):
 
     def open(self, path, flags):
         logging.info("open called with path " + path)
-        full_path = path
+        full_path = self._full_path(path)
         return os.open(full_path, flags)
 
     def create(self, path, mode, fi=None):

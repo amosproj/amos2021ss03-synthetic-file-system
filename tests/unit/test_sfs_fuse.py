@@ -2,7 +2,6 @@
 import os
 import stat
 import unittest
-from mimetypes import guess_type
 from pathlib import Path
 from tempfile import gettempdir
 from uuid import uuid4
@@ -11,8 +10,8 @@ from uuid import uuid4
 from fuse import FuseOSError
 
 # Local imports
-from sfs.utils import build_tree_from_files
-from sfs.file_tree import DirectoryTree
+# from sfs.utils import build_tree_from_files
+# from sfs.file_tree import DirectoryTree
 import sfs.file_tree
 from sfs import SFS
 
@@ -33,7 +32,6 @@ class TestSFSFuse(unittest.TestCase):
 
         # Instantiate sfs without initialising it
         cls.sfs = SFS.__new__(SFS)
-<<<<<<< HEAD
 
         # Build directory tree
         stat = cls.file_path.stat()
@@ -44,13 +42,13 @@ class TestSFSFuse(unittest.TestCase):
                 {"name": "FileInodeChangeDate", "value": f"{ stat.st_ctime }"},
                 {"name": "SourceFile", "value": f"{ cls.file_path }"},
         ]}])
-=======
+
         # Build directory tree
-        stat = cls.file_path.stat()
+        # stat = cls.file_path.stat()
         cls.sfs.directory_tree = sfs.file_tree.build_tree(
             [('mdh', [cls.file_path.parts[1:]])]
         )
->>>>>>> f2e7aa991dbe32501ad4590cd7ffc1f3fb0db9f5
+
         cls.sfs.root = ""
 
     @classmethod

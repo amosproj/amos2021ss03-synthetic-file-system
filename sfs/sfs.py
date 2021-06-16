@@ -1,26 +1,16 @@
 # Python imports
 from __future__ import with_statement
-import os
 import stat
 import time
-from errno import EACCES
 
 # 3rd party imports
-from fuse import Operations, FuseOSError
 import logging
-import mdh
-import pyinotify
-from fuse import FUSE, Operations
+from fuse import Operations
 
 # Local imports
-from sfs.config import ConfigFileEventHandler
 from sfs.config import SFSConfig
 from sfs.backend import BackendManager
-from .dir_tree import DirectoryTree
 from .sfs_stat import SFSStat
-from .paths import CONFIG_PATH
-
-CORE_NAME = "core-test"  # FIXME: Set the name corresponding to your mdh-core
 
 
 class SFS(Operations):
@@ -36,47 +26,12 @@ class SFS(Operations):
         if self.mountpoint is None:
             self.mountpoint = self.sfs_config.mountpoint
 
-        self.directory_tree = DirectoryTree(algorithm=self.sfs_config.tree_algorithm)
-        self.directory_tree.build(BackendManager().get_file_paths())
-        self.directory_tree.print_tree()
-
-    def init(self, path):
-        # Watch change events for config file
-        # self._set_up_config_notifier()
-        pass
-
-    def _set_up_config_notifier(self):
-        """
-        Create the event handler and run the watch in a seperate thread so that it doesn't block our main thread
-        """
-        event_handler = ConfigFileEventHandler(self, CORE_NAME)
-        watch_manager = pyinotify.WatchManager()
-
-        notifier = pyinotify.ThreadedNotifier(watch_manager, event_handler)
-        notifier.start()
-
-        watch_manager.add_watch(CONFIG_PATH, pyinotify.IN_MODIFY)
-
-    # =======
-    # Helpers
-    # =======
-
-    def _full_path(self, partial):
-        if partial.startswith("/"):
-            partial = partial[1:]
-        path = os.path.join(self.root, partial)
-        return path
-
     # ==================
     # Filesystem methods
     # ==================
 
     def access(self, path, mode):
-        print("access called")
-        # full_path = self._full_path(path)
-        # if not os.access(full_path, mode):
-        #    raise FuseOSError(errno.EACCES)
-        return 0
+        return BackendManager().get_backend_for_path(path).access(path, mode)
 
     def chmod(self, path, mode):
         return BackendManager().get_backend_for_path(path).chmod(path, mode)
@@ -85,36 +40,35 @@ class SFS(Operations):
         return BackendManager().get_backend_for_path(path).chown(path, uid, gid)
 
     def getattr(self, path, fh=None):
-        backend = None #BackendManager().get_backend_for_path(path)
-
-        if not backend or backend:
-            path_stat = SFSStat()
-            #os_path = os.stat(path)
-            path_stat.st_size = 1337 #os_path.st_size
-            now = time.time()
-            path_stat.st_atime = now
-            path_stat.st_mtime = now
-            path_stat.st_ctime = now
-            #return path_stat.__dict__
+        print(f"getattr called with path {path}")
+        path_stat = SFSStat()
+        now = time.time()
+        path_stat.st_atime = now
+        path_stat.st_mtime = now
+        path_stat.st_ctime = now
 
         if path in [".", "..", "/"]:
             path_stat.st_mode = stat.S_IFDIR | 0o755
             return path_stat.__dict__
-        if self.directory_tree.is_file(path):
-            print("got regular file")
-            path_stat.st_mode = stat.S_IFREG | 0o755
-        else:
-            path_stat.st_mode = stat.S_IFDIR | 0o755
 
-        #return backend.getattr(path, fh)
-        return path_stat.__dict__
+        backend = BackendManager().get_backend_for_path(path)
+        if not backend:
+            parent_path = path.rsplit("/", 1)[0]
+            backend = BackendManager().get_backend_for_path(parent_path)
+            if not backend:
+                logging.error(f"Invalid path for getattr with path {path}!")
+                return path_stat.__dict__
+        return backend.getattr(path, fh)
 
     def readdir(self, path, fh):
-        if 'Passthrough' in path:
-            return BackendManager().get_backend_for_path(path).readdir(path, fh)
-        children = self.directory_tree.get_children(path)
-        #return BackendManager().get_backend_for_path(path).readdir(path, fh)
-        return children
+        if path == '/':
+            children = ['.', '..']
+            for bkend in BackendManager().backends:
+                if hasattr(bkend, 'name'):
+                    children.append(bkend.name)
+            return children
+        logging.info(f"Readdir called with path {path}")
+        return BackendManager().get_backend_for_path(path).readdir(path, fh)
 
     def readlink(self, path):
         return BackendManager().get_backend_for_path(path).readlink(path)
@@ -156,6 +110,7 @@ class SFS(Operations):
         return BackendManager().get_backend_for_path(path).open(path, flags)
 
     def create(self, path: str, mode, fi=None):
+        logging.error(f"create in sfs called! with path {path}")
         backend_manager = BackendManager().get_backend_for_path(path)
         if not backend_manager:
             parent_path = path.rsplit("/", 1)[0]

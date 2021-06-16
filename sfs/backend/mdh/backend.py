@@ -1,19 +1,21 @@
 # Python imports
 import os
-import time
 import stat
+import time
+from typing import Dict, List
 
 # 3rd party imports
-from anytree import Node, Resolver
-from typing import Dict, List
+import anytree
 import logging
 import mdh
 
 # Local imports
-import sfs.paths
+import sfs.backend
 from sfs.backend import Backend
+from sfs.paths import ROOT_PATH
 from sfs.sfs_stat import SFSStat
-from .query import MDHQueryRoot
+from .mdh_util import QueryTemplates, MDHQueryRoot
+from ...dir_tree import DirectoryTree
 
 
 class MDHBackend(Backend):
@@ -22,15 +24,42 @@ class MDHBackend(Backend):
     For documentation of the functions see Backend.py
     """
 
-    def __init__(self, instance_config: Dict):
+    def __init__(self, id: int, instance_config: Dict):
         """
         Constructor
         :param root: the root node of the directory tree of the files that the backend is holding
         """
+        self.id = id
+        self.name = f'mdh{id}'
         self.instance_config = instance_config
+        self.result_structure = instance_config.get("resultStructure")
         self.directory_tree = None
         self.metadata_files: List[Dict] = []
         self.file_paths = []
+        self._update_state()
+
+    def _rescan(self):
+        """
+        dirty hack to rescan the MDH and wait until the scan is done.
+        This has to be done differently in the future!!!!!!!!
+        :return: None
+        """
+        try:
+            logging.error("1")
+            core = self.instance_config['core']
+            logging.error("6")
+            dir_path = os.path.dirname(os.path.abspath(__file__))
+            mdh.harvest.schedule_add(core, dir_path + "/internals/rescan_mdh.graphql")
+            mdh.harvest.schedule_add(core, dir_path + "/internals/rescan_mdh_dummy.graphql")
+            logging.error("5")
+            while len(mdh.harvest.schedule_list(core)) != 0:
+                pass
+            mdh.harvest.active_stop(core, "Dummy")
+            logging.error("4")
+        except Exception:
+            logging.error("2")
+            pass
+        logging.error("3")
         self._update_state()
 
     def _update_state(self):
@@ -50,17 +79,24 @@ class MDHBackend(Backend):
             updated_file_paths.append(full_file_path)
 
         self.file_paths = updated_file_paths
+        self.directory_tree = DirectoryTree()
+        self.directory_tree.build(sfs.backend.BackendManager().get_file_paths([self]), self.result_structure)
 
     def _extract_file_paths_parts(self) -> List[List[str]]:
         file_paths_parts = []
-        for file_path in file_paths:
+        for file_path in self.file_paths:
             file_paths_parts.append(file_path.split("/")[1:])
         return file_paths_parts
 
     def _update_metadata_files(self):
         core = self.instance_config['core']
         if self.instance_config['querySource'] == 'inline':
-            raise NotImplementedError
+            query_options = self.instance_config['query']
+            query = QueryTemplates.create_query(query_options)
+            p = ROOT_PATH / 'sfs/backend/mdh/internals/inline_query.graphql'
+            with open(p, 'w') as fpointer:
+                fpointer.write(query)
+            path = str(p)
         if self.instance_config['querySource'] == 'file':
             path = self.instance_config['query']['path']
 
@@ -69,132 +105,162 @@ class MDHBackend(Backend):
         self.metadata_files = query_root.result['searchMetadata']['files']
 
     def contains_path(self, path: str) -> bool:
-        return path in self.file_paths
+        if path in [".", "..", f"/{self.name}"]:
+            return True
+        path = "/Root" + path
+        logging.error(f"contains path with: {path}")
+        return self.directory_tree.contains(path)
+
+    def _get_os_path(self, path):
+        print('===========')
+        print(path)
+        p = "/" + "/".join(path.split("/")[2:])
+        if self.result_structure == 'flat':
+            p = f'{self.directory_tree.get_original_path(p[1:])}'
+        return p
 
     ######################
     # File System Calls #
     ######################
     def access(self, path, mode):
-        logging.info("access called!")
+        logging.error("access called!")
         return 0
 
     def chmod(self, path, mode):
-        logging.info("chmod called!")
+        logging.error("chmod called!")
         raise NotImplementedError()
 
     def chown(self, path, uid, gid):
-        logging.info("chown called!")
+        logging.error("chown called!")
         raise NotImplementedError()
 
     def getattr(self, path, fh=None):
-        logging.info("getattr called!")
+        logging.error("getattr in mdh backend called!")
+
         path_stat = SFSStat()
-        os_path = os.stat(path)
-
-        path_stat.st_size = os_path.st_size
-
         now = time.time()
         path_stat.st_atime = now
         path_stat.st_mtime = now
         path_stat.st_ctime = now
 
+        if path in [".", "..",  f"/{self.name}"]:
+            path_stat.st_mode = stat.S_IFDIR | 0o755
+            return path_stat.__dict__
+        try:
+            # /mdh/home/
+            mdh_path = "/Root" + path
+            if self.directory_tree.is_file(mdh_path):
+                print("got regular file")
+                path_stat.st_mode = stat.S_IFREG | 0o755
+            else:
+                path_stat.st_mode = stat.S_IFDIR | 0o755
+
+            os_path = self._get_os_path(path)
+            print(os_path)
+            os_stats = os.stat(os_path)
+            path_stat.st_size = os_stats.st_size
+
+        except anytree.resolver.ChildResolverError:
+            # file does not exist yet
+            logging.error("could not find file!")
+            path_stat.st_size = os.stat(self._get_os_path(path)).st_size
         return path_stat.__dict__
 
     def readdir(self, path, fh):
-        logging.info("readdir called!")
+        logging.error("readdir called!")
 
         print(f"readdir called with {path}")
         children = [".", ".."]
 
-        file_finder = Resolver("name")
-        path = path[1:]  # strip leading "/"
-        path_node: Node = file_finder.get(self.directory_tree, path)
-        child: Node
-        for child in path_node.children:
-            children.append(child.name)
-            print(f"added {child.name}")
+        children_node = self.directory_tree.get_children(path)
+        for child in children_node:
+            children.append(child)
+            print(f"added {child}")
         return children
 
     def readlink(self, path):
-        logging.info("readlink called!")
+        logging.error("readlink called!")
         raise NotImplementedError()
 
     def mknod(self, path, mode, dev):
-        logging.info("mknod called!")
+        logging.error("mknod called!")
         raise NotImplementedError()
 
     def rmdir(self, path):
-        logging.info("rmdir called!")
+        logging.error("rmdir called!")
         raise NotImplementedError()
 
     def mkdir(self, path, mode):
-        logging.info("mkdir called!")
+        logging.error("mkdir called!")
         raise NotImplementedError()
 
     def statfs(self, path):
-        logging.info("statfs called!")
+        logging.error("statfs called!")
         raise NotImplementedError()
 
     def unlink(self, path):
-        logging.info("unlink called!")
+        logging.error("unlink called!")
         raise NotImplementedError()
 
     def symlink(self, name, target):
-        logging.info("symlink called!")
+        logging.error("symlink called!")
         raise NotImplementedError()
 
     def rename(self, old, new):
-        logging.info("rename called!")
+        logging.error("rename called!")
         raise NotImplementedError()
 
     def link(self, target, name):
-        logging.info("link called!")
+        logging.error("link called!")
         raise NotImplementedError()
 
     def utimens(self, path, times=None):
-        logging.info("utimens called!")
-        raise NotImplementedError()
+        logging.error("utimens called!")
+        os.utime(self._get_os_path(path), times)
 
     def open(self, path, flags):
-        logging.info("open called!")
-        return os.open(path, flags)
+        logging.error(f"open called with {path}!")
+        return os.open(self._get_os_path(path), flags)
 
     def create(self, path, mode, fi=None):
-        logging.info("create called!")
-        ret = os.open(path, os.O_RDWR | os.O_CREAT, mode)
+        # TODO: The mdh does not harvest empty files, so some random info is written to the file before the harvest
+        # TODO: and then deleted. While this works, it leads to the metadata potentially being wrong :(
+        logging.error(f"create mdh called with path {path}!")
+        os_path = self._get_os_path(path)
+        logging.error(f"creating with os path! {os_path}!")
+        ret = os.open(os_path, os.O_RDWR | os.O_CREAT, mode)
         data = b"test"
         os.write(ret, data)
-        # TODO: trigger rescan in the MDH
-        mdh.harvest.schedule_add("core-test", "rescan_mdh.graphql")
-        time.sleep(10)
-        # TODO remove content from file
-        self.update_tree()
+        logging.error(f"rescanning! {os_path}!")
+        self._rescan()
+        # remove content from file
+        os.truncate(os_path, 0)
+        logging.error(f"created file! {os_path}!")
         return ret
 
     def read(self, path, length, offset, fh):
-        logging.info("read called!")
+        logging.error("read called!")
         os.lseek(fh, offset, os.SEEK_SET)
         return os.read(fh, length)
 
     def write(self, path, buf, offset, fh):
-        logging.info("write called!")
+        logging.error("write called!")
         os.lseek(fh, offset, os.SEEK_SET)
         ret = os.write(fh, buf)
-        # TODO trigger rescan
+        self._rescan()
         return ret
 
     def truncate(self, path, length, fh=None):
-        logging.info("truncate called!")
-        raise NotImplementedError()
+        logging.error("truncate called!")
+        os.truncate(self._get_os_path(path), length)
 
     def flush(self, path, fh):
-        logging.info("flush called!")
-        raise NotImplementedError()
+        logging.error("flush called!")
+        os.fsync(fh)
 
     def release(self, path, fh):
-        logging.info("release called!")
-        raise NotImplementedError()
+        logging.error("release called!")
 
     def fsync(self, path, fdatasync, fh):
-        logging.info("fsync called!")
-        raise NotImplementedError()
+        logging.error("fsync called!")
+        os.fsync(fh)

@@ -19,7 +19,7 @@ def _register_backend_factory(backend_name: str) -> None:
 
 class SFSConfig:
 
-    SUPPORTED_BACKENDS = ['mdh', 'passthrough']
+    SUPPORTED_BACKENDS = ['mdh', 'passthrough', 'fallback']
 
     def __init__(self, path=CONFIG_FILE_PATH):
         self.path = path
@@ -60,9 +60,11 @@ class SFSConfig:
 
     def _setup_BackendManager(self) -> None:
         backend_factory_manager = BackendFactoryManager()
+        backend_heads = []
         for backend_name in self.backend_configs.keys():
             _register_backend_factory(backend_name)
             backend_factory = backend_factory_manager.get_factory_for_config_tag(backend_name)
             for instance_id, instance_cfg in self.backend_configs[backend_name].items():
                 backend = backend_factory.create_backend_from_section(instance_cfg)
+                backend_heads.append(backend.name)
                 BackendManager().add_backend(backend)

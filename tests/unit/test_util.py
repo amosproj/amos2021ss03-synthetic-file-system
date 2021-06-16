@@ -9,7 +9,7 @@ from anytree import Node
 from anytree.exporter import DictExporter
 
 # Local imports
-from src.fuse_utils import build_tree_from_files
+# from sfs.utils import build_tree_from_files
 
 
 class TestUtils(unittest.TestCase):

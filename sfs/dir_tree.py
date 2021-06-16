@@ -9,19 +9,19 @@ import logging
 
 class DirectoryTree:
 
-    def __init__(self, algorithm='default'):
-        self.algorithm = algorithm
+    def __init__(self):
         self.directory_tree = Node('Root')
         self.resolver = Resolver("name")
+        # Needed as soon we have other structures than mirror
+        # self.path_mapping = {}
 
     def print_tree(self) -> None:
         print(RenderTree(self.directory_tree).by_attr())
 
-    def build(self, file_list) -> None:
+    def build(self, file_list, result_structure: str) -> None:
         for backend_name, files in file_list:
-
             Node(backend_name, self.directory_tree)
-            sub_tree = build_tree(files)
+            sub_tree = build_tree(files, result_structure)
             backend_root_node: Node = self.resolver.get(self.directory_tree, f'/Root/{backend_name}')
             for child in sub_tree.children:
                 child.parent = backend_root_node
@@ -35,7 +35,7 @@ class DirectoryTree:
     def get_children(self, path) -> List[str]:
         path = path[1:]  # strip leading "/"
         path_node: Node = self.resolver.get(self.directory_tree, path)
-        children = [".", ".."]
+        children = []
         for child in path_node.children:  # type: Node
             children.append(child.name)
             print(f"added node: {child.name}")
@@ -49,7 +49,14 @@ class DirectoryTree:
             return False
 
 
-def build_tree(file_paths) -> Node:
+def build_tree(files, resultStructure: str) -> Node:
+    if resultStructure == 'mirror':
+        return build_tree_mirror(files)
+    elif resultStructure == 'flat':
+        return build_tree_flat(files)
+
+
+def build_tree_mirror(file_paths) -> Node:
     root_node = Node("Root")
     resolver = Resolver("name")
     file_paths = [path.split("/")[1:] for path in file_paths]

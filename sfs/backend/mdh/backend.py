@@ -2,6 +2,7 @@
 import os
 import time
 import stat
+from pathlib import Path
 
 # 3rd party imports
 import anytree
@@ -11,13 +12,12 @@ import logging
 import mdh
 
 # Local imports
-import sfs.paths
+from sfs.paths import ROOT_PATH
 from sfs.backend import Backend
 import sfs.backend
 from sfs.sfs_stat import SFSStat
-from .query import MDHQueryRoot
+from .mdh_util import QueryTemplates, MDHQueryRoot
 from ...dir_tree import DirectoryTree
-
 
 class MDHBackend(Backend):
     """
@@ -25,12 +25,15 @@ class MDHBackend(Backend):
     For documentation of the functions see Backend.py
     """
 
-    def __init__(self, instance_config: Dict):
+    def __init__(self, id: int, instance_config: Dict):
         """
         Constructor
         :param root: the root node of the directory tree of the files that the backend is holding
         """
+        self.id = id
+        self.name = f'mdh{id}'
         self.instance_config = instance_config
+        self.result_structure = instance_config.get("resultStructure")
         self.directory_tree = None
         self.metadata_files: List[Dict] = []
         self.file_paths = []
@@ -78,7 +81,7 @@ class MDHBackend(Backend):
 
         self.file_paths = updated_file_paths
         self.directory_tree = DirectoryTree()
-        self.directory_tree.build(sfs.backend.BackendManager().get_file_paths([self]))
+        self.directory_tree.build(sfs.backend.BackendManager().get_file_paths([self]), self.result_structure)
 
     def _extract_file_paths_parts(self) -> List[List[str]]:
         file_paths_parts = []
@@ -89,7 +92,12 @@ class MDHBackend(Backend):
     def _update_metadata_files(self):
         core = self.instance_config['core']
         if self.instance_config['querySource'] == 'inline':
-            raise NotImplementedError
+            query_options = self.instance_config['query']
+            query = QueryTemplates.create_query(query_options)
+            p = ROOT_PATH / 'sfs/backend/mdh/internals/inline_query.graphql'
+            with open(p, 'w') as fpointer:
+                fpointer.write(query)
+            path = str(p)
         if self.instance_config['querySource'] == 'file':
             path = self.instance_config['query']['path']
 
@@ -98,7 +106,7 @@ class MDHBackend(Backend):
         self.metadata_files = query_root.result['searchMetadata']['files']
 
     def contains_path(self, path: str) -> bool:
-        if path in [".", "..", "/", "/mdh"]:
+        if path in [".", "..", f"/{self.name}"]:
             return True
         path = "/Root" + path
         logging.error(f"contains path with: {path}")
@@ -131,7 +139,7 @@ class MDHBackend(Backend):
         path_stat.st_mtime = now
         path_stat.st_ctime = now
 
-        if path in [".", "..", "/", "/mdh"]:
+        if path in [".", "..",  f"/{self.name}"]:
             path_stat.st_mode = stat.S_IFDIR | 0o755
             return path_stat.__dict__
         try:

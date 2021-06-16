@@ -18,10 +18,10 @@ class DirectoryTree:
     def print_tree(self) -> None:
         print(RenderTree(self.directory_tree).by_attr())
 
-    def build(self, file_list) -> None:
-        for backend_name, resultStructure, files in file_list:
+    def build(self, file_list, result_structure: str) -> None:
+        for backend_name, files in file_list:
             Node(backend_name, self.directory_tree)
-            sub_tree = build_tree(files, resultStructure)
+            sub_tree = build_tree(files, result_structure)
             backend_root_node: Node = self.resolver.get(self.directory_tree, f'/Root/{backend_name}')
             for child in sub_tree.children:
                 child.parent = backend_root_node
@@ -35,7 +35,7 @@ class DirectoryTree:
     def get_children(self, path) -> List[str]:
         path = path[1:]  # strip leading "/"
         path_node: Node = self.resolver.get(self.directory_tree, path)
-        children = [".", ".."]
+        children = []
         for child in path_node.children:  # type: Node
             children.append(child.name)
             print(f"added node: {child.name}")

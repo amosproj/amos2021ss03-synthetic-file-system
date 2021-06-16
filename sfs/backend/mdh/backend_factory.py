@@ -6,7 +6,6 @@ import sfs.paths
 from sfs.backend import BackendFactory
 from sfs.backend import BackendFactoryManager
 from .backend import MDHBackend
-from .query import MDHQueryRoot
 
 
 class MDHBackendFactory(BackendFactory):

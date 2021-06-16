@@ -2,6 +2,7 @@
 import os
 import time
 import stat
+from pathlib import Path
 
 # 3rd party imports
 import anytree
@@ -11,13 +12,12 @@ import logging
 import mdh
 
 # Local imports
-import sfs.paths
+from sfs.paths import ROOT_PATH
 from sfs.backend import Backend
 import sfs.backend
 from sfs.sfs_stat import SFSStat
-from .query import MDHQueryRoot
+from .mdh_util import QueryTemplates, MDHQueryRoot
 from ...dir_tree import DirectoryTree
-
 
 class MDHBackend(Backend):
     """
@@ -92,7 +92,12 @@ class MDHBackend(Backend):
     def _update_metadata_files(self):
         core = self.instance_config['core']
         if self.instance_config['querySource'] == 'inline':
-            raise NotImplementedError
+            query_options = self.instance_config['query']
+            query = QueryTemplates.create_query(query_options)
+            p = ROOT_PATH / 'sfs/backend/mdh/internals/inline_query.graphql'
+            with open(p, 'w') as fpointer:
+                fpointer.write(query)
+            path = str(p)
         if self.instance_config['querySource'] == 'file':
             path = self.instance_config['query']['path']
 

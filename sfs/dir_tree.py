@@ -108,6 +108,3 @@ def _length_of_longest_path(file_paths: List[List[str]]) -> int:
     """Determines the length of the longest path out of all the paths"""
     lengths_of_paths = [len(path) for path in file_paths]
     return max(lengths_of_paths, default=0)
-
-
-

@@ -34,21 +34,10 @@ class TestSFSFuse(unittest.TestCase):
         cls.sfs = SFS.__new__(SFS)
 
         # Build directory tree
-        stat = cls.file_path.stat()
-        cls.sfs.directory_tree = build_tree_from_files([{"id": "42", "metadata": [
-                {"name": "FileName", "value": f"{ cls.file_path.name }"},
-                {"name": "FileSize", "value": f"{ stat.st_size }"},
-                {"name": "MIMEType", "value": f"{ guess_type(str(cls.file_path)) }"},
-                {"name": "FileInodeChangeDate", "value": f"{ stat.st_ctime }"},
-                {"name": "SourceFile", "value": f"{ cls.file_path }"},
-        ]}])
-
-        # Build directory tree
         # stat = cls.file_path.stat()
         cls.sfs.directory_tree = sfs.file_tree.build_tree(
             [('mdh', [cls.file_path.parts[1:]])]
         )
-
         cls.sfs.root = ""
 
     @classmethod

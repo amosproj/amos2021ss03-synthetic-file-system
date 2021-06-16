@@ -37,16 +37,6 @@ class SFS(Operations):
         if self.mountpoint is None:
             self.mountpoint = self.sfs_config.mountpoint
 
-        self.directory_tree = DirectoryTree()
-        build_basis = []
-        for backend_name, file_paths in BackendManager().get_file_paths():
-            backend = BackendManager().get_backend_by_name(backend_name)
-            result_structure = backend.result_structure
-            build_basis.append((backend_name, result_structure, file_paths))
-
-        self.directory_tree.build(build_basis)
-        self.directory_tree.print_tree()
-
     def init(self, path):
         # Watch change events for config file
         # self._set_up_config_notifier()
@@ -69,8 +59,7 @@ class SFS(Operations):
     # ==================
 
     def access(self, path, mode):
-        print("access called")
-        return 0
+        return BackendManager().get_backend_for_path(path).access(path, mode)
 
     def chmod(self, path, mode):
         return BackendManager().get_backend_for_path(path).chmod(path, mode)
@@ -86,27 +75,28 @@ class SFS(Operations):
         path_stat.st_mtime = now
         path_stat.st_ctime = now
 
-
         if path in [".", "..", "/"]:
             path_stat.st_mode = stat.S_IFDIR | 0o755
             return path_stat.__dict__
 
-        backend_manager = BackendManager().get_backend_for_path(path)
-        if not backend_manager:
+        backend = BackendManager().get_backend_for_path(path)
+        if not backend:
             parent_path = path.rsplit("/", 1)[0]
-            backend_manager = BackendManager().get_backend_for_path(parent_path)
-            if not backend_manager:
+            backend = BackendManager().get_backend_for_path(parent_path)
+            if not backend:
                 logging.error(f"Invalid path for getattr with path {path}!")
                 return path_stat.__dict__
-        return backend_manager.getattr(path, fh)
+        return backend.getattr(path, fh)
 
     def readdir(self, path, fh):
+        if path == '/':
+            children = ['.', '..']
+            for bkend in BackendManager().backends:
+                if hasattr(bkend, 'name'):
+                    children.append(bkend.name)
+            return children
         logging.info(f"Readdir called with path {path}")
-        if 'Passthrough' in path:
-            return BackendManager().get_backend_for_path(path).readdir(path, fh)
-        # children = self.directory_tree.get_children(path)
         return BackendManager().get_backend_for_path(path).readdir(path, fh)
-        # return children
 
     def readlink(self, path):
         return BackendManager().get_backend_for_path(path).readlink(path)

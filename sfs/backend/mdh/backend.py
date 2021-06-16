@@ -112,7 +112,12 @@ class MDHBackend(Backend):
         return self.directory_tree.contains(path)
 
     def _get_os_path(self, path):
-        return "/" + "/".join(path.split("/")[2:])
+        print('===========')
+        print(path)
+        p = "/" + "/".join(path.split("/")[2:])
+        if self.result_structure == 'flat':
+            p = f'{self.directory_tree.get_original_path(p[1:])}'
+        return p
 
     ######################
     # File System Calls #
@@ -144,21 +149,21 @@ class MDHBackend(Backend):
         try:
             # /mdh/home/
             mdh_path = "/Root" + path
-            os_path = "/" + "/".join(path.split("/")[2:])
-
             if self.directory_tree.is_file(mdh_path):
                 print("got regular file")
                 path_stat.st_mode = stat.S_IFREG | 0o755
             else:
                 path_stat.st_mode = stat.S_IFDIR | 0o755
 
+            os_path = self._get_os_path(path)
+            print(os_path)
             os_stats = os.stat(os_path)
             path_stat.st_size = os_stats.st_size
 
         except anytree.resolver.ChildResolverError:
             # file does not exist yet
             logging.error("could not find file!")
-            path_stat.st_size = os.stat(self._get_os_path(path)).st_size
+            #path_stat.st_size = os.stat(self._get_os_path(path)).st_size
         return path_stat.__dict__
 
     def readdir(self, path, fh):

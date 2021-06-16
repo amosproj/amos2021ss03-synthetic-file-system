@@ -137,7 +137,7 @@ class PassthroughBackend(Backend):
 
     def open(self, path, flags):
         logging.info("open called with path " + path)
-        full_path = path
+        full_path = self._full_path(path)
         return os.open(full_path, flags)
 
     def create(self, path, mode, fi=None):

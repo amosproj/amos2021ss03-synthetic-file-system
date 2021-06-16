@@ -1,10 +1,12 @@
-from sfs.backend import Backend
-from pathlib import Path
+# Python imports
+import logging
 import os
 from errno import EACCES
-import logging
+
+# Local imports
 from fuse import FuseOSError
-from anytree import Node, Resolver
+from pathlib import Path
+from sfs.backend import Backend
 
 
 class PassthroughBackend(Backend):

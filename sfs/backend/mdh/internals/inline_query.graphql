@@ -1,4 +1,4 @@
- 
+
         query {
             searchMetadata (
                     filterFunctions: [{tag: "FileType", operation: EQUAL, value: "JPEG"},{tag: "FileName", operation: CONTAINS, value: "DRUSEN"},]

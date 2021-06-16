@@ -1,23 +1,22 @@
 # Python imports
 import os
-import time
 import stat
-from pathlib import Path
+import time
+from typing import Dict, List
 
 # 3rd party imports
 import anytree
-from anytree import Node, Resolver
-from typing import Dict, List
 import logging
 import mdh
 
 # Local imports
-from sfs.paths import ROOT_PATH
-from sfs.backend import Backend
 import sfs.backend
+from sfs.backend import Backend
+from sfs.paths import ROOT_PATH
 from sfs.sfs_stat import SFSStat
 from .mdh_util import QueryTemplates, MDHQueryRoot
 from ...dir_tree import DirectoryTree
+
 
 class MDHBackend(Backend):
     """

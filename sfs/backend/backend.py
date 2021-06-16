@@ -1,6 +1,5 @@
 # Python imports
 import abc  # needed for abstract methods
-from anytree import Node
 
 
 class Backend:
@@ -124,4 +123,3 @@ class Backend:
     @abc.abstractmethod
     def fsync(self, path, fdatasync, fh):
         pass
-

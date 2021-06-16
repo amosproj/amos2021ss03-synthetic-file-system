@@ -2,7 +2,6 @@
 import mdh
 
 # Local imports
-import sfs.paths
 from sfs.backend import BackendFactory
 from sfs.backend import BackendFactoryManager
 from .backend import MDHBackend
@@ -27,6 +26,7 @@ class MDHBackendFactory(BackendFactory):
     def create_backend_from_section(self, instance_cfg) -> MDHBackend:
         self.count += 1
         return MDHBackend(self.count, instance_cfg)
+
 
 # auto register backend
 BackendFactoryManager().register_backend_factory(MDHBackendFactory(), 'mdh')

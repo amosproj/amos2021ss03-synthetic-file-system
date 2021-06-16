@@ -1,7 +1,8 @@
+# Python imports
+from importlib import import_module
+
 # 3rd party imports
 import toml
-from typing import Dict
-from importlib import import_module
 
 # Local imports
 from sfs.paths import CONFIG_FILE_PATH

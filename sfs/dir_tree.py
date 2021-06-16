@@ -1,10 +1,10 @@
 # Python imports
+import logging
+from typing import List
 
 # 3rd party imports
-import anytree.resolver
 from anytree import Node, Resolver, RenderTree
-from typing import List
-import logging
+from anytree.resolver import ChildResolverError, ResolverError
 
 
 class DirectoryTree:
@@ -43,17 +43,17 @@ class DirectoryTree:
 
     def contains(self, path) -> bool:
         try:
-            path_node: Node = self.resolver.get(self.directory_tree, path)
+            self.resolver.get(self.directory_tree, path)
             return True
-        except (anytree.resolver.ChildResolverError, anytree.resolver.ResolverError):
+        except (ChildResolverError, ResolverError):
             return False
 
 
 def build_tree(files, resultStructure: str) -> Node:
     if resultStructure == 'mirror':
         return build_tree_mirror(files)
-    elif resultStructure == 'flat':
-        return build_tree_flat(files)
+    # elif resultStructure == 'flat':
+    #    return build_tree_flat(files)
 
 
 def build_tree_mirror(file_paths) -> Node:

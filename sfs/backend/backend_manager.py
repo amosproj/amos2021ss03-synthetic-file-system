@@ -4,8 +4,6 @@ import logging
 # Local imports
 from sfs.singleton import singleton
 from .backend import Backend
-from .mdh import MDHBackend
-from .passthrough import PassthroughBackend
 
 
 @singleton

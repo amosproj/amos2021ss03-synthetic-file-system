@@ -1,8 +1,8 @@
 # Python imports
 from string import Template
+from typing import Callable, Dict, List
 
 # 3rd party imports
-from typing import Callable, Dict, List
 from mdh import query
 from mdh.errors import StateError, APIError, GraphQLSyntaxError
 
@@ -32,7 +32,7 @@ class MDHQueryRoot:
 
 class QueryTemplates:
     QUERY_TEMPLATE = Template(
-        ''' 
+        '''
         query {
             searchMetadata (
                     filterFunctions: $filterFunctions
@@ -106,5 +106,3 @@ def _get_parse_function(key: str) -> Callable:
         'filterLogicOption': _parse_filterLogicOption
     }
     return parse_functions[key]
-
-

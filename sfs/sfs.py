@@ -1,27 +1,16 @@
 # Python imports
 from __future__ import with_statement
-
-import errno
-import os
 import stat
 import time
-from errno import EACCES
 
 # 3rd party imports
-from fuse import Operations, FuseOSError
 import logging
-import mdh
-import pyinotify
+from fuse import Operations
 
 # Local imports
-from sfs.config import ConfigFileEventHandler
 from sfs.config import SFSConfig
 from sfs.backend import BackendManager
-from .dir_tree import DirectoryTree
 from .sfs_stat import SFSStat
-from .paths import CONFIG_PATH
-
-CORE_NAME = "core-test"  # FIXME: Set the name corresponding to your mdh-core
 
 
 class SFS(Operations):
@@ -36,23 +25,6 @@ class SFS(Operations):
         self.mountpoint = mountpoint
         if self.mountpoint is None:
             self.mountpoint = self.sfs_config.mountpoint
-
-    def init(self, path):
-        # Watch change events for config file
-        # self._set_up_config_notifier()
-        pass
-
-    def _set_up_config_notifier(self):
-        """
-        Create the event handler and run the watch in a seperate thread so that it doesn't block our main thread
-        """
-        event_handler = ConfigFileEventHandler(self, CORE_NAME)
-        watch_manager = pyinotify.WatchManager()
-
-        notifier = pyinotify.ThreadedNotifier(watch_manager, event_handler)
-        notifier.start()
-
-        watch_manager.add_watch(CONFIG_PATH, pyinotify.IN_MODIFY)
 
     # ==================
     # Filesystem methods

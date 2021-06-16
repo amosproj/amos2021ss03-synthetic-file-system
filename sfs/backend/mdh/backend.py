@@ -163,7 +163,7 @@ class MDHBackend(Backend):
         except anytree.resolver.ChildResolverError:
             # file does not exist yet
             logging.error("could not find file!")
-            # path_stat.st_size = os.stat(self._get_os_path(path)).st_size
+            path_stat.st_size = os.stat(self._get_os_path(path)).st_size
         return path_stat.__dict__
 
     def readdir(self, path, fh):

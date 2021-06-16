@@ -81,7 +81,7 @@ class MDHBackend(Backend):
 
         self.file_paths = updated_file_paths
         self.directory_tree = DirectoryTree()
-        self.directory_tree.build(sfs.backend.BackendManager().get_file_paths([self]))
+        self.directory_tree.build(sfs.backend.BackendManager().get_file_paths([self]), self.result_structure)
 
     def _extract_file_paths_parts(self) -> List[List[str]]:
         file_paths_parts = []
@@ -101,7 +101,7 @@ class MDHBackend(Backend):
         self.metadata_files = query_root.result['searchMetadata']['files']
 
     def contains_path(self, path: str) -> bool:
-        if path in [".", "..", "/", "/mdh"]:
+        if path in [".", "..", f"/{self.name}"]:
             return True
         path = "/Root" + path
         logging.error(f"contains path with: {path}")
@@ -134,7 +134,7 @@ class MDHBackend(Backend):
         path_stat.st_mtime = now
         path_stat.st_ctime = now
 
-        if path in [".", "..", "/", "/mdh"]:
+        if path in [".", "..",  f"/{self.name}"]:
             path_stat.st_mode = stat.S_IFDIR | 0o755
             return path_stat.__dict__
         try:

@@ -14,7 +14,7 @@ import sfs.backend
 from sfs.backend import Backend
 from sfs.paths import ROOT_PATH
 from sfs.sfs_stat import SFSStat
-from .mdh_util import QueryTemplates, MDHQueryRoot
+from .mdh_util import QueryTemplates, MDHQuery
 from ...dir_tree import DirectoryTree
 
 
@@ -24,15 +24,17 @@ class MDHBackend(Backend):
     For documentation of the functions see Backend.py
     """
 
-    def __init__(self, id: int, instance_config: Dict):
+    def __init__(self, mdh_id: int, instance_config: Dict):
         """
         Constructor
         :param root: the root node of the directory tree of the files that the backend is holding
         """
-        self.id = id
-        self.name = f'mdh{id}'
+        self.mdh_id = mdh_id
+        self.name = f'mdh{mdh_id}'
         self.instance_config = instance_config
-        self.result_structure = instance_config.get("resultStructure")
+        self.core = instance_config['core']
+        self.result_structure = instance_config["resultStructure"]
+        self.mdh_query = MDHQuery(self.core)
         self.directory_tree = None
         self.metadata_files: List[Dict] = []
         self.file_paths = []
@@ -46,15 +48,14 @@ class MDHBackend(Backend):
         """
         try:
             logging.error("1")
-            core = self.instance_config['core']
             logging.error("6")
             dir_path = os.path.dirname(os.path.abspath(__file__))
-            mdh.harvest.schedule_add(core, dir_path + "/internals/rescan_mdh.graphql")
-            mdh.harvest.schedule_add(core, dir_path + "/internals/rescan_mdh_dummy.graphql")
+            mdh.harvest.schedule_add(self.core, dir_path + "/internals/rescan_mdh.graphql")
+            mdh.harvest.schedule_add(self.core, dir_path + "/internals/rescan_mdh_dummy.graphql")
             logging.error("5")
-            while len(mdh.harvest.schedule_list(core)) != 0:
+            while len(mdh.harvest.schedule_list(self.core)) != 0:
                 pass
-            mdh.harvest.active_stop(core, "Dummy")
+            mdh.harvest.active_stop(self.core, "Dummy")
             logging.error("4")
         except Exception:
             logging.error("2")
@@ -89,7 +90,6 @@ class MDHBackend(Backend):
         return file_paths_parts
 
     def _update_metadata_files(self):
-        core = self.instance_config['core']
         if self.instance_config['querySource'] == 'inline':
             query_options = self.instance_config['query']
             query = QueryTemplates.create_query(query_options)
@@ -100,9 +100,7 @@ class MDHBackend(Backend):
         if self.instance_config['querySource'] == 'file':
             path = self.instance_config['query']['path']
 
-        query_root = MDHQueryRoot(core, path)
-
-        result = query_root.send_request_get_result()
+        result = self.mdh_query.send_request_and_get_result(path)
 
         self.metadata_files = result['searchMetadata']['files']
 

@@ -1,4 +1,5 @@
 # Python imports
+import logging
 from string import Template
 from typing import Callable, Dict, List
 
@@ -7,27 +8,31 @@ from mdh import query
 from mdh.errors import StateError, APIError, GraphQLSyntaxError
 
 
-class MDHQueryRoot:
+class MDHQuery:
 
-    def __init__(self, core: str, query_file: str):
+    def __init__(self, core: str):
         self.core = core
-        self.query_file = query_file
         self.result = None
 
-    def send_request_get_result(self) -> None:
+    def send_request_and_get_result(self, query_file_path: str) -> Dict:
+        assert query_file_path is not None
+
         try:
-            self.result = query.query(self.core, self.query_file)
-        # TODO: Error handling
-        except StateError:
-            raise
-        except APIError:
-            raise
-        except ConnectionError:
+            self.result = query.query(self.core, query_file_path)
+        except (StateError, APIError, ConnectionError):
             raise
         except FileNotFoundError:
-            raise
+            if self.result:
+                logging.exception("FileNotFoundError -> fallback to previous result")
+            else:
+                raise
         except GraphQLSyntaxError:
-            raise
+            if self.result:
+                logging.exception("GraphQLSyntaxError -> fallback to previous result")
+            else:
+                raise
+
+        return self.result
 
 
 class QueryTemplates:

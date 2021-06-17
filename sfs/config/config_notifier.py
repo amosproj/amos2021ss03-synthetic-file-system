@@ -2,7 +2,7 @@
 from pyinotify import Event, ProcessEvent
 
 # Local import
-from sfs.backend.mdh import MDHQueryRoot
+from sfs.backend.mdh import MDHQuery
 from sfs.paths import CONFIG_FILE_PATH
 
 
@@ -30,8 +30,8 @@ class ConfigFileEventHandler(ProcessEvent):
         """
 
         print("Updating the directory tree")
-        query_root = MDHQueryRoot(self.core_name, CONFIG_FILE_PATH)
-        query_root.send_request_get_result()
+        query_root = MDHQuery(self.core_name, CONFIG_FILE_PATH)
+        query_root.send_request_and_get_result()
 
         self.fuse.metadatahub_files = query_root.result['searchMetadata']['files']
         # self.fuse.directory_tree = build_tree_from_files(self.fuse.metadatahub_files)

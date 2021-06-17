@@ -16,15 +16,15 @@ class MDHBackendFactory(BackendFactory):
 
     def __init__(self):
         super().__init__()
-        self.count = 0
+        self.id_count = 0
         try:
             mdh.init()
         except EnvironmentError:
             raise
 
     def create_backend_from_section(self, instance_cfg) -> MDHBackend:
-        self.count += 1
-        return MDHBackend(self.count, instance_cfg)
+        self.id_count += 1
+        return MDHBackend(self.id_count, instance_cfg)
 
 
 # auto register backend

@@ -141,4 +141,3 @@ class TestBackendMDH(unittest.TestCase):
         self.assertRaises(GraphQLSyntaxError,
                           MDHQuery(self.core_name).send_request_and_get_result,
                           str(self.empty_graphql_query_path))
-

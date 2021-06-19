@@ -40,7 +40,6 @@ class SFS(Operations):
         return BackendManager().get_backend_for_path(path).chown(path, uid, gid)
 
     def getattr(self, path, fh=None):
-        print(f"getattr called with path {path}")
         path_stat = SFSStat()
         now = time.time()
         path_stat.st_atime = now

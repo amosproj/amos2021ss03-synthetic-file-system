@@ -1,6 +1,11 @@
 # Python imports
 import tkinter as tk
+from tkinter import TclError, PhotoImage
 
+# Local imports
+from sfs.paths import ROOT_PATH
+
+COLOR = "white"
 
 # Naming conventions:
 # Label lbl
@@ -18,6 +23,8 @@ class Filter(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
         self.pack()
+        self.configure(background=COLOR)
+        self.filter_entity_num = 0
         self._configure_filter()
 
     def _configure_filter(self):
@@ -33,6 +40,15 @@ class Filter(tk.Frame):
         event.widget.select_range(0, 'end')
         event.widget.icursor('end')
         return 'break'
+
+    def _remove_filter(self, frm_filter_entity):
+        if self.filter_entity_num <= 1:
+            self.add_default_filter_entity_widgets()
+            self.filter_entity_num = 1
+        else:
+            self.filter_entity_num -= 1
+
+        frm_filter_entity.pack_forget()
 
     def add_default_filter_entity_widgets(self, is_or=False):
         frm_filter_entity = tk.Frame(master=self)
@@ -64,8 +80,10 @@ class Filter(tk.Frame):
         )
         btn_or.grid(row=row, column=col + 4)
 
-        btn_x = tk.Button(master=frm_filter_entity, text="X", command=frm_filter_entity.pack_forget)
+        btn_x = tk.Button(master=frm_filter_entity, text="X", command=lambda: self._remove_filter(frm_filter_entity))
         btn_x.grid(row=row, column=col + 5)
+
+        self.filter_entity_num += 1
 
 
 class GUI(tk.Frame):
@@ -75,6 +93,7 @@ class GUI(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.pack()
+        self.configure(background=COLOR)
 
         self.filter_frames = {}
 
@@ -88,14 +107,31 @@ class GUI(tk.Frame):
         filter_frame.grid()
 
     def _create_partner_widgets(self):
+        try:
+            image = PhotoImage(file=ROOT_PATH / "Deliverables" / "final_logo.png")
+            image = image.zoom(25)
+            image = image.subsample(125)
+            lbl_logo = tk.Label(master=self, image=image)
+            lbl_logo.image = image
+            lbl_logo.configure(background=COLOR)
+            lbl_logo.grid(row=0, column=0)
+        except TclError:
+            pass  # Silent ignore
+
         frm_partner = tk.Frame(master=self)
-        frm_partner.grid()
+        frm_partner.configure(background=COLOR)
+        frm_partner.grid(row=1, column=0)
 
         self.partner = tk.StringVar(frm_partner, value=self.partners[0])
         self.partner.trace_add("write", self._switch_filter_frame)
-
         opt_partner = tk.OptionMenu(frm_partner, self.partner, *self.partners)
-        opt_partner.pack()
+        opt_partner.grid(row=0, column=1)
+
+        lbl_partner = tk.Label(master=frm_partner, text="Partner:")
+        lbl_partner.grid(row=0, column=0)
+
+        btn_run = tk.Button(master=frm_partner, text="RUN")
+        btn_run.grid(row=0, column=3)
 
     def _create_default_filter_widgets(self):
         for partner in self.partners:
@@ -110,5 +146,6 @@ class GUI(tk.Frame):
 
 root = tk.Tk()
 root.title("Synthetic File System")
+root.configure(background=COLOR)
 app = GUI(master=root)
 app.mainloop()

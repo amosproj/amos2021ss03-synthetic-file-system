@@ -17,7 +17,8 @@ def main() -> None:
         description="Command Line Interface of SFS"
     )
     parser.add_argument("--mountpoint", type=str)
+    parser.add_argument("--gui", action='store_true')
     args = parser.parse_args()
 
-    sfs = SFS(args.mountpoint)
-    FUSE(sfs, sfs.mountpoint, nothreads=True, foreground=True)
+    #sfs = SFS(args.mountpoint)
+    #FUSE(sfs, sfs.mountpoint, nothreads=True, foreground=True)

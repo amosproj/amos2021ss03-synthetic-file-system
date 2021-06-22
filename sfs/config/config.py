@@ -12,6 +12,11 @@ from sfs.errors import ConfigError
 
 
 def _register_backend_factory(backend_name: str) -> None:
+    """
+    Registers a backend factory to the config parser
+    :param backend_name: name of the backend (for example "mdh")
+    :return: None
+    """
     if backend_name not in SFSConfig.SUPPORTED_BACKENDS:
         raise ConfigError()
     module_name = f'sfs.backend.{backend_name}.backend_factory'
@@ -19,6 +24,10 @@ def _register_backend_factory(backend_name: str) -> None:
 
 
 class SFSConfig:
+    """
+    Class that is responsible for parsing the config file.
+    This class uses the given config file to create and initialize all the needed backends
+    """
 
     SUPPORTED_BACKENDS = ['mdh', 'passthrough', 'fallback']
 
@@ -29,13 +38,18 @@ class SFSConfig:
         self._parse_config()
 
     def init(self):
-        self._setup_BackendManager()
+        self._setup_backend_manager()
 
     @property
     def mountpoint(self):
         return self.settings.get('mountpoint')
 
     def _parse_config(self) -> None:
+        """
+        Parses the sfs config file and collects all the information about the backends that have to be
+        created
+        :return: None
+        """
         # Current version works with toml file format
         with open(self.path, 'r') as fpointer:
             sfs_config = toml.load(fpointer)
@@ -59,7 +73,11 @@ class SFSConfig:
         print(sfs_config)
         self.backend_configs = sfs_config
 
-    def _setup_BackendManager(self) -> None:
+    def _setup_backend_manager(self) -> None:
+        """
+        Creates all the needed backends, from the previously gathered information
+        :return: None
+        """
         backend_factory_manager = BackendFactoryManager()
         backend_heads = []
         for backend_name in self.backend_configs.keys():
@@ -67,5 +85,5 @@ class SFSConfig:
             backend_factory = backend_factory_manager.get_factory_for_config_tag(backend_name)
             for instance_id, instance_cfg in self.backend_configs[backend_name].items():
                 backend = backend_factory.create_backend_from_section(instance_cfg)
-                backend_heads.append(backend.name)
+                backend_heads.append(backend.name)  # TODO
                 BackendManager().add_backend(backend)

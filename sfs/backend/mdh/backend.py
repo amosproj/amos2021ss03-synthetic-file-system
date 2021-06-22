@@ -1,5 +1,4 @@
 # Python imports
-import os
 import stat
 import time
 from typing import Dict, List
@@ -21,21 +20,20 @@ import sfs.backend.mdh.backend_updater as backend_updater
 import os
 
 
-
-
 class MDHBackend(Backend):
     """
     Implementation of the Backend interface for the MDH.
     For documentation of the functions see Backend.py
     """
 
-    def __init__(self, id: int, instance_config: Dict):
+    def __init__(self, backend_id: int, instance_config: Dict):
         """
-        Constructor
-        :param root: the root node of the directory tree of the files that the backend is holding
+        Constructor for the Backend. Initializes the MDHBackendUpdater
+        :param backend_id: id of the mdh backend (1,2,3,...)
+        :param instance_config: configuration of this instance, retrieved by the config parser
         """
-        self.id = id
-        self.name = f'mdh{id}'
+        self.id = backend_id
+        self.name = f'mdh{backend_id}'
         self.instance_config = instance_config
         self.result_structure = instance_config.get("resultStructure")
         self.directory_tree = None
@@ -43,8 +41,8 @@ class MDHBackend(Backend):
         self.file_paths = []
         self.file_path_cache: set[str] = set()
         self.file_path_cache_copy: set[str] = set()
-        self._update_state()
         self.backend_updater = backend_updater.MDHBackendUpdater(self)
+        self._update_state()
 
     def rescan(self):
         """
@@ -52,6 +50,7 @@ class MDHBackend(Backend):
         This has to be done differently in the future!!!!!!!!
         :return: None
         """
+        # noinspection PyBroadException
         try:
             self.file_path_cache_copy = self.file_path_cache.copy()
             core = self.instance_config['core']
@@ -65,15 +64,29 @@ class MDHBackend(Backend):
             pass
         self._update_state()
 
-    def _update_state(self):
+    def _update_state(self) -> None:
+        """
+        Updates the internal states of the backend
+        :return: None
+        """
         self._update_metadata_files()
         self._extract_file_paths()
         self.file_path_cache.difference_update(self.file_path_cache_copy)
+        self.backend_updater.update_cache(self.file_path_cache)
 
     def get_file_paths(self):
+        """
+        Retrieves the file paths handled by this backend
+        :return: list of the file paths handles by this backend
+        """
         return self.file_paths
 
     def _extract_file_paths(self):
+        """
+        Extracts all the file paths from the result of the query to the MDH and then builds
+        the directory tree using these files
+        :return: None
+        """
         updated_file_paths = []
         for file in self.metadata_files:
             full_file_path = ""
@@ -87,13 +100,22 @@ class MDHBackend(Backend):
         self.directory_tree.build(sfs.backend.BackendManager().get_file_paths([self]), self.result_structure)
 
     def _extract_file_paths_parts(self) -> List[List[str]]:
+        """
+        Splits all the file paths handles by the MDH into all their single parts
+        :return: 2D list of all the single parts
+        """
         file_paths_parts = []
         for file_path in self.file_paths:
             file_paths_parts.append(file_path.split("/")[1:])
         return file_paths_parts
 
     def _update_metadata_files(self):
+        """
+        Updates the internal Metadata for every file using the result of the MDH query
+        :return:
+        """
         core = self.instance_config['core']
+        path = ""
         if self.instance_config['querySource'] == 'inline':
             query_options = self.instance_config['query']
             query = QueryTemplates.create_query(query_options)
@@ -109,19 +131,36 @@ class MDHBackend(Backend):
         self.metadata_files = query_root.result['searchMetadata']['files']
 
     def contains_path(self, path: str) -> bool:
+        """
+        checks whether or not this backend handles a certain file/element
+        :param path: path to this element
+        :return: True if this backend contains this file, false otherwise
+        """
         if path in [".", "..", f"/{self.name}"]:
             return True
         tree_path = "/Root" + path
         logging.info(f"contains path with: {path}")
         return self.directory_tree.contains(tree_path) or path in self.file_path_cache
 
-    def _get_os_path(self, path):
-        print('===========')
-        print(path)
+    def _get_os_path(self, path: str) -> str:
+        """
+        Retrieves the actual path of a file on the OS
+        :param path: internal path to the file
+        :return: os path of the file
+        """
         p = "/" + "/".join(path.split("/")[2:])
         if self.result_structure == 'flat':
             p = f'{self.directory_tree.get_original_path(p[1:])}'
         return p
+
+    def _add_to_cache(self, file_path: str) -> None:
+        """
+        Adds a file to the internal cache, and updates the cache file
+        :param file_path: path to the file that will be added to the cache
+        :return: None
+        """
+        self.file_path_cache.add(file_path)
+        self.backend_updater.update_cache(self.file_path_cache)
 
     ######################
     # File System Calls #
@@ -147,7 +186,7 @@ class MDHBackend(Backend):
         path_stat.st_mtime = now
         path_stat.st_ctime = now
 
-        if path in [".", "..",  f"/{self.name}"]:
+        if path in [".", "..", f"/{self.name}"]:
             path_stat.st_mode = stat.S_IFDIR | 0o755
             return path_stat.__dict__
         try:
@@ -232,18 +271,10 @@ class MDHBackend(Backend):
         return os.open(self._get_os_path(path), flags)
 
     def create(self, path, mode, fi=None):
-        # TODO: The mdh does not harvest empty files, so some random info is written to the file before the harvest
-        # TODO: and then deleted. While this works, it leads to the metadata potentially being wrong :(
         logging.info(f"create mdh called with path {path}!")
         os_path = self._get_os_path(path)
         ret = os.open(os_path, os.O_RDWR | os.O_CREAT, mode)
-        data = b"test"
-        os.write(ret, data)
-        logging.info(f"rescanning! {os_path}!")
-        # remove content from file
-        os.truncate(os_path, 0)
-        logging.info(f"created file! {os_path}!")
-        self.file_path_cache.add(path)
+        self._add_to_cache(path)
         return ret
 
     def read(self, path, length, offset, fh):
@@ -255,13 +286,13 @@ class MDHBackend(Backend):
         logging.info("write called!")
         os.lseek(fh, offset, os.SEEK_SET)
         ret = os.write(fh, buf)
-        self.file_path_cache.add(path)
+        self._add_to_cache(path)
         return ret
 
     def truncate(self, path, length, fh=None):
         logging.info("truncate called!")
         os.truncate(self._get_os_path(path), length)
-        self.file_path_cache.add(path)
+        self._add_to_cache(path)
 
     def flush(self, path, fh):
         logging.info("flush called!")
@@ -273,4 +304,3 @@ class MDHBackend(Backend):
     def fsync(self, path, fdatasync, fh):
         logging.info("fsync called!")
         os.fsync(fh)
-

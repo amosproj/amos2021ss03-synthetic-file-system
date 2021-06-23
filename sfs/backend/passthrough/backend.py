@@ -172,3 +172,19 @@ class PassthroughBackend(Backend):
     def fsync(self, path, fdatasync, fh):
         logging.info("fsync called")
         return self.flush(path, fh)
+
+    def getxattr(self, path, name, position=0):
+        print("getxattr called")
+        return os.getxattr(self._full_path(path), name)
+
+    def listxattr(self, path):
+        logging.info("listxattr called")
+        return os.listxattr(self._full_path(path))
+
+    def setxattr(self, path, name, value, options, position=0):
+        logging.info("setxattr called")
+        return os.setxattr(self._full_path(path), name, value, options)
+
+    def removexattr(self, path, name):
+        logging.info("removexattr called")
+        return os.removexattr(self._full_path(path), name)

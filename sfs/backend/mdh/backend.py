@@ -35,6 +35,7 @@ class MDHBackend(Backend):
         self.result_structure = instance_config.get("resultStructure")
         self.directory_tree = None
         self.metadata_files: List[Dict] = []
+        self._mdh_xattr = {}
         self.file_paths = []
         self._update_state()
 
@@ -65,15 +66,31 @@ class MDHBackend(Backend):
     def _update_state(self):
         self._update_metadata_files()
         self._extract_file_paths()
+        self._build_xattr_store()
 
     def get_file_paths(self):
         return self.file_paths
+
+    def _build_xattr_store(self):
+        for file in self.metadata_files:
+            xattr = {}
+            metadata = file.get('metadata', {})
+            src = None
+            for entry in metadata:
+                if entry['name'] == 'SourceFile':
+                    src = entry['value']
+                else:
+                    xattr.update({f'sfs.{entry["name"]}' : entry['value']})
+
+            if src is not None:
+                self._mdh_xattr.update({src: xattr})
 
     def _extract_file_paths(self):
         updated_file_paths = []
         for file in self.metadata_files:
             full_file_path = ""
             for metadata in file['metadata']:
+                # TODO: should go in a separate function
                 if metadata['name'] == "SourceFile":
                     full_file_path = metadata['value']
             updated_file_paths.append(full_file_path)
@@ -111,9 +128,11 @@ class MDHBackend(Backend):
         logging.error(f"contains path with: {path}")
         return self.directory_tree.contains(path)
 
+    def _get_mdh_xattr(self, path):
+        p = self._get_os_path(path)
+        return self._mdh_xattr[p]
+
     def _get_os_path(self, path):
-        print('===========')
-        print(path)
         p = "/" + "/".join(path.split("/")[2:])
         if self.result_structure == 'flat':
             p = f'{self.directory_tree.get_original_path(p[1:])}'
@@ -264,3 +283,52 @@ class MDHBackend(Backend):
     def fsync(self, path, fdatasync, fh):
         logging.error("fsync called!")
         os.fsync(fh)
+
+    def getxattr(self, path, name, position=0):
+        print("getxattr called")
+        os_path = self._get_os_path(path)
+        ret = None
+        try:
+            _xattr = self._get_mdh_xattr(path)
+            return _xattr[name].encode('utf-8')
+        except KeyError:
+            # Not a mdh meta attribute
+            pass
+        ret = os.getxattr(os_path, name)
+        return ret
+
+    def listxattr(self, path):
+        logging.info("listxattr called")
+        os_path = self._get_os_path(path)
+        ret = []
+        try:
+            ret += os.listxattr(os_path)
+            print(ret)
+        except OSError:
+            # TODO: check for different errnos
+            pass
+        _xattr = self._get_mdh_xattr(path)
+        _ret = [xattr for xattr in _xattr.keys()]
+        ret += _ret
+        return ret
+
+    def setxattr(self, path, name, value, options, position=0):
+        logging.info("setxattr called")
+        os_path = self._get_os_path(path)
+        ret = None
+        try:
+            ret = os.setxattr(os_path, name, value, options)
+        except OSError:
+            pass
+
+        return ret
+
+    def removexattr(self, path, name):
+        logging.info("removexattr called")
+        os_path = self._get_os_path(path)
+        try:
+            os.removexattr(os_path, name)
+        except OSError:
+            pass
+        _xattr = self._get_mdh_xattr(path)
+        del _xattr[name]

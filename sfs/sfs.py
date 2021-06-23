@@ -137,3 +137,15 @@ class SFS(Operations):
 
     def fsync(self, path, fdatasync, fh):
         return BackendManager().get_backend_for_path(path).fsync(path, fdatasync, fh)
+
+    def getxattr(self, path, name, position=0):
+        return BackendManager().get_backend_for_path(path).getxattr(path, name, position=0)
+
+    def listxattr(self, path):
+        return BackendManager().get_backend_for_path(path).listxattr(path)
+
+    def setxattr(self, path, name, value, options, position=0):
+        return BackendManager().get_backend_for_path(path).setxattr(path, name, value, options, position)
+
+    def removexattr(self, path, name):
+        return BackendManager().get_backend_for_path(path).removexattr(path, name)

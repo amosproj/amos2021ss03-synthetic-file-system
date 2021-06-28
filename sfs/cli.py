@@ -20,5 +20,8 @@ def main() -> None:
     parser.add_argument("--gui", action='store_true')
     args = parser.parse_args()
 
-    #sfs = SFS(args.mountpoint)
-    #FUSE(sfs, sfs.mountpoint, nothreads=True, foreground=True)
+    sfs = SFS(args.mountpoint)
+    if args.gui:
+        from .frontend import run_gui
+        run_gui()
+    FUSE(sfs, sfs.mountpoint, nothreads=True, foreground=True)

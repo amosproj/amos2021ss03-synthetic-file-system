@@ -1,9 +1,11 @@
 # Python imports
 import tkinter as tk
+from threading import Thread
 from tkinter import TclError, PhotoImage
 
 # Local imports
 from sfs.paths import ROOT_PATH
+from sfs.backend import BackendManager
 
 COLOR = "white"
 
@@ -23,8 +25,11 @@ class Filter(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
         self.pack()
+
         self.configure(background=COLOR)
         self.filter_entity_num = 0
+        self.filters_config = {}
+
         self._configure_filter()
 
     def _configure_filter(self):
@@ -48,27 +53,67 @@ class Filter(tk.Frame):
         else:
             self.filter_entity_num -= 1
 
+        self.filters_config.pop(id(frm_filter_entity), None)
         frm_filter_entity.pack_forget()
+
+    def get_filter_entity_list(self):
+        filter_entities = []
+        for filter_entity in self.filters_config.values():
+            value = filter_entity[3].get()
+            if not value:
+                continue
+            conditional = filter_entity[0]
+            tag = filter_entity[1].get()
+            operation = filter_entity[2].get()
+
+            filter_entities.append([conditional, tag, operation, value])
+
+        return filter_entities
+
+    def get_filter_logic_individual(self) -> str:
+        filter_entities = self.get_filter_entity_list()
+        if not filter_entities:
+            return ""
+
+        filter_logic = "(f0"
+        for i, filter_entity in enumerate(filter_entities[1:], start=1):
+            if filter_entity[0] == "or":
+                filter_logic += f") or (f{i}"
+            else:
+                filter_logic += f" and f{i}"
+        filter_logic += ")"
+
+        return filter_logic
 
     def add_default_filter_entity_widgets(self, is_or=False):
         frm_filter_entity = tk.Frame(master=self)
+        frm_filter_entity_id = id(frm_filter_entity)
         frm_filter_entity.pack()
+
+        filter_config = []
 
         row, col = 1, 0
         if is_or:
             lbl_or = tk.Label(master=frm_filter_entity, text="or")
             lbl_or.grid(row=row, column=col)
             col = 1
+            filter_config.append("or")
+        else:
+            filter_config.append("and")
 
         metadata_tag = tk.StringVar(value=self.metadata_tags[0])
+        filter_config.append(metadata_tag)
         opt_metadata_tag = tk.OptionMenu(frm_filter_entity, metadata_tag, *self.metadata_tags)
         opt_metadata_tag.grid(row=row, column=col)
 
         conditional = tk.StringVar(value=self.conditionals[0])
+        filter_config.append(conditional)
         opt_conditional = tk.OptionMenu(frm_filter_entity, conditional, *self.conditionals)
         opt_conditional.grid(row=row, column=col + 1)
 
-        ent_input = tk.Entry(master=frm_filter_entity)
+        value = tk.StringVar()
+        filter_config.append(value)
+        ent_input = tk.Entry(master=frm_filter_entity, textvariable=value)
         ent_input.grid(row=row, column=col + 2)
         ent_input.bind('<Control-a>', self._ctrl_a_callback)
 
@@ -83,28 +128,46 @@ class Filter(tk.Frame):
         btn_x = tk.Button(master=frm_filter_entity, text="X", command=lambda: self._remove_filter(frm_filter_entity))
         btn_x.grid(row=row, column=col + 5)
 
+        self.filters_config[frm_filter_entity_id] = filter_config
         self.filter_entity_num += 1
 
 
 class GUI(tk.Frame):
 
-    partners = ["mdh-core-1", "mdh-core-2", "passthrough"]  # TODO: Get names by backend manager
-
-    def __init__(self, master=None):
+    def __init__(self, master):
         super().__init__(master)
         self.pack()
         self.configure(background=COLOR)
 
+        self.partners = BackendManager().get_backend_names()
         self.filter_frames = {}
 
         self._create_partner_widgets()
         self._create_default_filter_widgets()
 
+    def _run(self):
+        backend_name = self.partner.get()
+        backend = BackendManager().get_backend_by_name(backend_name)
+
+        try:
+            update_state = getattr(backend, "_update_state")
+            # TODO configure instance_config -> query
+            query = backend.instance_config["query"]
+            #print(self.filter_frames[backend_name].get_filter_entity_list())
+            print(self.filter_frames[backend_name].get_filter_logic_individual())
+            #query["filterLogicOption"] = "INDIVIDUAL"
+            #query["filterFunctions"]
+            #query["filterLogicIndividual"]
+        except AttributeError:
+            print("ERROR")
+            pass  # Silent ignore
+
     def _switch_filter_frame(self, *args):
+        # FIXME: Remove only the current grid
         for filter_frame in self.filter_frames.values():
-            filter_frame.grid_remove()
+            filter_frame.master.grid_remove()
         filter_frame = self.filter_frames[self.partner.get()]
-        filter_frame.grid()
+        filter_frame.master.grid()
 
     def _create_partner_widgets(self):
         try:
@@ -124,28 +187,43 @@ class GUI(tk.Frame):
 
         self.partner = tk.StringVar(frm_partner, value=self.partners[0])
         self.partner.trace_add("write", self._switch_filter_frame)
+
         opt_partner = tk.OptionMenu(frm_partner, self.partner, *self.partners)
         opt_partner.grid(row=0, column=1)
 
         lbl_partner = tk.Label(master=frm_partner, text="Partner:")
         lbl_partner.grid(row=0, column=0)
 
-        btn_run = tk.Button(master=frm_partner, text="RUN")
-        btn_run.grid(row=0, column=3)
+        btn_run = tk.Button(master=frm_partner, text="RUN", command=self._run)
+        btn_run.grid(row=0, column=2)
 
     def _create_default_filter_widgets(self):
         for partner in self.partners:
-            frm_filter = tk.Frame(master=self)
 
-            self.filter_frames[partner] = frm_filter
+            fil = Filter(tk.Frame(master=self))
+            fil.add_default_filter_entity_widgets()
 
-            Filter(frm_filter).add_default_filter_entity_widgets()
+            self.filter_frames[partner] = fil
 
-        self.filter_frames[self.partners[0]].grid()
+        self.filter_frames[self.partners[0]].master.grid()
 
 
-root = tk.Tk()
-root.title("Synthetic File System")
-root.configure(background=COLOR)
-app = GUI(master=root)
-app.mainloop()
+class GUIRunner(Thread):
+
+    def __init__(self):
+        super().__init__()
+
+    def run(self):
+        root = tk.Tk()
+        root.title("Synthetic File System")
+        root.configure(background=COLOR)
+        root.protocol("WM_DELETE_WINDOW", root.destroy)
+
+        GUI(master=root).mainloop()
+
+
+def run_gui():
+    GUIRunner().start()
+
+
+

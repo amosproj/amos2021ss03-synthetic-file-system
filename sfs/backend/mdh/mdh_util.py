@@ -81,19 +81,19 @@ class QueryTemplates:
         return graphql_vars
 
 
-def _parse_filterFunctions(raw_filterFunctions: List[Dict]) -> List[Dict]:
-    filterFunctions = '['
-    for raw_filter_function in raw_filterFunctions:
+def _parse_filter_functions(raw_filter_functions: List[Dict]) -> str:
+    filter_functions = '['
+    for raw_filter_function in raw_filter_functions:
         tag, operation, value = raw_filter_function
         filter_function = f'{{tag: "{tag}", operation: {operation}, value: "{value}"}},'
-        filterFunctions += filter_function
+        filter_functions += filter_function
 
-    filterFunctions += ']'
-    print(filterFunctions)
-    return filterFunctions
+    filter_functions += ']'
+    print(filter_functions)
+    return filter_functions
 
 
-def _parse_filterLogicOption(option: str) -> str:
+def _parse_filter_logic_option(option: str) -> str:
     if option in ['AND', 'OR']:
         return option
     if option == 'INDIVIDUAL':
@@ -102,7 +102,7 @@ def _parse_filterLogicOption(option: str) -> str:
 
 def _get_parse_function(key: str) -> Callable:
     parse_functions = {
-        'filterFunctions': _parse_filterFunctions,
-        'filterLogicOption': _parse_filterLogicOption
+        'filterFunctions': _parse_filter_functions,
+        'filterLogicOption': _parse_filter_logic_option
     }
     return parse_functions[key]

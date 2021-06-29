@@ -33,7 +33,7 @@ class DirectoryTree:
         """
         for backend_name, files in file_list:
             Node(backend_name, self.directory_tree)
-            sub_tree = self.build_tree(files, result_structure)
+            sub_tree = self._build_tree(files, result_structure)
             backend_root_node: Node = self.resolver.get(self.directory_tree, f'/Root/{backend_name}')
             for child in sub_tree.children:
                 child.parent = backend_root_node
@@ -91,7 +91,7 @@ class DirectoryTree:
         except (ChildResolverError, ResolverError):
             return False
 
-    def build_tree(self, files: [str], result_structure: str) -> Node:
+    def _build_tree(self, files: [str], result_structure: str) -> Node:
         """
         Create a tree from a given list of files, and for a given structure type (mirror or flat)
         :param files: list of the files
@@ -99,12 +99,12 @@ class DirectoryTree:
         :return: the root Node of the created tree
         """
         if result_structure == 'mirror':
-            return self.build_tree_mirror(files)
+            return self._build_tree_mirror(files)
         elif result_structure == 'flat':
-            return self.build_tree_flat(files)
+            return self._build_tree_flat(files)
 
     @staticmethod
-    def build_tree_mirror(file_paths: [str]) -> Node:
+    def _build_tree_mirror(file_paths: [str]) -> Node:
         """
         Creates a directory tree from the given files, where the structure of the tree mimics the
         original structure of the files
@@ -129,7 +129,7 @@ class DirectoryTree:
                     Node(last_path_node, parent_node)
         return root_node
 
-    def build_tree_flat(self, file_paths: [str]) -> Node:
+    def _build_tree_flat(self, file_paths: [str]) -> Node:
         """
         Creates a directory tree from the given files, where all the files are put in a flat hierarchy
         :param file_paths: list of the files to be included in the tree

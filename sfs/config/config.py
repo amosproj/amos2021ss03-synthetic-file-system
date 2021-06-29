@@ -51,8 +51,8 @@ class SFSConfig:
         :return: None
         """
         # Current version works with toml file format
-        with open(self.path, 'r') as fpointer:
-            sfs_config = toml.load(fpointer)
+        with open(self.path, 'r') as config_file:
+            sfs_config = toml.load(config_file)
         print(sfs_config)
 
         self.settings = sfs_config.pop('SETTINGS', None)
@@ -70,7 +70,6 @@ class SFSConfig:
             if '1' not in settings:
                 settings = {1: settings}
             sfs_config[backend_type] = settings
-        print(sfs_config)
         self.backend_configs = sfs_config
 
     def _setup_backend_manager(self) -> None:
@@ -85,5 +84,5 @@ class SFSConfig:
             backend_factory = backend_factory_manager.get_factory_for_config_tag(backend_name)
             for instance_id, instance_cfg in self.backend_configs[backend_name].items():
                 backend = backend_factory.create_backend_from_section(instance_cfg)
-                backend_heads.append(backend.name)  # TODO
+                backend_heads.append(backend.name)
                 BackendManager().add_backend(backend)

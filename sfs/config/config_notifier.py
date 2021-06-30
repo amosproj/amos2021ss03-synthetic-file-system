@@ -1,10 +1,9 @@
 # 3rd party imports
 from pyinotify import Event, ProcessEvent
-from mdh_bridge import MDHQueryRoot
 
 # Local import
-from fuse_utils import build_tree_from_files
-from paths import CONFIG_FILE_PATH
+from sfs.backend.mdh import MDHQueryRoot
+from sfs.paths import CONFIG_FILE_PATH
 
 
 class ConfigFileEventHandler(ProcessEvent):
@@ -43,4 +42,5 @@ class ConfigFileEventHandler(ProcessEvent):
         :param event: see parent class documentation; unused
         :return: Nothing
         """
-        self.update_tree()
+        # TODO: Correct handling for modified files
+        #self.update_tree()

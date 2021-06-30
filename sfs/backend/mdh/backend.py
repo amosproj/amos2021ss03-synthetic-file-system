@@ -116,7 +116,6 @@ class MDHBackend(Backend):
         Updates the internal Metadata for every file using the result of the MDH query
         :return:
         """
-        core = self.instance_config['core']
         path = ""
         if self.instance_config['querySource'] == 'inline':
             query_options = self.instance_config['query']

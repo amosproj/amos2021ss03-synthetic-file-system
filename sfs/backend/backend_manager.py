@@ -1,5 +1,6 @@
 # 3rd party imports
 import logging
+from typing import List
 
 # Local imports
 from typing import Optional
@@ -36,6 +37,9 @@ class BackendManager:
             if backend.contains_path(path):
                 return backend
         logging.error("There is no backend responsible for this path!")
+
+    def get_backend_names(self) -> List[str]:
+        return [backend.name for backend in self.backends]
 
     def get_backend_by_name(self, name: str) -> Optional[Backend]:
         """

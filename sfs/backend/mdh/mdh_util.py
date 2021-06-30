@@ -57,6 +57,7 @@ class QueryTemplates:
             searchMetadata (
                     filterFunctions: $filterFunctions
                     filterLogicOption: $filterLogicOption,
+                    $filterLogicIndividual
                     selectedTags: $selectedTags,
                 )   {
                 totalFilesCount,
@@ -102,12 +103,15 @@ class QueryTemplates:
         :return:
         """
         graphql_vars = cls.DEFAULT_VALUES.copy()
+        graphql_vars["filterLogicIndividual"] = ""
+
         for key, value in query_options.items():
-            if key not in ['filterFunctions', 'filterLogicOption']:
+            if key not in ['filterFunctions', 'filterLogicOption', 'filterLogicIndividual']:
                 continue
             parse = _get_parse_function(key)
             value = parse(value)
-            graphql_vars.update({key: value})
+            graphql_vars[key] = value
+
         return graphql_vars
 
 
@@ -124,20 +128,16 @@ def _parse_filter_functions(raw_filter_functions: List[Dict]) -> str:
         filter_functions += filter_function
 
     filter_functions += ']'
-    print(filter_functions)
+
     return filter_functions
 
 
 def _parse_filter_logic_option(option: str) -> str:
-    """
-    Parses the filter logic options into a string (?) TODO
-    :param option:
-    :return:
-    """
-    if option in ['AND', 'OR']:
-        return option
-    if option == 'INDIVIDUAL':
-        raise NotImplementedError()
+    return option
+
+
+def _parse_filter_logic_individual(option: str) -> str:
+    return f'filterLogicIndividual: "{option}",'
 
 
 def _get_parse_function(key: str) -> Callable:
@@ -148,6 +148,7 @@ def _get_parse_function(key: str) -> Callable:
     """
     parse_functions = {
         'filterFunctions': _parse_filter_functions,
-        'filterLogicOption': _parse_filter_logic_option
+        'filterLogicOption': _parse_filter_logic_option,
+        'filterLogicIndividual': _parse_filter_logic_individual
     }
     return parse_functions[key]

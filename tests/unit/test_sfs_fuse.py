@@ -35,7 +35,7 @@ class TestSFSFuse(unittest.TestCase):
 
         # Build directory tree
         # stat = cls.file_path.stat()
-        cls.sfs.directory_tree = sfs.file_tree.build_tree(
+        cls.sfs.directory_tree = sfs.file_tree._build_tree(
             [('mdh', [cls.file_path.parts[1:]])]
         )
         cls.sfs.root = ""

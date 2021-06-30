@@ -20,4 +20,4 @@ def main() -> None:
     args = parser.parse_args()
 
     sfs = SFS(args.mountpoint)
-    FUSE(sfs, sfs.mountpoint, nothreads=True, foreground=True)
+    FUSE(sfs, sfs.mount_point, nothreads=True, foreground=True)

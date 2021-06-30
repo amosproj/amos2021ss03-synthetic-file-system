@@ -2,6 +2,8 @@
 import logging
 
 # Local imports
+from typing import Optional
+
 from sfs.singleton import singleton
 from .backend import Backend
 
@@ -35,7 +37,7 @@ class BackendManager:
                 return backend
         logging.error("There is no backend responsible for this path!")
 
-    def get_backend_by_name(self, name: str) -> Backend:
+    def get_backend_by_name(self, name: str) -> Optional[Backend]:
         """
         Retrieves the Backend with the given name.
         :param name: The name of the requested backend.

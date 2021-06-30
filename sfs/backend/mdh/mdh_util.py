@@ -7,14 +7,26 @@ from typing import Callable, Dict, List
 from mdh import query
 from mdh.errors import StateError, APIError, GraphQLSyntaxError
 
+"""
+File that contains some utility functions needed by the MDH backend
+"""
+
 
 class MDHQuery:
 
     def __init__(self, core: str):
+        """
+        Constructor, sets up the information for the query
+        :param core: name of the mdh core
+        """
         self.core = core
         self.result = None
 
     def send_request_and_get_result(self, query_file_path: str) -> Dict:
+        """
+        sends the query for retrieving the files to the MDH
+        :return: dict
+        """
         assert query_file_path is not None
 
         try:
@@ -36,6 +48,9 @@ class MDHQuery:
 
 
 class QueryTemplates:
+    """
+    Class that contains functions that build the graphql query that has to be sent to the MDH
+    """
     QUERY_TEMPLATE = Template(
         '''
         query {
@@ -69,13 +84,23 @@ class QueryTemplates:
     }
 
     @classmethod
-    def create_query(cls, vars):
+    def create_query(cls, variables: Dict):
+        """
+        Creates a query from the template using the given variables
+        :param variables: the variables that will be plugged into the template
+        :return: the graphql query
+        """
         template = cls.QUERY_TEMPLATE
-        variables = cls._convert_to_graphql_vars(vars)
+        variables = cls._convert_to_graphql_vars(variables)
         return template.safe_substitute(variables).replace("'", '"')
 
     @classmethod
     def _convert_to_graphql_vars(cls, query_options: Dict) -> Dict:
+        """
+        Takes some query options and translates them into graphql variables
+        :param query_options:
+        :return:
+        """
         graphql_vars = cls.DEFAULT_VALUES.copy()
         for key, value in query_options.items():
             if key not in ['filterFunctions', 'filterLogicOption']:
@@ -86,19 +111,29 @@ class QueryTemplates:
         return graphql_vars
 
 
-def _parse_filterFunctions(raw_filterFunctions: List[Dict]) -> List[Dict]:
-    filterFunctions = '['
-    for raw_filter_function in raw_filterFunctions:
+def _parse_filter_functions(raw_filter_functions: List[Dict]) -> str:
+    """
+    Takes a list of filter functions and puts them into the proper graphql format needed for the query
+    :param raw_filter_functions: list of the filter functions
+    :return: the translated function
+    """
+    filter_functions = '['
+    for raw_filter_function in raw_filter_functions:
         tag, operation, value = raw_filter_function
         filter_function = f'{{tag: "{tag}", operation: {operation}, value: "{value}"}},'
-        filterFunctions += filter_function
+        filter_functions += filter_function
 
-    filterFunctions += ']'
-    print(filterFunctions)
-    return filterFunctions
+    filter_functions += ']'
+    print(filter_functions)
+    return filter_functions
 
 
-def _parse_filterLogicOption(option: str) -> str:
+def _parse_filter_logic_option(option: str) -> str:
+    """
+    Parses the filter logic options into a string (?) TODO
+    :param option:
+    :return:
+    """
     if option in ['AND', 'OR']:
         return option
     if option == 'INDIVIDUAL':
@@ -106,8 +141,13 @@ def _parse_filterLogicOption(option: str) -> str:
 
 
 def _get_parse_function(key: str) -> Callable:
+    """
+    Retrieves the parse function for the given key
+    :param key: name of the function
+    :return: the parse function
+    """
     parse_functions = {
-        'filterFunctions': _parse_filterFunctions,
-        'filterLogicOption': _parse_filterLogicOption
+        'filterFunctions': _parse_filter_functions,
+        'filterLogicOption': _parse_filter_logic_option
     }
     return parse_functions[key]

@@ -11,6 +11,9 @@ class Backend:
     see the FUSE documentation.
     """
 
+    # Every backend needs to have a name associated to it
+    name: str
+
     @abc.abstractmethod
     def get_directory_tree(self):
         """

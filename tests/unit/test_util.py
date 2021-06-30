@@ -9,7 +9,7 @@ from anytree import Node
 from anytree.exporter import DictExporter
 
 # Local imports
-from sfs.utils import build_tree_from_files
+from sfs.dir_tree import DirectoryTree
 
 
 class TestUtils(unittest.TestCase):
@@ -19,8 +19,9 @@ class TestUtils(unittest.TestCase):
         self.exporter = DictExporter()
 
     def test_empty_tree_build(self) -> None:
-        tree = build_tree_from_files([])
-        d_tree = self.exporter.export(tree)
+        tree = DirectoryTree()
+        tree.build([], "mirror")
+        d_tree = self.exporter.export(tree.directory_tree)
         d_root_node = self.exporter.export(Node("Root"))
         self.assertCountEqual(d_tree, d_root_node)
 
@@ -31,6 +32,7 @@ class TestUtils(unittest.TestCase):
         input = test_obj[0]
         expected_output = test_obj[1]
 
-        tree = build_tree_from_files(input)
-        actual = self.exporter.export(tree)
+        tree = DirectoryTree()
+        tree.build(input, "mirror")
+        actual = self.exporter.export(tree.directory_tree)
         self.assertCountEqual(actual, expected_output)

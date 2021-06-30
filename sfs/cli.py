@@ -24,4 +24,4 @@ def main() -> None:
     if args.gui:
         from .frontend import run_gui
         run_gui()
-    FUSE(sfs, sfs.mountpoint, nothreads=True, foreground=True)
+    FUSE(sfs, sfs.mount_point, nothreads=True, foreground=True)

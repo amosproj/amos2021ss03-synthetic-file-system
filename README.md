@@ -85,10 +85,11 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-
-
-This project implements a so called [FUSE](https://en.wikipedia.org/wiki/Filesystem_in_Userspace), a filesystem in userspace, in order to give a unified filesystem view on data in a [Metadatahub](www.metadatahub.de) database.  
-The FUSE also allows for filtering the files it will show according to their metadata
+This project implements a synthetic filesystem (SFS), that is designed to give a user a unified view on multiple data sources.
+For this a so called "File System in User Space ([FUSE](https://en.wikipedia.org/wiki/Filesystem_in_Userspace))" is used.  
+Furthermore, the SFS allows for a simple way to filter the data sources for the metadata of their content.  
+So far, only support for the [Metadatahub](www.metadatahub.de) as a data source is implemented. However, the very modular approach of the SFS
+allows for easy expansion for supporting other backends (see [Expanding the sfs](#expanding-the-sfs))
 
 <!-- Here's a blank template to get started:
  To avoid retyping too much info. Do a search and replace with your text editor for the following:
@@ -110,12 +111,16 @@ Due to the current Corona pandemic, as much data as possible is to be analyzed a
 
 <!--To get a local copy up and running follow these simple steps. -->
 
-### Prerequisites
+### Prerequisites  
 
+Mandatory:
 * git
 * docker: [follow instructions for your platform](https://docs.docker.com/get-docker/) (Only needed if you want to try the fuse in the docker)
 * docker-compose (Only needed if you want to try the fuse in the docker)
-* [Metadatahub](www.metadatahub.de)
+* fuse kernel module (see the documentation of your distro for a guide on how to install it)  
+--- 
+Optional:
+* [Metadatahub](www.metadatahub.de) (This is only needed if you want to use the contained MDH backend)
 
 <!--### Installation -->
 ### Installation
@@ -134,7 +139,6 @@ Due to the current Corona pandemic, as much data as possible is to be analyzed a
     ```sh
     docker-compose up
     ```
-  
 
    Then you can connect to the docker from a different shell via
     ```sh
@@ -142,24 +146,49 @@ Due to the current Corona pandemic, as much data as possible is to be analyzed a
     ```
     where ```tmux``` can also be replaced by ```zsh``` or ```bash```, depending on your preferences.
 
-3. This fileystem will be mounted under ```~/fuse_mount```. Create this folder for later use:
-    ```sh
-    mkdir ~/fuse_mount
-    ```
-    
-
 --- 
 <!-- USAGE EXAMPLES -->
 ## Usage
 ### Basics
 
-1. The FUSE pulls its information from a running [Metadatahub](www.metadatahub.de) service. For more information or documentation refer to the vendor.
+1. Adapt the config file stored in ```config/config.cfg``` as needed. 
+The config file contains one section for general settings, most importantly one for the mountpoint of the sfs.  
+Other than that, you can here specify all the backends you want the sfs to use and their settings.
+An example would be something like this (see [Configuration](#Configuration) for more information): 
+    ```toml
+    ################
+    # SFS SETTINGS #
+    ################
+    [SETTINGS]
+    mountpoint = "/home/sfs_user/sfs_mount"
+    
+    ##  BACKENDS  / QUERY ENDPOINTS  ##
+    [MDH.1]
+    core = "core-test"
+    querySource = "file"
+    query.path = "/home/matti/PycharmProjects/amos-ss2021-synthetic-file-system/config/config.graphql"
+    resultStructure = "mirror"
+    
+    [MDH.2]
+    core = "core-test"
+    querySource = "inline"
+    query.filterFunctions = [
+            ["FileType", "EQUAL", "JPEG"],
+            ["FileName", "CONTAINS", "DRUSEN"]
+    ]
+    query.filterLogicOption = "AND"
+    resultStructure = "flat"
+    
+    [Passthrough]
+    path = "/home/matti/Pictures"
+    ```
 
-2. To run the FUSE, run
+2. To run the fuse, just use the start-script
    ```sh
-    ./mount.sh
+    ./run-sfs.sh [<mount_point>]
    ```
-   This will mount the virtual filesystem under ~/fuse_mount
+   This will mount the virtual filesystem under the given mountpoint. If no mount point is specified, the mountpoint 
+specified in the config file will be used
 
 3. Attention when start the FUSE using docker:
   Since the FUSE blocks the current terminal, a new terminal in the docker has to be opened. For this you can just open a new terminal on the host and connect it again to the docker via ```docker exec -it synthetic-file-system tmux ```, or use tmux in the docker to open a new terminal (```ctrl+b -> ctrl+%```). For more information please refer to the [tmux documentation](https://github.com/tmux/tmux/wiki)
@@ -173,27 +202,60 @@ For docker: The docker container is configured to support X-forwarding, so any U
 
 ### Configuration
 
-The FUSE allows for filtering of the files that it will list via their metadata. For this, a config file, ```config/config.cfg``` is used. When starting, the FUSE reads all the filters from this file and applies them when retrieving the metadata from the Metadatahub.   
-The filters are specified as a list of triplets, where the first element of each triplet specifies the name of the metadata that the filter shall use, the second one a value, and as the third some relation specifies how values are compared to the one specified in the filter.  
-
-For example, to tell the FUSE to only show file with file name "DME-30521-7.jpeg" with an image height greater than 500, a config file will look as followed:
+As previously mentioned, the SFS offers a config file where one can specify every backend to be used by the SFS and their settings.  
+The general structure of the file is the following:
 ```toml
-[FILTER]
-filters = [
-    ["FileName", "DME-30521-7.jpeg", "EQUAL"] ,
-    ["ImageHeight", "500", "GREATER"],
-]
-```
-This filter is applied when the FUSE is first mounted, however, when changing that file at runtime, the filters will be updated. 
+[SETTINGS]
+# general settings
 
-**NOTE**  
-The way the dynamic configuration works, it is needed, that the config file is written to and closed properly, just for example pressing ```ctrl+s``` won't always work. So when ```VIM``` for example, close the file with ```:wq``` or ```:x```.
-   
+# LIST OF BACKENDS
+[BACKEND_1]
+# settings for BACKEND_1
+
+[BACKEND_2]
+# settings for BACKEND_2
+
+# ...
+```
+The possible options for the general ```SETTINGS``` are the following:  
+* ```mountpoint```: The mount point of the sfs
+* (More to come)
+  
+After that all the possible backends are listed. For now, only the ```MDH``` and the ```Passthrough``` 
+backends are available. They each have the following possible settings:  
+```MDH```:
+* ```core```: the name of the MDH core this backend will use
+* ```querySource```: either "file" or "inline", specifies which way of input source the backend will use
+* ```query.path```: if the "file" source is used, this setting has to specify the path to a graphql 
+containing a file retrieving query to the MDH
+* ```query.filterFunctions```: if the "inline" source is used, this setting has to specify the filters used for the
+file retrieval query to the MDH. The value of this variable has to be a list of triplets, each specifying
+  a filter (See the Metadatahub documentation for more information)
+    
+* ```query.filterLogicOption```: if the "inline" source is used, this option has to specify which 
+  logical operation is used to link the filters, either "AND" or "OR"
+  
+* ```resultStructure```. Specifies, in which way the retrieved data is displayed. Either "mirror",
+where the SFS mirrors the original structure of the data, or "flat", where the data will be 
+  displayed in a flat hierarchy (all files in one folder)
+
+```Passthrough```:
+* ```path```: specifies the path to the folder which the backend will pass through
+
+
 
 <!--Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
 < !--_For more examples, please refer to the [Documentation](https://example.com)_ -->
 
+--- 
+### Expanding the SFS:
+The SFS is built in a very modular way, that allows anyone very easily to add new Backends for other
+file sources to it. For this one has to do the following:
+* Create a new ```BackendFactory``` for the see (see ```sfs/backend/backend_factory.py```)
+* Create the implementation of the Backend itself (see ```sfs/backend/backend.py```)
+* Register the backend factory to the config parser
+* Adapt your config file and have fun :)
 
 
 ----------------------------------------------------------------------- 

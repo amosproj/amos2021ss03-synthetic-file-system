@@ -19,12 +19,12 @@ class SFS(Operations):
     the hooked function calls. For more information see https://github.com/fusepy/fusepy
     """
 
-    def __init__(self, mountpoint=None):
+    def __init__(self, mount_point=None):
         self.sfs_config = SFSConfig()
         self.sfs_config.init()
-        self.mountpoint = mountpoint
-        if self.mountpoint is None:
-            self.mountpoint = self.sfs_config.mountpoint
+        self.mount_point = mount_point
+        if self.mount_point is None:
+            self.mount_point = self.sfs_config.mountpoint
 
     # ==================
     # Filesystem methods
@@ -40,7 +40,6 @@ class SFS(Operations):
         return BackendManager().get_backend_for_path(path).chown(path, uid, gid)
 
     def getattr(self, path, fh=None):
-        print(f"getattr called with path {path}")
         path_stat = SFSStat()
         now = time.time()
         path_stat.st_atime = now
@@ -63,9 +62,9 @@ class SFS(Operations):
     def readdir(self, path, fh):
         if path == '/':
             children = ['.', '..']
-            for bkend in BackendManager().backends:
-                if hasattr(bkend, 'name'):
-                    children.append(bkend.name)
+            for backend in BackendManager().backends:
+                if hasattr(backend, 'name'):
+                    children.append(backend.name)
             return children
         logging.info(f"Readdir called with path {path}")
         return BackendManager().get_backend_for_path(path).readdir(path, fh)
@@ -110,7 +109,6 @@ class SFS(Operations):
         return BackendManager().get_backend_for_path(path).open(path, flags)
 
     def create(self, path: str, mode, fi=None):
-        logging.error(f"create in sfs called! with path {path}")
         backend_manager = BackendManager().get_backend_for_path(path)
         if not backend_manager:
             parent_path = path.rsplit("/", 1)[0]

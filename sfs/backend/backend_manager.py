@@ -3,6 +3,8 @@ import logging
 from typing import List
 
 # Local imports
+from typing import Optional
+
 from sfs.singleton import singleton
 from .backend import Backend
 
@@ -39,7 +41,7 @@ class BackendManager:
     def get_backend_names(self) -> List[str]:
         return [backend.name for backend in self.backends]
 
-    def get_backend_by_name(self, name: str) -> Backend:
+    def get_backend_by_name(self, name: str) -> Optional[Backend]:
         """
         Retrieves the Backend with the given name.
         :param name: The name of the requested backend.

@@ -1,4 +1,4 @@
-#Python imports
+# Python imports
 import os
 import unittest
 from pathlib import Path
@@ -19,13 +19,12 @@ class TestWrite(unittest.TestCase):
         self.backend.backend_updater = backend_updater.MDHBackendUpdater(self.backend)
 
     def tearDown(self):
-        pass
+        os.remove("test123.txt")
 
     def test_write(self) -> None:
 
         testdata = 'testtext'
         fh = os.open('test123.txt', os.O_RDWR | os.O_CREAT)
-        print(self.file_directory_path)
         testlength = self.backend.write(str(self.file_directory_path),
                                         bytes(testdata, 'utf-8'),
                                         0,

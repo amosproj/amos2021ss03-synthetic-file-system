@@ -83,6 +83,7 @@ class PassthroughBackend(Backend):
 
     def readdir(self, path, fh):
         logging.info("readdir called")
+
         full_path = self._full_path(path)
         return ['.', '..'] + os.listdir(full_path)
 

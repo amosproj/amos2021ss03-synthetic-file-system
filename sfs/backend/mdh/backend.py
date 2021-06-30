@@ -13,7 +13,7 @@ import sfs.backend
 from sfs.backend import Backend
 from sfs.paths import ROOT_PATH
 from sfs.sfs_stat import SFSStat
-from .mdh_util import QueryTemplates, MDHQueryRoot
+from .mdh_util import QueryTemplates, MDHQuery
 from ...dir_tree import DirectoryTree
 import sfs.backend.mdh.backend_updater as backend_updater
 
@@ -26,16 +26,18 @@ class MDHBackend(Backend):
     For documentation of the functions see Backend.py
     """
 
-    def __init__(self, backend_id: int, instance_config: Dict):
+    def __init__(self, mdh_id: int, instance_config: Dict):
         """
         Constructor for the Backend. Initializes the MDHBackendUpdater
         :param backend_id: id of the mdh backend (1,2,3,...)
         :param instance_config: configuration of this instance, retrieved by the config parser
         """
-        self.id = backend_id
-        self.name = f'mdh{backend_id}'
+        self.mdh_id = mdh_id
+        self.name = f'mdh{mdh_id}'
         self.instance_config = instance_config
-        self.result_structure = instance_config.get("resultStructure")
+        self.core = instance_config['core']
+        self.result_structure = instance_config["resultStructure"]
+        self.mdh_query = MDHQuery(self.core)
         self.directory_tree = None
         self.metadata_files: List[Dict] = []
         self.file_paths = []
@@ -114,7 +116,6 @@ class MDHBackend(Backend):
         Updates the internal Metadata for every file using the result of the MDH query
         :return:
         """
-        core = self.instance_config['core']
         path = ""
         if self.instance_config['querySource'] == 'inline':
             query_options = self.instance_config['query']
@@ -126,9 +127,9 @@ class MDHBackend(Backend):
         if self.instance_config['querySource'] == 'file':
             path = self.instance_config['query']['path']
 
-        query_root = MDHQueryRoot(core, path)
-        query_root.send_request_get_result()
-        self.metadata_files = query_root.result['searchMetadata']['files']
+        result = self.mdh_query.send_request_and_get_result(path)
+
+        self.metadata_files = result['searchMetadata']['files']
 
     def contains_path(self, path: str) -> bool:
         """
@@ -165,6 +166,7 @@ class MDHBackend(Backend):
     ######################
     # File System Calls #
     ######################
+
     def access(self, path, mode):
         logging.info("access called!")
         return 0

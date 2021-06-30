@@ -1,6 +1,10 @@
+# Python imports
 import threading
 import time
 import os
+from typing import Set
+
+# Local imports
 from ...paths import CONFIG_PATH
 
 
@@ -20,7 +24,7 @@ class MDHBackendUpdater:
         self.check_cache()
         update_thread.start()
 
-    def update_cache(self, cache: set[str]) -> None:
+    def update_cache(self, cache: Set[str]) -> None:
         """
         Updates the cache file using the given entries
         :param cache: the entries in the cache

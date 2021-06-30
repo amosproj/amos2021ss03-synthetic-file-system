@@ -1,4 +1,5 @@
 # Python imports
+import logging
 from string import Template
 from typing import Callable, Dict, List
 
@@ -11,39 +12,39 @@ File that contains some utility functions needed by the MDH backend
 """
 
 
-class MDHQueryRoot:
-    """
-    class responsible for the connection to the MDH
-    """
+class MDHQuery:
 
-    def __init__(self, core: str, query_file: str):
+    def __init__(self, core: str):
         """
         Constructor, sets up the information for the query
         :param core: name of the mdh core
-        :param query_file: path to the file of the query
         """
         self.core = core
-        self.query_file = query_file
         self.result = None
 
-    def send_request_get_result(self) -> None:
+    def send_request_and_get_result(self, query_file_path: str) -> Dict:
         """
         sends the query for retrieving the files to the MDH
-        :return: None
+        :return: dict
         """
+        assert query_file_path is not None
+
         try:
-            self.result = query.query(self.core, self.query_file)
-        # TODO: Error handling
-        except StateError:
-            raise
-        except APIError:
-            raise
-        except ConnectionError:
+            self.result = query.query(self.core, query_file_path)
+        except (StateError, APIError, ConnectionError):
             raise
         except FileNotFoundError:
-            raise
+            if self.result:
+                logging.exception("FileNotFoundError -> fallback to previous result")
+            else:
+                raise
         except GraphQLSyntaxError:
-            raise
+            if self.result:
+                logging.exception("GraphQLSyntaxError -> fallback to previous result")
+            else:
+                raise
+
+        return self.result
 
 
 class QueryTemplates:

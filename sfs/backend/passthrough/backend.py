@@ -32,7 +32,7 @@ class PassthroughBackend(Backend):
         self.file_paths = [f'/{self.name}']
         prefix = len(str(Path(self.target_dir)))
         self.file_paths += [f'/{self.name}{str(p)[prefix:]}' for p in Path(self.target_dir).glob('**/*')]
-        print(self.file_paths)
+        #print(self.file_paths)
 
     def get_file_paths(self):
         return self.file_paths

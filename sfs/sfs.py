@@ -55,7 +55,7 @@ class SFS(Operations):
             parent_path = path.rsplit("/", 1)[0]
             backend = BackendManager().get_backend_for_path(parent_path)
             if not backend:
-                logging.error(f"Invalid path for getattr with path {path}!")
+                # logging.error(f"Invalid path for getattr with path {path}!")
                 return path_stat.__dict__
         return backend.getattr(path, fh)
 
@@ -66,7 +66,7 @@ class SFS(Operations):
                 if hasattr(bkend, 'name'):
                     children.append(bkend.name)
             return children
-        logging.info(f"Readdir called with path {path}")
+        # logging.info(f"Readdir called with path {path}")
         return BackendManager().get_backend_for_path(path).readdir(path, fh)
 
     def readlink(self, path):
@@ -109,13 +109,13 @@ class SFS(Operations):
         return BackendManager().get_backend_for_path(path).open(path, flags)
 
     def create(self, path: str, mode, fi=None):
-        logging.error(f"create in sfs called! with path {path}")
+        # logging.error(f"create in sfs called! with path {path}")
         backend_manager = BackendManager().get_backend_for_path(path)
         if not backend_manager:
             parent_path = path.rsplit("/", 1)[0]
             backend_manager = BackendManager().get_backend_for_path(parent_path)
             if not backend_manager:
-                logging.error("Invalid path for create!")
+                # logging.error("Invalid path for create!")
                 return None
         return backend_manager.create(path, mode, fi)
 

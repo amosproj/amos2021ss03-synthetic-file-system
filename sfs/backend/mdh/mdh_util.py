@@ -123,7 +123,7 @@ def _parse_filter_functions(raw_filter_functions: List[Dict]) -> str:
         filter_functions += filter_function
 
     filter_functions += ']'
-    print(filter_functions)
+    #print(filter_functions)
     return filter_functions
 
 

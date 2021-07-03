@@ -139,7 +139,7 @@ class MDHBackend(Backend):
         if path in [".", "..", f"/{self.name}"]:
             return True
         tree_path = "/Root" + path
-        logging.info(f"contains path with: {path}")
+        #logging.info(f"contains path with: {path}")
         return self.directory_tree.contains(tree_path) or path in self.file_path_cache
 
     def _get_os_path(self, path: str) -> str:
@@ -166,19 +166,19 @@ class MDHBackend(Backend):
     # File System Calls #
     ######################
     def access(self, path, mode):
-        logging.info("access called!")
+        #logging.info("access called!")
         return 0
 
     def chmod(self, path, mode):
-        logging.info("chmod called!")
+        #logging.info("chmod called!")
         raise NotImplementedError()
 
     def chown(self, path, uid, gid):
-        logging.info("chown called!")
+        #logging.info("chown called!")
         raise NotImplementedError()
 
     def getattr(self, path, fh=None):
-        logging.info("getattr in mdh backend called!")
+        #logging.info("getattr in mdh backend called!")
 
         path_stat = SFSStat()
         now = time.time()
@@ -194,25 +194,25 @@ class MDHBackend(Backend):
 
             # /mdh/home/
             if os.path.isfile(os_path):
-                print("got regular file")
+                #print("got regular file")
                 path_stat.st_mode = stat.S_IFREG | 0o755
             else:
                 path_stat.st_mode = stat.S_IFDIR | 0o755
 
-            print(os_path)
+            #print(os_path)
             os_stats = os.stat(os_path)
             path_stat.st_size = os_stats.st_size
 
         except anytree.resolver.ChildResolverError:
             # file does not exist yet
-            logging.info("could not find file!")
+            #logging.info("could not find file!")
             path_stat.st_size = os.stat(self._get_os_path(path)).st_size
         return path_stat.__dict__
 
     def readdir(self, path, fh):
-        logging.info("readdir called!")
+        #logging.info("readdir called!")
 
-        print(f"readdir called with {path}")
+        #print(f"readdir called with {path}")
         children = [".", ".."]
 
         for file in self.file_path_cache:
@@ -223,84 +223,84 @@ class MDHBackend(Backend):
         children_node = self.directory_tree.get_children(path)
         for child in children_node:
             children.append(child)
-            print(f"added {child}")
+            #print(f"added {child}")
         return list(set(children))  # remove duplicates
 
     def readlink(self, path):
-        logging.info("readlink called!")
+        #logging.info("readlink called!")
         raise NotImplementedError()
 
     def mknod(self, path, mode, dev):
-        logging.info("mknod called!")
+        #logging.info("mknod called!")
         raise NotImplementedError()
 
     def rmdir(self, path):
-        logging.info("rmdir called!")
+        #logging.info("rmdir called!")
         raise NotImplementedError()
 
     def mkdir(self, path, mode):
-        logging.info("mkdir called!")
+        #logging.info("mkdir called!")
         raise NotImplementedError()
 
     def statfs(self, path):
-        logging.info("statfs called!")
+        #logging.info("statfs called!")
         raise NotImplementedError()
 
     def unlink(self, path):
-        logging.info("unlink called!")
+        #logging.info("unlink called!")
         raise NotImplementedError()
 
     def symlink(self, name, target):
-        logging.info("symlink called!")
+        #logging.info("symlink called!")
         raise NotImplementedError()
 
     def rename(self, old, new):
-        logging.info("rename called!")
+        #logging.info("rename called!")
         raise NotImplementedError()
 
     def link(self, target, name):
-        logging.info("link called!")
+        #logging.info("link called!")
         raise NotImplementedError()
 
     def utimens(self, path, times=None):
-        logging.info("utimens called!")
+        #logging.info("utimens called!")
         os.utime(self._get_os_path(path), times)
 
     def open(self, path, flags):
-        logging.info(f"open called with {path}!")
+        #logging.info(f"open called with {path}!")
         return os.open(self._get_os_path(path), flags)
 
     def create(self, path, mode, fi=None):
-        logging.info(f"create mdh called with path {path}!")
+        #logging.info(f"create mdh called with path {path}!")
         os_path = self._get_os_path(path)
         ret = os.open(os_path, os.O_RDWR | os.O_CREAT, mode)
         self._add_to_cache(path)
         return ret
 
     def read(self, path, length, offset, fh):
-        logging.info("read called!")
+        #logging.info("read called!")
         os.lseek(fh, offset, os.SEEK_SET)
         return os.read(fh, length)
 
     def write(self, path, buf, offset, fh):
-        logging.info("write called!")
+        #logging.info("write called!")
         os.lseek(fh, offset, os.SEEK_SET)
         ret = os.write(fh, buf)
         self._add_to_cache(path)
         return ret
 
     def truncate(self, path, length, fh=None):
-        logging.info("truncate called!")
+        #logging.info("truncate called!")
         os.truncate(self._get_os_path(path), length)
         self._add_to_cache(path)
 
     def flush(self, path, fh):
-        logging.info("flush called!")
+        #logging.info("flush called!")
         os.fsync(fh)
 
     def release(self, path, fh):
         logging.info("release called!")
 
     def fsync(self, path, fdatasync, fh):
-        logging.info("fsync called!")
+        #logging.info("fsync called!")
         os.fsync(fh)

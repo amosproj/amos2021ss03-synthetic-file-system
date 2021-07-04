@@ -21,7 +21,6 @@
 [![Open Source Love](https://badges.frapsoft.com/os/v3/open-source.png?v=103)](https://github.com/ellerbrock/open-source-badges/)
 [![Code Coverage][code-shield]][code-url]
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/amosproj/amos-ss2021-synthetic-file-system)
-![GitHub branch checks state](https://img.shields.io/github/checks-status/amosproj/amos-ss2021-synthetic-file-system/main)
 <!-- ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg?style=for-the-badge)
 
 

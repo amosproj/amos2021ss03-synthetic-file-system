@@ -1,5 +1,6 @@
 # Python imports
 import logging
+from pathlib import Path
 from string import Template
 from typing import Callable, Dict, List
 
@@ -83,6 +84,13 @@ class QueryTemplates:
         'selectedTags': ["FileName", "FileSize", "MIMEType", "FileInodeChangeDate", "SourceFile"],
         'filterLogicOption': 'AND'
     }
+
+    @staticmethod
+    def save_query(query_string: str, path: Path) -> None:
+        if path.suffix != ".graphql":
+            raise ValueError  # Do not save if it is no graphql file
+        with open(path, 'w') as fp:
+            fp.write(query_string)
 
     @classmethod
     def create_query(cls, variables: Dict):

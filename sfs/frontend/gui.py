@@ -1,57 +1,74 @@
 # Python imports
 import tkinter as tk
+from copy import deepcopy
 from threading import Thread
 from tkinter import TclError, PhotoImage
 from typing import List
+
+# 3rd party imports
+import mdh
 
 # Local imports
 from sfs.backend import BackendManager
 from sfs.paths import ROOT_PATH
 
-WHITE = "white"
-DARK_GREY = "#363636"
-ORANGE = "#FE7A3A"
+_WHITE = "#FFFFFF"
+_DARK_GREY = "#363636"
+_ORANGE = "#FE7A3A"
 
 
 class Filter(tk.Frame):
 
-    metadata_tags = ["FileName", "FileType"]
+    supported_metadata_tags = ["FileName", "FileType"]
+    supported_algorithms = ["mirror", "flat"]
     operations_map = {"equals": "EQUAL",
                       "not equals": "NOT_EQUAL",
                       "contains": "CONTAINS",
                       "not contains": "NOT_CONTAINS"}
-    algorithms = ["mirror", "flat"]
 
-    opt_design = {"bg": WHITE, "highlightbackground": WHITE, "activebackground": DARK_GREY, "activeforeground": ORANGE}
-    opt_menu_design = {"bg": WHITE, "activebackground": DARK_GREY, "activeforeground": ORANGE}
-    btn_design = {"bg": WHITE, "activebackground": DARK_GREY, "activeforeground": ORANGE}
+    opt_design = {"bg": _WHITE, "highlightbackground": _WHITE, "activebackground": _DARK_GREY, "activeforeground": _ORANGE}
+    opt_menu_design = {"bg": _WHITE, "activebackground": _DARK_GREY, "activeforeground": _ORANGE}
+    btn_design = {"bg": _WHITE, "activebackground": _DARK_GREY, "activeforeground": _ORANGE}
 
     def __init__(self, master):
         super().__init__(master)
         self.pack()
 
-        self.configure(bg=WHITE)
+        self.configure(bg=_WHITE)
         self.filter_entity_count = 0
         self.filters_config = {}
+        self._metadata_tags = deepcopy(self.supported_metadata_tags)
 
         self._configure_filter()
+
+    @property
+    def metadata_tags(self) -> List[str]:
+        return self._metadata_tags
+
+    @metadata_tags.setter
+    def metadata_tags(self, metadata_tags) -> None:
+        """
+        Intersect supported metadata tags with mdh core metadata tags
+        :return: None
+        """
+        self._metadata_tags = list(set(self.supported_metadata_tags) & set(metadata_tags))
 
     def _configure_filter(self) -> None:
         """
         Add general configurations for a filter (here: algorithm)
         :return: None
         """
-        frm_config = tk.Frame(master=self, bg=WHITE)
+        frm_config = tk.Frame(master=self, bg=_WHITE)
         frm_config.pack()
 
         tk.Label(
             master=frm_config,
             text="Algorithm:",
-            bg=WHITE
+            bg=_WHITE
         ).grid(row=0, column=0)
 
-        self.algorithm = tk.StringVar(value=self.algorithms[0])
-        opt_algorithm = tk.OptionMenu(frm_config, self.algorithm, *self.algorithms)
+        self.algorithm = tk.StringVar(value=self.supported_algorithms[0])
+        opt_algorithm = tk.OptionMenu(frm_config, self.algorithm, *self.supported_algorithms)
         opt_algorithm.configure(self.opt_design)
         opt_algorithm["menu"].configure(self.opt_menu_design)
         opt_algorithm.grid(row=0, column=1)
@@ -87,7 +104,7 @@ class Filter(tk.Frame):
         :param is_or: if true, or following filter entities
         :return: None
         """
-        frm_filter_entity = tk.Frame(master=self, bg=WHITE)
+        frm_filter_entity = tk.Frame(master=self, bg=_WHITE)
         frm_filter_entity_id = id(frm_filter_entity)
         frm_filter_entity.pack()
 
@@ -99,7 +116,7 @@ class Filter(tk.Frame):
             tk.Label(
                 master=frm_filter_entity,
                 text="or",
-                bg=WHITE
+                bg=_WHITE
             ).grid(row=row, column=col)
             col = 1
             filter_config.append("or")
@@ -198,14 +215,14 @@ class Filter(tk.Frame):
 
 class GUI(tk.Frame):
 
-    btn_run_design = {"bg": DARK_GREY, "fg": ORANGE, "activebackground": WHITE}
+    btn_run_design = {"bg": _DARK_GREY, "fg": _ORANGE, "activebackground": _WHITE}
 
     def __init__(self, master):
         super().__init__(master)
         self.pack()
-        self.configure(bg=WHITE)
+        self.configure(bg=_WHITE)
 
-        self.partners = BackendManager().get_backend_names()
+        self.partners: List[str] = BackendManager().get_backend_names()
         self.filter_frames = {}
 
         self._create_partner_widgets()
@@ -221,6 +238,7 @@ class GUI(tk.Frame):
 
         try:
             update_state = getattr(backend, "_update_state")
+
             query = backend.instance_config["query"]
             query["filterFunctions"] = \
                 [filter_entity[1:] for filter_entity in self.filter_frames[backend_name].get_filter_entity_list()]
@@ -260,13 +278,13 @@ class GUI(tk.Frame):
             image = image.subsample(125)
             lbl_logo = tk.Label(image=image)
             lbl_logo.image = image
-            lbl_logo.configure(bg=WHITE)
+            lbl_logo.configure(bg=_WHITE)
             lbl_logo.pack()
         except TclError:
             pass  # Silent ignore
 
         frm_partner = tk.Frame()
-        frm_partner.configure(bg=WHITE)
+        frm_partner.configure(bg=_WHITE)
         frm_partner.pack()
 
         self.partner = tk.StringVar(frm_partner, value=self.partners[0])
@@ -280,7 +298,7 @@ class GUI(tk.Frame):
         tk.Label(
             master=frm_partner,
             text="Partner:",
-            bg=WHITE
+            bg=_WHITE
         ).grid(row=0, column=0)
 
         tk.Button(
@@ -298,6 +316,15 @@ class GUI(tk.Frame):
         for partner in self.partners:
 
             fil = Filter(tk.Frame())
+
+            # Only get supported metadata tags from core
+            backend = BackendManager().get_backend_by_name(partner)
+            try:
+                metadata_tags_raw = mdh.statistics.get_metadata_tags(backend.core)
+                fil.metadata_tags = [metadata_tag['name'] for metadata_tag in metadata_tags_raw]
+            except AttributeError:
+                pass  # Silent ignore
+
             fil.add_default_filter_entity_widgets()
             self.filter_frames[partner] = fil
 
@@ -312,7 +339,7 @@ class GUIRunner(Thread):
     def run(self) -> None:
         root = tk.Tk()
         root.title("Synthetic File System")
-        root.configure(bg=WHITE)
+        root.configure(bg=_WHITE)
         root.protocol("WM_DELETE_WINDOW", root.destroy)
 
         GUI(master=root).mainloop()

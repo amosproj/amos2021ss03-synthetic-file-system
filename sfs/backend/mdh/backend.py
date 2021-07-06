@@ -33,13 +33,14 @@ class MDHBackend(Backend):
         """
         self.mdh_id = mdh_id
         self.name = f'mdh{mdh_id}'
+        self.folder_name = instance_config.get('folderName', self.name)
         self.instance_config = instance_config
         self.core = instance_config['core']
         self.result_structure = instance_config["resultStructure"]
         self.mdh_query = MDHQuery(self.core)
         self.directory_tree = None
         self.metadata_files: List[Dict] = []
-        self._mdh_xattr = {}
+        self.metadata_store = {}
         self.file_paths = []
         self.file_path_cache: set[str] = set()
         self.file_path_cache_copy: set[str] = set()
@@ -72,10 +73,26 @@ class MDHBackend(Backend):
         :return: None
         """
         self._update_metadata_files()
-        self._extract_file_paths()
+        updated_file_paths = []
+        updated_metadata_store = {}
+        for file in self.metadata_files:
+            sfs_metadata = {}
+            raw_metadata = file.get('metadata', {})
+            for entry in raw_metadata:
+                if entry['name'] == 'SourceFile':
+                    src_path = entry['value']
+                    updated_file_paths.append(src_path)
+                else:
+                    sfs_metadata.update({f'sfs.{entry["name"]}':  entry['value']})
+            if src_path is not None:
+                updated_metadata_store.update({src_path: sfs_metadata})
+
+        self.file_paths = updated_file_paths
+        self.metadata_store = updated_metadata_store
+        self.directory_tree = DirectoryTree()
+        self.directory_tree.build([(self.folder_name, self.get_file_paths())], self.result_structure)
         self.file_path_cache.difference_update(self.file_path_cache_copy)
         self.backend_updater.update_cache(self.file_path_cache)
-        self._build_xattr_store()
 
     def get_file_paths(self):
         """
@@ -84,38 +101,6 @@ class MDHBackend(Backend):
         """
         return self.file_paths
 
-    def _build_xattr_store(self):
-        for file in self.metadata_files:
-            xattr = {}
-            metadata = file.get('metadata', {})
-            src = None
-            for entry in metadata:
-                if entry['name'] == 'SourceFile':
-                    src = entry['value']
-                else:
-                    xattr.update({f'sfs.{entry["name"]}' : entry['value']})
-
-            if src is not None:
-                self._mdh_xattr.update({src: xattr})
-
-    def _extract_file_paths(self):
-        """
-        Extracts all the file paths from the result of the query to the MDH and then builds
-        the directory tree using these files
-        :return: None
-        """
-        updated_file_paths = []
-        for file in self.metadata_files:
-            full_file_path = ""
-            for metadata in file['metadata']:
-                # TODO: should go in a separate function
-                if metadata['name'] == "SourceFile":
-                    full_file_path = metadata['value']
-            updated_file_paths.append(full_file_path)
-
-        self.file_paths = updated_file_paths
-        self.directory_tree = DirectoryTree()
-        self.directory_tree.build(sfs.backend.BackendManager().get_file_paths([self]), self.result_structure)
 
     def _extract_file_paths_parts(self) -> List[List[str]]:
         """
@@ -136,7 +121,7 @@ class MDHBackend(Backend):
         if self.instance_config['querySource'] == 'inline':
             query_options = self.instance_config['query']
             query = QueryTemplates.create_query(query_options)
-            p = ROOT_PATH / 'sfs/backend/mdh/internals/inline_query.graphql'
+            p = ROOT_PATH / f'sfs/backend/mdh/internals/{self.name}_inline_query.graphql'
             with open(p, 'w') as fpointer:
                 fpointer.write(query)
             path = str(p)
@@ -144,7 +129,6 @@ class MDHBackend(Backend):
             path = self.instance_config['query']['path']
 
         result = self.mdh_query.send_request_and_get_result(path)
-
         self.metadata_files = result['searchMetadata']['files']
 
     def contains_path(self, path: str) -> bool:
@@ -153,17 +137,16 @@ class MDHBackend(Backend):
         :param path: path to this element
         :return: True if this backend contains this file, false otherwise
         """
-        if path in [".", "..", f"/{self.name}"]:
+        if path in [".", "..", f"/{self.folder_name}"]:
             return True
         tree_path = "/Root" + path
         logging.info(f"contains path with: {path}")
         return self.directory_tree.contains(tree_path) or path in self.file_path_cache
 
-    def _get_mdh_xattr(self, path):
-        p = self._get_os_path(path)
-        return self._mdh_xattr[p]
+    def _get_metadata(self, path):
+        return self.metadata_store[path]
 
-    def _get_os_path(self, path: str) -> str:
+    def _get_src_path(self, path: str) -> str:
         """
         Retrieves the actual path of a file on the OS
         :param path: internal path to the file
@@ -208,32 +191,31 @@ class MDHBackend(Backend):
         path_stat.st_mtime = now
         path_stat.st_ctime = now
 
-        if path in [".", "..", f"/{self.name}"]:
+        if path in [".", "..", f"/{self.folder_name}"]:
             path_stat.st_mode = stat.S_IFDIR | 0o755
             return path_stat.__dict__
         try:
-            os_path = self._get_os_path(path)
+            src_path = self._get_src_path(path)
 
             # /mdh/home/
-            if os.path.isfile(os_path):
+            if os.path.isfile(src_path):
                 print("got regular file")
-                path_stat.st_mode = stat.S_IFREG | 0o755
+                path_stat.st_mode = stat.S_IFREG | 0o644
             else:
                 path_stat.st_mode = stat.S_IFDIR | 0o755
 
-            print(os_path)
-            os_stats = os.stat(os_path)
+            print(src_path)
+            os_stats = os.stat(src_path)
             path_stat.st_size = os_stats.st_size
 
         except anytree.resolver.ChildResolverError:
             # file does not exist yet
             logging.info("could not find file!")
-            path_stat.st_size = os.stat(self._get_os_path(path)).st_size
+            path_stat.st_size = os.stat(self._get_src_path(path)).st_size
         return path_stat.__dict__
 
     def readdir(self, path, fh):
         logging.info("readdir called!")
-
         print(f"readdir called with {path}")
         children = [".", ".."]
 
@@ -286,16 +268,16 @@ class MDHBackend(Backend):
 
     def utimens(self, path, times=None):
         logging.info("utimens called!")
-        os.utime(self._get_os_path(path), times)
+        os.utime(self._get_src_path(path), times)
 
     def open(self, path, flags):
         logging.info(f"open called with {path}!")
-        return os.open(self._get_os_path(path), flags)
+        return os.open(self._get_src_path(path), flags)
 
     def create(self, path, mode, fi=None):
         logging.info(f"create mdh called with path {path}!")
-        os_path = self._get_os_path(path)
-        ret = os.open(os_path, os.O_RDWR | os.O_CREAT, mode)
+        src_path = self._get_src_path(path)
+        ret = os.open(src_path, os.O_RDWR | os.O_CREAT, mode)
         self._add_to_cache(path)
         return ret
 
@@ -313,7 +295,7 @@ class MDHBackend(Backend):
 
     def truncate(self, path, length, fh=None):
         logging.info("truncate called!")
-        os.truncate(self._get_os_path(path), length)
+        os.truncate(self._get_src_path(path), length)
         self._add_to_cache(path)
 
     def flush(self, path, fh):
@@ -329,38 +311,40 @@ class MDHBackend(Backend):
 
     def getxattr(self, path, name, position=0):
         print("getxattr called")
-        os_path = self._get_os_path(path)
-        ret = None
+        src_path = self._get_src_path(path)
         try:
-            _xattr = self._get_mdh_xattr(path)
-            return _xattr[name].encode('utf-8')
+            file_metadata = self._get_metadata(src_path)
+            return file_metadata[name].encode('utf-8')
         except KeyError:
             # Not a mdh meta attribute
             pass
-        ret = os.getxattr(os_path, name)
+        ret = os.getxattr(src_path, name)
         return ret
 
     def listxattr(self, path):
         logging.info("listxattr called")
-        os_path = self._get_os_path(path)
+        src_path = self._get_src_path(path)
         ret = []
         try:
-            ret += os.listxattr(os_path)
-            print(ret)
+            ret += os.listxattr(src_path)
         except OSError:
             # TODO: check for different errnos
             pass
-        _xattr = self._get_mdh_xattr(path)
-        _ret = [xattr for xattr in _xattr.keys()]
-        ret += _ret
+        try:
+            file_metadata = self._get_metadata(src_path)
+            _ret = [xattr for xattr in file_metadata.keys()]
+            ret += _ret
+        except KeyValueError:
+            pass
+
         return ret
 
     def setxattr(self, path, name, value, options, position=0):
         logging.info("setxattr called")
-        os_path = self._get_os_path(path)
+        src_path = self._get_src_path(path)
         ret = None
         try:
-            ret = os.setxattr(os_path, name, value, options)
+            ret = os.setxattr(src_path, name, value, options)
         except OSError:
             pass
 
@@ -368,10 +352,10 @@ class MDHBackend(Backend):
 
     def removexattr(self, path, name):
         logging.info("removexattr called")
-        os_path = self._get_os_path(path)
+        src_path = self._get_src_path(path)
         try:
-            os.removexattr(os_path, name)
+            os.removexattr(src_path, name)
         except OSError:
             pass
-        _xattr = self._get_mdh_xattr(path)
-        del _xattr[name]
+        file_metadata = self._get_metadata(src_path)
+        del file_metadata[name]

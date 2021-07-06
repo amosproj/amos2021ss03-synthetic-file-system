@@ -78,6 +78,7 @@ class MDHBackend(Backend):
         for file in self.metadata_files:
             sfs_metadata = {}
             raw_metadata = file.get('metadata', {})
+            src_path = None
             for entry in raw_metadata:
                 if entry['name'] == 'SourceFile':
                     src_path = entry['value']
@@ -100,7 +101,6 @@ class MDHBackend(Backend):
         :return: list of the file paths handles by this backend
         """
         return self.file_paths
-
 
     def _extract_file_paths_parts(self) -> List[List[str]]:
         """
@@ -314,7 +314,10 @@ class MDHBackend(Backend):
         src_path = self._get_src_path(path)
         try:
             file_metadata = self._get_metadata(src_path)
-            return file_metadata[name].encode('utf-8')
+            value = file_metadata[name]
+            if isinstance(value, str):
+                value = value.encode('utf-8')
+            return value
         except KeyError:
             # Not a mdh meta attribute
             pass
@@ -334,7 +337,7 @@ class MDHBackend(Backend):
             file_metadata = self._get_metadata(src_path)
             _ret = [xattr for xattr in file_metadata.keys()]
             ret += _ret
-        except KeyValueError:
+        except KeyError:
             pass
 
         return ret
@@ -347,7 +350,11 @@ class MDHBackend(Backend):
             ret = os.setxattr(src_path, name, value, options)
         except OSError:
             pass
-
+        try:
+            file_metadata = self._get_metadata(src_path)
+            file_metadata[name] = value
+        except KeyError:
+            pass
         return ret
 
     def removexattr(self, path, name):
@@ -357,5 +364,8 @@ class MDHBackend(Backend):
             os.removexattr(src_path, name)
         except OSError:
             pass
-        file_metadata = self._get_metadata(src_path)
-        del file_metadata[name]
+        try:
+            file_metadata = self._get_metadata(src_path)
+            del file_metadata[name]
+        except KeyError:
+            pass

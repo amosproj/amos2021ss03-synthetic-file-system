@@ -264,6 +264,10 @@ class MDHBackend(Backend):
         logging.info("link called!")
         raise NotImplementedError()
 
+    def release(self, path, fh):
+        logging.info("release called!")
+        raise NotImplementedError
+
     def utimens(self, path, times=None):
         logging.info("utimens called!")
         os.utime(self._get_os_path(path), times)
@@ -299,9 +303,6 @@ class MDHBackend(Backend):
     def flush(self, path, fh):
         logging.info("flush called!")
         os.fsync(fh)
-
-    def release(self, path, fh):
-        logging.info("release called!")
 
     def fsync(self, path, fdatasync, fh):
         logging.info("fsync called!")

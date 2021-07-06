@@ -16,7 +16,7 @@ from sfs.backend.mdh import MDHQuery
 from sfs.paths import GRAPHQL_QUERY_PATH
 
 
-class TestBackendMDH(unittest.TestCase):
+class TestMDHQuery(unittest.TestCase):
 
     file_path = None
     core_json_path = None

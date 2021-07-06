@@ -19,12 +19,14 @@ _ORANGE = "#FE7A3A"
 
 class Filter(tk.Frame):
 
-    supported_metadata_tags = ["FileName", "FileType"]
+    supported_metadata_tags = ["FileName", "FileSize", "FileType", "MIMEType", "SourceFile"]
     supported_algorithms = ["mirror", "flat"]
-    operations_map = {"equals": "EQUAL",
-                      "not equals": "NOT_EQUAL",
-                      "contains": "CONTAINS",
-                      "not contains": "NOT_CONTAINS"}
+    operations_string_map = {"contains": "CONTAINS",
+                             "not contains": "NOT_CONTAINS"}
+    operations_relations_map = {"equals": "EQUAL",
+                                "not equals": "NOT_EQUAL",
+                                "is greater": "GREATER",
+                                "is smaller": "SMALLER"}
 
     opt_design = {"bg": _WHITE, "highlightbackground": _WHITE, "activebackground": _DARK_GREY, "activeforeground": _ORANGE}
     opt_menu_design = {"bg": _WHITE, "activebackground": _DARK_GREY, "activeforeground": _ORANGE}
@@ -51,7 +53,7 @@ class Filter(tk.Frame):
         Intersect supported metadata tags with mdh core metadata tags
         :return: None
         """
-        self._metadata_tags = list(set(self.supported_metadata_tags) & set(metadata_tags))
+        self._metadata_tags = sorted(list(set(self.supported_metadata_tags) & set(metadata_tags)))
 
     def _configure_filter(self) -> None:
         """
@@ -98,6 +100,35 @@ class Filter(tk.Frame):
         self.filters_config.pop(id(frm_filter_entity), None)
         frm_filter_entity.pack_forget()
 
+    def _create_operation(self, metadata_tag, filter_config, frm_filter_entity, row, col) -> None:
+        """
+        Callback function to adapt the operation choice list in regard to the metadata tag
+        :param metadata_tag: to distinguish what tag gets which operation
+        :param filter_config: replace the old variable
+        :param frm_filter_entity: for accessing the operation slave
+        :param row: grid row
+        :param col: grid column
+        :return: None
+        """
+        metadata_tag = metadata_tag.get()
+
+        if metadata_tag == "FileSize":
+            operations = list(self.operations_relations_map.keys())
+        else:
+            operations = list(self.operations_string_map.keys()) + list(self.operations_relations_map.keys())[:2]
+
+        frm_filter_entity.grid_slaves(column=col + 1)[0].destroy()
+
+        operation = tk.StringVar(value=operations[0])
+
+        filter_config.pop(2)
+        filter_config.insert(2, operation)
+
+        opt_operation = tk.OptionMenu(frm_filter_entity, operation, *operations)
+        opt_operation.configure(self.opt_design)
+        opt_operation["menu"].configure(self.opt_menu_design)
+        opt_operation.grid(row=row, column=col + 1)
+
     def add_default_filter_entity_widgets(self, is_or=False) -> None:
         """
         Create a filter entity: [(Conditional) | Tag | Operation | Value | AND | OR | X]
@@ -123,29 +154,33 @@ class Filter(tk.Frame):
         else:
             filter_config.append("and")
 
-        # OptionMenu with metadata tags, e.g. FileName, FileType etc.
-        metadata_tag = tk.StringVar(value=self.metadata_tags[0])
-        filter_config.append(metadata_tag)
-        opt_metadata_tag = tk.OptionMenu(frm_filter_entity, metadata_tag, *self.metadata_tags)
-        opt_metadata_tag.configure(self.opt_design)
-        opt_metadata_tag["menu"].configure(self.opt_menu_design)
-        opt_metadata_tag.grid(row=row, column=col)
-
         # OptionMenu with operations, e.g. equals, not equals etc.
-        operations = list(self.operations_map.keys())
+        operations = list(self.operations_string_map.keys()) + list(self.operations_relations_map.keys())[:2]
         operation = tk.StringVar(value=operations[0])
-        filter_config.append(operation)
         opt_conditional = tk.OptionMenu(frm_filter_entity, operation, *operations)
         opt_conditional.configure(self.opt_design)
         opt_conditional["menu"].configure(self.opt_menu_design)
         opt_conditional.grid(row=row, column=col + 1)
 
+        # OptionMenu with metadata tags, e.g. FileName, FileType etc.
+        metadata_tag = tk.StringVar(value=self.metadata_tags[0])
+        metadata_tag.trace_add(
+            "write",
+            lambda *args: self._create_operation(metadata_tag, filter_config, frm_filter_entity, row, col))
+        opt_metadata_tag = tk.OptionMenu(frm_filter_entity, metadata_tag, *self.metadata_tags)
+        opt_metadata_tag.configure(self.opt_design)
+        opt_metadata_tag["menu"].configure(self.opt_menu_design)
+        opt_metadata_tag.grid(row=row, column=col)
+
         # Textfield for values
         value = tk.StringVar()
-        filter_config.append(value)
         ent_input = tk.Entry(master=frm_filter_entity, textvariable=value)
         ent_input.grid(row=row, column=col + 2)
         ent_input.bind('<Control-a>', self._ctrl_a_callback)
+
+        filter_config.append(metadata_tag)
+        filter_config.append(operation)
+        filter_config.append(value)
 
         # Button: AND
         tk.Button(
@@ -186,7 +221,8 @@ class Filter(tk.Frame):
                 continue
             conditional = filter_entity[0]
             tag = filter_entity[1].get()
-            operation = self.operations_map[filter_entity[2].get()]
+            # Union dictionaries and get mapped operation
+            operation = {**self.operations_string_map, **self.operations_relations_map}[filter_entity[2].get()]
 
             filter_entities.append([conditional, tag, operation, value])
 
@@ -255,7 +291,7 @@ class GUI(tk.Frame):
         except AttributeError:
             pass  # Silent ignore
 
-    def _switch_filter_frame(self, *args) -> None:
+    def _switch_filter_frame(self) -> None:
         """
         Switch the filter frame to a different partner
         :param args: ignored
@@ -288,7 +324,7 @@ class GUI(tk.Frame):
         frm_partner.pack()
 
         self.partner = tk.StringVar(frm_partner, value=self.partners[0])
-        self.partner.trace_add("write", self._switch_filter_frame)
+        self.partner.trace_add("write", lambda *args: self._switch_filter_frame())
 
         opt_partner = tk.OptionMenu(frm_partner, self.partner, *self.partners)
         opt_partner.configure(Filter.opt_design)

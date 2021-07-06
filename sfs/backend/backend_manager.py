@@ -36,7 +36,8 @@ class BackendManager:
         for backend in self.backends:
             if backend.contains_path(path):
                 return backend
-        logging.error("There is no backend responsible for this path!")
+
+        logging.error(f"There is no backend responsible for this path: {path}")
 
     def get_backend_names(self) -> List[str]:
         return [backend.name for backend in self.backends]

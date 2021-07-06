@@ -22,6 +22,7 @@ class PassthroughBackend(Backend):
         """
         self.id = id
         self.name = f'passthrough{id}'
+        self.folder_name = instance_cfg.get("folderName", self.name)
         self.result_structure = instance_cfg.get("resultStructure")
         self.target_dir = instance_cfg['path']
         self.root = self.target_dir
@@ -29,10 +30,9 @@ class PassthroughBackend(Backend):
         self._update_paths()
 
     def _update_paths(self):
-        self.file_paths = [f'/{self.name}']
+        self.file_paths = [f'/{self.folder_name}']
         prefix = len(str(Path(self.target_dir)))
-        self.file_paths += [f'/{self.name}{str(p)[prefix:]}' for p in Path(self.target_dir).glob('**/*')]
-        print(self.file_paths)
+        self.file_paths += [f'/{self.folder_name}{str(p)[prefix:]}' for p in Path(self.target_dir).glob('**/*')]
 
     def get_file_paths(self):
         return self.file_paths
@@ -46,8 +46,8 @@ class PassthroughBackend(Backend):
         return path in self.file_paths
 
     def _full_path(self, partial):
-        if partial.startswith(f'/{self.name}'):
-            partial = partial[len(self.name)+2:]
+        if partial.startswith(f'/{self.folder_name}'):
+            partial = partial[len(self.folder_name)+2:]
         elif partial.startswith('/'):
             partial = partial[1:]
         path = os.path.join(self.root, partial)
@@ -175,7 +175,7 @@ class PassthroughBackend(Backend):
         return self.flush(path, fh)
 
     def getxattr(self, path, name, position=0):
-        print("getxattr called")
+        logging.info("getxattr called")
         return os.getxattr(self._full_path(path), name)
 
     def listxattr(self, path):

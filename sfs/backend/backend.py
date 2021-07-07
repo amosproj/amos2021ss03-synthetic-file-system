@@ -126,3 +126,19 @@ class Backend:
     @abc.abstractmethod
     def fsync(self, path, fdatasync, fh):
         pass
+
+    @abc.abstractmethod
+    def getxattr(self, path, name, position=0):
+        pass
+
+    @abc.abstractmethod
+    def listxattr(self, path):
+        pass
+
+    @abc.abstractmethod
+    def setxattr(self, path, name, value, options, position=0):
+        pass
+
+    @abc.abstractmethod
+    def removexattr(self, path, name):
+        pass

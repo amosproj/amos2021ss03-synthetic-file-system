@@ -63,8 +63,9 @@ class SFS(Operations):
         if path == '/':
             children = ['.', '..']
             for backend in BackendManager().backends:
-                if hasattr(backend, 'name'):
-                    children.append(backend.name)
+                if hasattr(backend, 'folder_name'):
+                    children.append(backend.folder_name)
+
             return children
         logging.info(f"Readdir called with path {path}")
         return BackendManager().get_backend_for_path(path).readdir(path, fh)
@@ -88,11 +89,9 @@ class SFS(Operations):
         return BackendManager().get_backend_for_path(path).unlink(path)
 
     def symlink(self, name, target):
-        # TODO
         return BackendManager().get_backend_for_path(name).symlink(name, target)
 
     def rename(self, old, new):
-        # TODO
         return BackendManager().get_backend_for_path(old).rename(old, new)
 
     def link(self, target, name):
@@ -135,3 +134,15 @@ class SFS(Operations):
 
     def fsync(self, path, fdatasync, fh):
         return BackendManager().get_backend_for_path(path).fsync(path, fdatasync, fh)
+
+    def getxattr(self, path, name, position=0):
+        return BackendManager().get_backend_for_path(path).getxattr(path, name, position=0)
+
+    def listxattr(self, path):
+        return BackendManager().get_backend_for_path(path).listxattr(path)
+
+    def setxattr(self, path, name, value, options, position=0):
+        return BackendManager().get_backend_for_path(path).setxattr(path, name, value, options, position)
+
+    def removexattr(self, path, name):
+        return BackendManager().get_backend_for_path(path).removexattr(path, name)

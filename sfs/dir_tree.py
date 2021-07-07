@@ -28,13 +28,13 @@ class DirectoryTree:
         """
         Creates a directory tree using the given file list
         :param file_list: the list of files that will be put in the tree
-        :param result_structure: a string describing the output format from the tree. either "flat" or "mirro"
+        :param result_structure: a string describing the output format from the tree. either "flat" or "mirror"
         :return: None
         """
-        for backend_name, files in file_list:
-            Node(backend_name, self.directory_tree)
+        for folder_name, files in file_list:
+            Node(folder_name, self.directory_tree)
             sub_tree = self._build_tree(files, result_structure)
-            backend_root_node: Node = self.resolver.get(self.directory_tree, f'/Root/{backend_name}')
+            backend_root_node: Node = self.resolver.get(self.directory_tree, f'/Root/{folder_name}')
             for child in sub_tree.children:
                 child.parent = backend_root_node
 

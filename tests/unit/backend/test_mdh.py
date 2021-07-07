@@ -16,6 +16,7 @@ from mdh.types import MDHCore
 from sfs.backend.mdh import MDHQuery, MDHBackend
 from sfs.paths import GRAPHQL_QUERY_PATH
 
+
 class TestBackendMDHQuery(unittest.TestCase):
     file_path = None
     core_json_path = None
@@ -204,9 +205,6 @@ class TestBackendMDHFuse(unittest.TestCase):
 
     def test_mdh_link_raises_NotImplementedError(self):
         self.assertRaises(NotImplementedError, self.mdh_backend.link, '/target_path', 'name')
-
-    def test_mdh_unlink_raises_NotImplementedError(self):
-        self.assertRaises(NotImplementedError, self.mdh_backend.unlink, '/path')
 
     def test_mdh_listxattr_contains_correct_query_metadata_keys(self):
         actual_metadata = self.mdh_backend.listxattr(self.test_path1)

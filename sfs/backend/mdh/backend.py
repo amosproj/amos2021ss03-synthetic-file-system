@@ -1,6 +1,7 @@
 # Python imports
 import stat
 import time
+import os
 from typing import Dict, List
 
 # 3rd party imports
@@ -11,13 +12,11 @@ import mdh
 # Local imports
 import sfs.backend
 from sfs.backend import Backend
+from sfs.backend.mdh import backend_updater
 from sfs.paths import ROOT_PATH
 from sfs.sfs_stat import SFSStat
 from .mdh_util import QueryTemplates, MDHQuery
 from ...dir_tree import DirectoryTree
-import sfs.backend.mdh.backend_updater as backend_updater
-
-import os
 
 
 class MDHBackend(Backend):
@@ -120,9 +119,8 @@ class MDHBackend(Backend):
         if self.instance_config['querySource'] == 'inline':
             query_options = self.instance_config['query']
             query = QueryTemplates.create_query(query_options)
-            p = ROOT_PATH / 'sfs/backend/mdh/internals/inline_query.graphql'
-            with open(p, 'w') as fpointer:
-                fpointer.write(query)
+            p = ROOT_PATH / 'sfs' / 'backend' / 'mdh' / 'internals' / 'inline_query.graphql'
+            QueryTemplates.save_query(query, p)
             path = str(p)
         if self.instance_config['querySource'] == 'file':
             path = self.instance_config['query']['path']

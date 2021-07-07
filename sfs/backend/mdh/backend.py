@@ -310,7 +310,7 @@ class MDHBackend(Backend):
         os.fsync(fh)
 
     def getxattr(self, path, name, position=0):
-        print("getxattr called")
+        logging.info("getxattr called")
         src_path = self._get_src_path(path)
         try:
             file_metadata = self._get_metadata(src_path)

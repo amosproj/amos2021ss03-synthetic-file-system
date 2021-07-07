@@ -199,7 +199,6 @@ class MDHBackend(Backend):
             else:
                 path_stat.st_mode = stat.S_IFDIR | 0o755
 
-            print(os_path)
             os_stats = os.stat(os_path)
             path_stat.st_size = os_stats.st_size
 
@@ -262,6 +261,10 @@ class MDHBackend(Backend):
         logging.info("link called!")
         raise NotImplementedError()
 
+    def release(self, path, fh):
+        logging.info("release called!")
+        raise NotImplementedError
+
     def utimens(self, path, times=None):
         logging.info("utimens called!")
         os.utime(self._get_os_path(path), times)
@@ -297,9 +300,6 @@ class MDHBackend(Backend):
     def flush(self, path, fh):
         logging.info("flush called!")
         os.fsync(fh)
-
-    def release(self, path, fh):
-        logging.info("release called!")
 
     def fsync(self, path, fdatasync, fh):
         logging.info("fsync called!")

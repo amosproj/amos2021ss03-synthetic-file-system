@@ -201,7 +201,6 @@ class MDHBackend(Backend):
             else:
                 path_stat.st_mode = stat.S_IFDIR | 0o755
 
-            print(os_path)
             os_stats = os.stat(os_path)
             path_stat.st_size = os_stats.st_size
 

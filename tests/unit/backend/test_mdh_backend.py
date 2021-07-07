@@ -1,9 +1,9 @@
 # Python imports
 import os
 import unittest
+import stat
 from pathlib import Path
 from tempfile import gettempdir
-from uuid import uuid4
 
 # Local imports
 from sfs.backend.mdh import MDHBackend
@@ -16,12 +16,11 @@ class TestMDHBackend(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Paths
-        tmp_dir = gettempdir()
-        cls.dummy_path = Path(tmp_dir) / f"{uuid4()}"  # Create random path that doesn't exist
+        cls.tmp_dir = gettempdir()
         cls.file_path = Path(__file__)
         cls.file_directory_path = cls.file_path.parent
 
-        cls.file_path_symlink = Path(tmp_dir) / "symlink_to_test_sfs_fuse"
+        cls.file_path_symlink = Path(cls.tmp_dir) / "symlink_to_test_sfs_fuse"
         if not cls.file_path_symlink.exists():
             cls.file_path_symlink.symlink_to(cls.file_path)
 
@@ -29,11 +28,11 @@ class TestMDHBackend(unittest.TestCase):
         cls.backend = MDHBackend.__new__(MDHBackend)
 
         cls.backend.file_path_cache = set()
-        cls.backend.name = "core"
+        cls.backend.name = "mdh"
         cls.backend.result_structure = "mirror"
         cls.backend.directory_tree = DirectoryTree()
         cls.backend.backend_updater = MDHBackendUpdater.__new__(MDHBackendUpdater)
-        cls.backend.backend_updater.cache_path = Path(tmp_dir) / "cache.txt"
+        cls.backend.backend_updater.cache_path = Path(cls.tmp_dir) / "cache.txt"
 
     @classmethod
     def tearDownClass(cls):
@@ -48,9 +47,28 @@ class TestMDHBackend(unittest.TestCase):
         access_r_ok = self.backend.access(str(self.file_path), os.R_OK)
         self.assertEqual(access_r_ok, 0, "Test whether the file exists and grants read access")
 
+    def test_getattr_with_partner_directory_returns_valid_stat(self) -> None:
+        directory_stat = self.backend.getattr("/" + self.backend.name)
+        self.assertEqual(directory_stat["st_mode"], stat.S_IFDIR | 0o755, "Test if directory has the right mode")
+
+    def test_getattr_with_existing_directory_returns_valid_stat(self) -> None:
+        actual_directory_stat = self.file_directory_path.stat()
+        directory_stat = self.backend.getattr("/" + self.backend.name + str(self.file_directory_path))
+
+        self.assertEqual(directory_stat["st_size"], actual_directory_stat.st_size, "Test if directory size is equal")
+        self.assertEqual(directory_stat["st_mode"], stat.S_IFDIR | 0o755, "Test if directory has the right mode")
+
     # =================
     # File method tests
     # =================
+
+    def test_utimens_with_directory_changes_times(self) -> None:
+        actual_directory_stat = os.stat(self.file_directory_path)
+        self.backend.utimens("/" + self.backend.name + str(self.file_directory_path))
+        directory_stat = os.stat(self.file_directory_path)
+
+        self.assertGreater(directory_stat.st_atime, actual_directory_stat.st_atime, "Test if access time changed")
+        self.assertGreater(directory_stat.st_mtime, actual_directory_stat.st_mtime, "Test if modified time changed")
 
     def test_read_with_file_returns_bytes_read(self) -> None:
         byte_to_read = 42

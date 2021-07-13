@@ -16,7 +16,7 @@ from sfs.paths import ROOT_PATH
 from sfs.sfs_stat import SFSStat
 from .mdh_util import QueryTemplates, MDHQuery
 from ...dir_tree import DirectoryTree
-import sfs.backend.mdh.backend_updater as backend_updater
+from sfs.backend.mdh.backend_updater import MDHBackendUpdater
 
 
 class MDHBackend(Backend):
@@ -44,7 +44,7 @@ class MDHBackend(Backend):
         self.file_paths = []
         self.file_path_cache: set[str] = set()
         self.file_path_cache_copy: set[str] = set()
-        self.backend_updater = backend_updater.MDHBackendUpdater(self)
+        self.backend_updater = MDHBackendUpdater(self)
         self._update_state()
 
     def rescan(self):

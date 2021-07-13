@@ -10,7 +10,6 @@ import logging
 import mdh
 
 # Local imports
-import sfs.backend
 from sfs.backend import Backend
 from sfs.paths import ROOT_PATH
 from sfs.sfs_stat import SFSStat
